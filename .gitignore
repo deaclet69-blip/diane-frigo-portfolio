@@ -1,0 +1,16 @@
+# Dépendances (réinstallées automatiquement via npm install)
+node_modules/
+
+# Fichiers de configuration contenant des secrets (URL de base de données, clé API...)
+# NE JAMAIS envoyer ça sur GitHub, qui est public par défaut.
+.env
+.env.local
+
+# Fichiers générés
+dist/
+build/
+
+# Divers
+.DS_Store
+*.log
+

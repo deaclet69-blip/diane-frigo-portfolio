@@ -1,0 +1,335 @@
+// DIANE FRIGO — Schéma de base de données
+// Voir DIANE_FRIGO_Architecture.md (Étape 2) pour la justification de chaque choix.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  ADMIN
+  RESPONSABLE
+  VENDEUR
+  MAGASINIER
+}
+
+enum MovementType {
+  ENTRY
+  EXIT
+  INVENTORY_ADJUSTMENT
+}
+
+enum InvoiceStatus {
+  PAID
+  PARTIAL
+  CREDIT
+}
+
+enum DepositMovementType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
+// RÈGLE (déduite du fichier) : les 3 types réduisent TOUS le résultat net.
+// Seul le type FIXE est réparti dans le coût de revient par carton (pour
+// ne pas fausser les prix suggérés avec une grosse dépense ponctuelle).
+enum ChargeType {
+  FIXE
+  VARIABLE
+  EXCEPTIONNEL
+}
+
+enum LossReason {
+  RUPTURE_CHAINE_FROID
+  EXPIRATION
+  CASSE
+  VOL
+  ERREUR_MANUTENTION
+  AUTRE
+}
+
+enum CustomerType {
+  DETAIL
+  GROS
+  MIXTE
+}
+
+model Role {
+  id    String   @id @default(uuid())
+  name  RoleName @unique
+  users User[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @relation(fields: [roleId], references: [id])
+  roleId       String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  createdInvoices        Invoice[]        @relation("InvoiceCreatedBy")
+  createdStockMovements  StockMovement[]  @relation("StockMovementCreatedBy")
+  createdExpenses        Expense[]        @relation("ExpenseCreatedBy")
+  createdLosses          Loss[]
+  auditLogs              AuditLog[]
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Product {
+  id                      String   @id @default(uuid())
+  name                    String   @unique
+  category                Category? @relation(fields: [categoryId], references: [id])
+  categoryId              String?
+  unit                    String   @default("carton")
+  referencePurchasePrice  Decimal  @db.Decimal(12, 2)
+  referenceSalePrice      Decimal  @db.Decimal(12, 2)
+  alertThreshold          Int      @default(500)
+  isActive                Boolean  @default(true)
+
+  stockMovements StockMovement[]
+  invoiceItems   InvoiceItem[]
+  deposits       Deposit[]
+  losses         Loss[]
+
+  @@index([isActive])
+}
+
+model Customer {
+  id            String        @id @default(uuid())
+  name          String
+  phone         String?
+  address       String?
+  customerType  CustomerType?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  mergedInto    Customer?     @relation("CustomerMerge", fields: [mergedIntoId], references: [id])
+  mergedIntoId  String?
+  mergedFrom    Customer[]    @relation("CustomerMerge")
+
+  invoices  Invoice[]
+  deposits  Deposit[]
+
+  @@index([name])
+}
+
+model Supplier {
+  id      String  @id @default(uuid())
+  name    String
+  phone   String?
+  address String?
+  notes   String?
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  invoiceNumber  String        @unique
+  customer       Customer      @relation(fields: [customerId], references: [id])
+  customerId     String
+  date           DateTime      @db.Date
+  status         InvoiceStatus @default(PAID)
+  subtotal       Decimal       @db.Decimal(14, 2)
+  discount       Decimal       @db.Decimal(14, 2) @default(0)
+  total          Decimal       @db.Decimal(14, 2)
+  amountPaid     Decimal       @db.Decimal(14, 2) @default(0)
+  balanceDue     Decimal       @db.Decimal(14, 2) @default(0)
+  isDepositSale  Boolean       @default(false)
+  createdBy      User          @relation("InvoiceCreatedBy", fields: [createdById], references: [id])
+  createdById    String
+  createdAt      DateTime      @default(now())
+  voidedAt       DateTime?
+  voidedReason   String?
+
+  items            InvoiceItem[]
+  payments         Payment[]
+  depositMovements DepositMovement[]
+
+  @@index([date])
+  @@index([customerId])
+}
+
+model InvoiceItem {
+  id                 String   @id @default(uuid())
+  invoice            Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId          String
+  product            Product  @relation(fields: [productId], references: [id])
+  productId          String
+  quantity           Int
+  unitPurchasePrice  Decimal  @db.Decimal(12, 2)
+  unitSalePrice      Decimal  @db.Decimal(12, 2)
+  lineTotal          Decimal  @db.Decimal(14, 2)
+  unitMargin         Decimal  @db.Decimal(12, 2)
+  lineProfit         Decimal  @db.Decimal(14, 2)
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+  invoiceId String
+  amount    Decimal  @db.Decimal(14, 2)
+  date      DateTime @db.Date
+  method    String?
+  note      String?
+}
+
+model StockMovement {
+  id             String       @id @default(uuid())
+  product        Product      @relation(fields: [productId], references: [id])
+  productId      String
+  movementType   MovementType
+  quantity       Int
+  date           DateTime     @db.Date
+  // Ajout Phase 6 : prix d'achat de CETTE entrée précise (correspond à la
+  // colonne "Prix d'achat" de la feuille Stock de l'Excel). Permet de
+  // calculer un vrai prix d'achat moyen pondéré par produit, comme dans
+  // "Analyse Rentabilité Produits". Nullable : uniquement renseigné pour
+  // les entrées, pas pour les sorties/ajustements.
+  unitCost       Decimal?     @db.Decimal(12, 2)
+  referenceType  String?      // 'invoice' | 'manual_entry' | 'inventory' | 'loss' | ...
+  referenceId    String?
+  note           String?
+  createdBy      User         @relation("StockMovementCreatedBy", fields: [createdById], references: [id])
+  createdById    String
+  createdAt      DateTime     @default(now())
+
+  @@index([productId, date])
+}
+
+model Deposit {
+  id         String @id @default(uuid())
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String
+
+  movements DepositMovement[]
+
+  @@unique([customerId, productId])
+}
+
+model DepositMovement {
+  id            String              @id @default(uuid())
+  deposit       Deposit             @relation(fields: [depositId], references: [id])
+  depositId     String
+  movementType  DepositMovementType
+  quantity      Int
+  date          DateTime            @db.Date
+  invoice       Invoice?            @relation(fields: [invoiceId], references: [id])
+  invoiceId     String?
+  note          String?
+}
+
+model ExpenseCategory {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  expenses Expense[]
+}
+
+model Expense {
+  id           String          @id @default(uuid())
+  category     ExpenseCategory @relation(fields: [categoryId], references: [id])
+  categoryId   String
+  description  String?
+  amount       Decimal         @db.Decimal(14, 2)
+  date         DateTime        @db.Date
+  // Ajout Phase 6 — remplace l'ancien champ binaire expenseType
+  // (OPERATING_EXPENSE/TREASURY_MOVEMENT). Voir l'enum ChargeType.
+  chargeType   ChargeType      @default(VARIABLE)
+  createdBy    User            @relation("ExpenseCreatedBy", fields: [createdById], references: [id])
+  createdById  String
+
+  @@index([date])
+  @@index([chargeType])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  action     String   // create | update | void | login...
+  entityType String   // invoice | stock_movement | expense...
+  entityId   String
+  beforeData Json?
+  afterData  Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+}
+
+// Ajout Phase 4 — absent du schéma initial (Étape 2), nécessaire pour
+// reproduire "l'objectif de récupération" mensuel de la feuille Graphiques
+// de l'Excel (ex. 5 000 000 FCFA pour Août 2026).
+model MonthlyGoal {
+  id           String   @id @default(uuid())
+  month        DateTime @db.Date // toujours le 1er du mois
+  targetProfit Decimal  @db.Decimal(14, 2)
+
+  @@unique([month])
+}
+
+// ===== Ajouts Phase 6 (feuilles Paramètres / Analyse Rentabilité / Pertes / Investissement) =====
+
+/// Ligne unique de paramètres de tarification (feuille "Paramètres" de l'Excel).
+/// Une seule ligne existe en pratique — pas de vraie table de config multi-lignes.
+model PricingSettings {
+  id                       String   @id @default(uuid())
+  targetMarginFloor        Decimal  @db.Decimal(5, 4) @default(0.08) // prix plancher
+  targetMarginWholesaleBulk Decimal @db.Decimal(5, 4) @default(0.10) // gros volume
+  targetMarginWholesale    Decimal  @db.Decimal(5, 4) @default(0.15) // gros
+  targetMarginRetail       Decimal  @db.Decimal(5, 4) @default(0.20) // détail
+  marginAlertCritical      Decimal  @db.Decimal(5, 4) @default(0.08)
+  marginAlertGood          Decimal  @db.Decimal(5, 4) @default(0.15)
+  marginAlertExcellent     Decimal  @db.Decimal(5, 4) @default(0.20)
+  stockRotationFastDays    Int      @default(15)
+  stockRotationDormantDays Int      @default(30)
+  acceptableLossRate       Decimal  @db.Decimal(5, 4) @default(0.02)
+  priceRoundingFcfa        Int      @default(100)
+  // Ajout — reproduit la feuille Paramètres section 7 : estimation de
+  // départ utilisée tant qu'il n'y a pas 2 mois complets d'historique réel
+  // de charges Fixe (voir PricingService.getChargesPerCarton).
+  estimatedMonthlyFixedCharges  Decimal @db.Decimal(14, 2) @default(0)
+  estimatedMonthlyCartonsSold   Int     @default(0)
+  updatedAt                DateTime @updatedAt
+}
+
+model Loss {
+  id          String     @id @default(uuid())
+  product     Product    @relation(fields: [productId], references: [id])
+  productId   String
+  quantity    Int
+  date        DateTime   @db.Date
+  reason      LossReason
+  unitCost    Decimal    @db.Decimal(12, 2) // coût de revient au moment de la perte (snapshot)
+  totalValue  Decimal    @db.Decimal(14, 2) // = quantity * unitCost
+  note        String?
+  createdBy   User       @relation(fields: [createdById], references: [id])
+  createdById String
+  createdAt   DateTime   @default(now())
+
+  @@index([productId, date])
+}
+
+/// Suivi de remboursement de prêt (feuille "Investissement"). Une seule
+/// ligne active en pratique (le prêt en cours de remboursement).
+model Loan {
+  id                  String   @id @default(uuid())
+  totalAmount          Decimal @db.Decimal(14, 2) // capital + intérêts
+  constructionAmount   Decimal @db.Decimal(14, 2) @default(0)
+  equipmentAmount      Decimal @db.Decimal(14, 2) @default(0)
+  otherAmount          Decimal @db.Decimal(14, 2) @default(0)
+  customProfitGoal     Decimal? @db.Decimal(14, 2) // objectif de bénéfice personnalisé (optionnel)
+  velocityWindowDays   Int     @default(14) // fenêtre pour calculer le rythme de vente récent
+  createdAt            DateTime @default(now())
+  isActive             Boolean @default(true)
+}
