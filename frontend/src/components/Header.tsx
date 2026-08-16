@@ -1,8 +1,12 @@
-import { AppBar, Toolbar, InputBase, IconButton, Avatar, Box, Typography, Stack } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { useEffect, useState } from 'react';
+import { AppBar, Toolbar, IconButton, Avatar, Box, Typography, Stack, Badge, Chip } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { getCurrentUser, logout } from '../services/auth';
+import { getStockAlerts } from '../services/stock';
+import { diane } from '../theme';
 
 const roleLabels: Record<string, string> = {
   ADMIN: 'Administrateur',
@@ -11,53 +15,58 @@ const roleLabels: Record<string, string> = {
   MAGASINIER: 'Magasinier',
 };
 
-export default function Header() {
+const today = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const user = getCurrentUser();
+  const [alertCount, setAlertCount] = useState(0);
+
+  useEffect(() => {
+    getStockAlerts().then((items) => setAlertCount(items.length)).catch(() => {});
+  }, []);
 
   return (
     <AppBar
       position="sticky"
       elevation={0}
       color="transparent"
-      sx={{ bgcolor: 'background.default', borderBottom: '1px solid rgba(15,23,42,0.06)' }}
+      sx={{ bgcolor: '#fff', borderBottom: '1px solid rgba(13,23,52,0.06)' }}
     >
-      <Toolbar sx={{ gap: 2 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            bgcolor: '#fff',
-            borderRadius: 2,
-            px: 1.5,
-            py: 0.5,
-            flexGrow: 1,
-            maxWidth: 480,
-            boxShadow: '0 1px 2px rgba(15,23,42,0.06)',
-          }}
-        >
-          <SearchIcon sx={{ color: 'text.disabled', mr: 1 }} fontSize="small" />
-          <InputBase placeholder="Rechercher un client, produit, facture…" fullWidth sx={{ fontSize: 14 }} />
-        </Box>
+      <Toolbar sx={{ gap: 1.5 }}>
+        <IconButton onClick={onMenuClick} sx={{ display: { sm: 'none' } }}>
+          <MenuIcon />
+        </IconButton>
 
         <Box sx={{ flexGrow: 1 }} />
 
+        <Chip
+          icon={<CalendarTodayIcon sx={{ fontSize: 16 }} />}
+          label={today}
+          sx={{ bgcolor: diane.bg, fontWeight: 600, fontSize: 13, textTransform: 'capitalize', display: { xs: 'none', md: 'flex' } }}
+        />
+
         <IconButton>
-          <NotificationsIcon />
-        </IconButton>
-        <IconButton>
-          <HelpOutlineIcon />
+          <Badge badgeContent={alertCount} color="error">
+            <NotificationsNoneIcon />
+          </Badge>
         </IconButton>
 
-        <Stack direction="row" alignItems="center" spacing={1} onClick={logout} sx={{ cursor: 'pointer' }}>
-          <Avatar sx={{ width: 36, height: 36 }}>{user?.email?.[0]?.toUpperCase() ?? 'U'}</Avatar>
-          <Box>
-            <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
-              {user?.email ?? 'Utilisateur'}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {user ? roleLabels[user.role] : ''}
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          onClick={logout}
+          sx={{ cursor: 'pointer', bgcolor: diane.bg, borderRadius: 3, px: 1, py: 0.5 }}
+        >
+          <Avatar sx={{ width: 32, height: 32, bgcolor: diane.indigo }}>
+            {user?.email?.[0]?.toUpperCase() ?? 'U'}
+          </Avatar>
+          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+            <Typography variant="body2" fontWeight={700} lineHeight={1.2}>
+              {user?.email?.split('@')[0] ?? 'Utilisateur'}
             </Typography>
           </Box>
+          <KeyboardArrowDownIcon fontSize="small" sx={{ color: 'text.secondary' }} />
         </Stack>
       </Toolbar>
     </AppBar>

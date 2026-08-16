@@ -355,6 +355,28 @@ export interface AuditLogEntry {
   user: { name: string; email: string };
 }
 
+export interface FullDashboard {
+  kpis: {
+    revenueToday: number;
+    profitToday: number;
+    revenueChangePercent: number | null;
+    profitChangePercent: number | null;
+    stockValue: number;
+    stockCartons: number;
+    depositsValue: number;
+    depositsCartons: number;
+    receivablesTotal: number;
+    receivablesCount: number;
+  };
+  revenueTrend: { date: string; revenue: number }[];
+  salesByProduct: { name: string; value: number; percent: number }[];
+  alerts: { type: string; title: string; detail: string; timeAgo: string }[];
+  recentActivity: { type: string; label: string; sublabel: string; amount: number; timeAgo: string }[];
+  topProductsByMargin: { productName: string; quantity: number; margin: number; revenue: number; marginPercent: number }[];
+  stockByCategory: { category: string; cartons: number; percent: number }[];
+  monthlySummary: { revenue: number; expenses: number; netProfit: number; avgMarginPercent: number };
+}
+
 export interface ImportReport {
   totalRows: number;
   stockEntriesFound: number;

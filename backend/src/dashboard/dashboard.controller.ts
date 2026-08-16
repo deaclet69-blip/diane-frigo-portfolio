@@ -11,4 +11,9 @@ export class DashboardController {
   getSummary(@Query('period') period?: 'month' | 'all') {
     return this.dashboardService.getSummary(period ?? 'month');
   }
+
+  @Get('full')
+  getFullDashboard() {
+    return this.dashboardService.getFullDashboard();
+  }
 }
