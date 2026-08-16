@@ -68,8 +68,15 @@ export default function DashboardPage() {
         </Box>
       </Stack>
 
-      {/* Ligne 1 — 5 cartes KPI */}
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2.5 }} useFlexGap flexWrap="wrap">
+      {/* Ligne 1 — 5 cartes KPI (grille fixe pour rester sur une seule ligne en desktop) */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' },
+          gap: 2,
+          mb: 2.5,
+        }}
+      >
         <KpiCard
           icon={<TrendingUpIcon />} iconBg={diane.blue} label="Chiffre d'affaires" sublabel="Aujourd'hui"
           value={data ? fcfa(data.kpis.revenueToday) : '…'}
@@ -95,7 +102,7 @@ export default function DashboardPage() {
           value={data ? fcfa(data.kpis.receivablesTotal) : '…'}
           footer={data ? `${data.kpis.receivablesCount} client(s) concerné(s)` : undefined}
         />
-      </Stack>
+      </Box>
 
       {/* Ligne 2 — Évolution CA / Répartition ventes / Alertes */}
       <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2.5} sx={{ mb: 2.5 }}>
@@ -340,7 +347,7 @@ function KpiCard({ icon, iconBg, label, sublabel, value, footer, change }: {
   footer?: string; change?: number | null;
 }) {
   return (
-    <Paper sx={{ p: 2.5, flex: 1, minWidth: 200 }}>
+    <Paper sx={{ p: 2.5, width: '100%', minWidth: 0 }}>
       <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
         <Box sx={{
           width: 40, height: 40, borderRadius: 2.5, bgcolor: iconBg, color: '#fff',

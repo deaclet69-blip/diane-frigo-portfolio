@@ -4,7 +4,6 @@ import {
 } from '@mui/material';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import HexagonIcon from '@mui/icons-material/Hexagon';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
@@ -75,10 +74,12 @@ export default function Sidebar() {
       }}
     >
       <Stack direction="row" alignItems="center" spacing={1.2} sx={{ px: isCompact ? 0 : 2.25, py: 2, justifyContent: isCompact ? 'center' : 'flex-start' }}>
-        <Box sx={{ position: 'relative', width: 32, height: 32, flexShrink: 0 }}>
-          <HexagonIcon sx={{ fontSize: 32, color: diane.blue }} />
-          <HexagonIcon sx={{ fontSize: 18, color: diane.navy, position: 'absolute', top: 7, left: 7 }} />
-        </Box>
+        <Box
+          component="img"
+          src="/favicon.svg"
+          alt="DIANE FRIGO"
+          sx={{ width: 32, height: 32, flexShrink: 0, borderRadius: '8px' }}
+        />
         {!isCompact && (
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 800, letterSpacing: 0.3, lineHeight: 1.1, fontSize: 14 }}>
