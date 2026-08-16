@@ -143,7 +143,7 @@ export default function DashboardPage() {
                   </Typography>
                 </Box>
               </Box>
-              <Stack spacing={0.75} sx={{ mt: 1 }}>
+              <Stack spacing={0.75} sx={{ mt: 1, mb: 1.5 }}>
                 {data.salesByProduct.slice(0, 4).map((p, i) => (
                   <Stack key={p.name} direction="row" alignItems="center" spacing={1}>
                     <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: donutColors[i % donutColors.length] }} />
@@ -154,13 +154,22 @@ export default function DashboardPage() {
               </Stack>
             </>
           ) : (
-            <Typography variant="body2" color="text.secondary">Pas encore de ventes cette semaine.</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>Pas encore de ventes cette semaine.</Typography>
           )}
+          <Typography
+            variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}
+            onClick={() => navigate('/rapports')}
+          >
+            Voir le rapport complet →
+          </Typography>
         </Paper>
 
         <Paper sx={{ p: 3, flex: 1 }}>
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
             <Typography variant="subtitle1" fontWeight={700}>Alertes et notifications</Typography>
+            <Typography variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}>
+              Tout voir
+            </Typography>
           </Stack>
           <List dense disablePadding>
             {(data?.alerts.length ?? 0) === 0 && (
@@ -221,7 +230,7 @@ export default function DashboardPage() {
 
         <Paper sx={{ p: 3, flex: 1 }}>
           <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Top produits par marge</Typography>
-          <Stack spacing={1.5}>
+          <Stack spacing={1.5} sx={{ mb: 1.5 }}>
             {data?.topProductsByMargin.map((p) => (
               <Box key={p.productName}>
                 <Stack direction="row" justifyContent="space-between">
@@ -241,10 +250,24 @@ export default function DashboardPage() {
               <Typography variant="body2" color="text.secondary">Pas encore de ventes.</Typography>
             )}
           </Stack>
+          <Typography
+            variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}
+            onClick={() => navigate('/rapports')}
+          >
+            Voir tous les produits →
+          </Typography>
         </Paper>
 
         <Paper sx={{ p: 3, flex: 1 }}>
-          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Stock par catégorie</Typography>
+          <Stack direction="row" justifyContent="space-between" sx={{ mb: 1.5 }}>
+            <Typography variant="subtitle1" fontWeight={700}>Stock par catégorie</Typography>
+            <Typography
+              variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}
+              onClick={() => navigate('/stock')}
+            >
+              Voir tout
+            </Typography>
+          </Stack>
           <Stack spacing={1.75}>
             {data?.stockByCategory.map((c, i) => (
               <Box key={c.category}>
