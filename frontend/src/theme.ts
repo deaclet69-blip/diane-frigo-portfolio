@@ -47,12 +47,14 @@ export function getTheme(mode: PaletteMode) {
     components: {
       MuiCssBaseline: {
         styleOverrides: {
-          html: {
-            scrollbarWidth: 'none', // Firefox
+          '*': {
+            scrollbarWidth: 'none !important', // Firefox
+            msOverflowStyle: 'none !important', // vieux Edge / IE
           },
-          body: {
-            scrollbarWidth: 'none', // Firefox
-            '&::-webkit-scrollbar': { display: 'none' }, // Chrome/Edge/Safari
+          '*::-webkit-scrollbar': {
+            display: 'none !important', // Chrome / Edge / Safari
+            width: '0 !important',
+            height: '0 !important',
           },
         },
       },
