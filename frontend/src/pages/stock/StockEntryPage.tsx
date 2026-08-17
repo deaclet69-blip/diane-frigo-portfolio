@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Stack, TextField, MenuItem, Button, ToggleButtonGroup,
-  ToggleButton, Alert,
+  ToggleButton, Alert, Autocomplete,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { getProducts } from '../../services/products';
 import { createMovement } from '../../services/stock';
-import type { Product } from '../../types';
+import { getSuppliers, createSupplier } from '../../services/suppliers';
+import type { Product, Supplier } from '../../types';
 
 type Mode = 'ENTRY' | 'INVENTORY_ADJUSTMENT' | 'EXIT';
 
@@ -18,10 +19,12 @@ const modeLabels: Record<Mode, string> = {
 
 export default function StockEntryPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [productId, setProductId] = useState('');
   const [mode, setMode] = useState<Mode>('ENTRY');
   const [quantity, setQuantity] = useState('');
   const [unitCost, setUnitCost] = useState('');
+  const [supplier, setSupplier] = useState<Supplier | string | null>(null);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +34,7 @@ export default function StockEntryPage() {
 
   useEffect(() => {
     getProducts().then(setProducts);
+    getSuppliers().then(setSuppliers);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -40,17 +44,29 @@ export default function StockEntryPage() {
     if (!productId || !quantity) return;
     setLoading(true);
     try {
+      let supplierId: string | undefined;
+      if (mode === 'ENTRY' && supplier) {
+        if (typeof supplier === 'string') {
+          const created = await createSupplier(supplier.trim());
+          supplierId = created.id;
+        } else {
+          supplierId = supplier.id;
+        }
+      }
+
       await createMovement({
         productId,
         movementType: mode,
         quantity: Number(quantity),
         date,
         unitCost: mode === 'ENTRY' && unitCost ? Number(unitCost) : undefined,
+        supplierId,
         note: note || undefined,
       });
       setSuccess(true);
       setQuantity('');
       setUnitCost('');
+      setSupplier(null);
       setNote('');
       setTimeout(() => navigate(`/stock/${productId}`), 900);
     } catch (err: any) {
@@ -103,15 +119,30 @@ export default function StockEntryPage() {
             />
 
             {mode === 'ENTRY' && (
-              <TextField
-                label="Prix d'achat unitaire (FCFA, optionnel)"
-                type="number"
-                value={unitCost}
-                onChange={(e) => setUnitCost(e.target.value)}
-                fullWidth
-                helperText="Sert au calcul du coût de revient dans Finances > Tarification. Laisse vide pour utiliser le prix de référence du produit."
-                inputProps={{ min: 0 }}
-              />
+              <>
+                <TextField
+                  label="Prix d'achat unitaire (FCFA, optionnel)"
+                  type="number"
+                  value={unitCost}
+                  onChange={(e) => setUnitCost(e.target.value)}
+                  fullWidth
+                  helperText="Sert au calcul du coût de revient dans Finances > Tarification. Laisse vide pour utiliser le prix de référence du produit."
+                  inputProps={{ min: 0 }}
+                />
+                <Autocomplete
+                  freeSolo
+                  options={suppliers}
+                  getOptionLabel={(s) => (typeof s === 'string' ? s : s.name)}
+                  value={supplier}
+                  onChange={(_, value) => setSupplier(value)}
+                  onInputChange={(_, value, reason) => {
+                    if (reason === 'input') setSupplier(value);
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Fournisseur (optionnel)" placeholder="Rechercher ou créer un fournisseur…" />
+                  )}
+                />
+              </>
             )}
 
             <TextField

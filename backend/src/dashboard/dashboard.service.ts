@@ -177,7 +177,10 @@ export class DashboardService {
     const stockByCategoryMap = new Map<string, number>();
     for (const item of stockOverview.items) {
       const cat = categories.find((c) => c.products.some((p) => p.id === item.id));
-      const key = cat?.name ?? 'Autres';
+      // Tant qu'aucune catégorie n'est assignée à un produit (Paramètres >
+      // Produits), on regroupe par PRODUIT plutôt que par un "Autres" qui
+      // n'apporte rien à lire (demande utilisateur).
+      const key = cat?.name ?? item.name;
       stockByCategoryMap.set(key, (stockByCategoryMap.get(key) ?? 0) + item.currentStock);
     }
     const totalStockCartons = stockOverview.totals.totalStock;

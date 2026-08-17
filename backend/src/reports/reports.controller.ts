@@ -29,4 +29,9 @@ export class ReportsController {
   sales(@Query('from') from?: string, @Query('to') to?: string) {
     return this.reportsService.salesReport(from, to);
   }
+
+  @Get('stock-entries')
+  stockEntries(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.reportsService.stockEntriesReport(from, to);
+  }
 }

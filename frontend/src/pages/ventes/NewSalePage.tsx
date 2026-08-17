@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Stack, TextField, MenuItem, Button, IconButton, Checkbox,
   FormControlLabel, ToggleButtonGroup, ToggleButton, Divider, Alert, Autocomplete,
+  Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useNavigate } from 'react-router-dom';
 import { getProducts } from '../../services/products';
-import { getCustomers, createCustomer } from '../../services/customers';
+import { getCustomers, checkCustomerName, createCustomerWithDedup } from '../../services/customers';
 import { createSale } from '../../services/sales';
 import type { Product, Customer } from '../../types';
 import { diane } from '../../theme';
@@ -27,7 +28,10 @@ export default function NewSalePage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [newCustomerName, setNewCustomerName] = useState('');
+  const [newCustomerPhone, setNewCustomerPhone] = useState('');
+  const [newCustomerType, setNewCustomerType] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [invoiceNumber, setInvoiceNumber] = useState('');
   const [lines, setLines] = useState<Line[]>([{ productId: '', quantity: '', unitSalePrice: '' }]);
   const [discount, setDiscount] = useState('0');
   const [paymentStatus, setPaymentStatus] = useState<'paid' | 'partial' | 'credit'>('paid');
@@ -36,6 +40,7 @@ export default function NewSalePage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ invoiceNumber: string; total: number; profit: number } | null>(null);
+  const [dedupPrompt, setDedupPrompt] = useState<{ matchName: string } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -66,29 +71,55 @@ export default function NewSalePage() {
   }, 0);
   const total = Math.max(0, subtotal - (Number(discount) || 0));
 
+  /** Résout l'identité du client : sélection existante, ou création (avec
+   * vérification de doublon si un nom libre a été tapé — demande utilisateur). */
+  async function resolveCustomerId(forceDistinct = false): Promise<string | null> {
+    if (customerId) return customerId;
+    if (!newCustomerName.trim()) return null;
+
+    if (!forceDistinct) {
+      const { exists } = await checkCustomerName(newCustomerName.trim());
+      if (exists) {
+        setDedupPrompt({ matchName: newCustomerName.trim() });
+        return null; // on attend la réponse de l'utilisateur dans la boîte de dialogue
+      }
+    }
+
+    const created = await createCustomerWithDedup({
+      name: newCustomerName.trim(),
+      phone: newCustomerPhone.trim() || undefined,
+      customerType: newCustomerType || undefined,
+      forceDistinct,
+    });
+    return created.id;
+  }
+
   async function handleSubmit() {
     setError(null);
-
-    let finalCustomerId = customerId;
-    if (!finalCustomerId && newCustomerName.trim()) {
-      const created = await createCustomer({ name: newCustomerName.trim() });
-      finalCustomerId = created.id;
-    }
-    if (!finalCustomerId) {
-      setError('Sélectionne ou crée un client.');
-      return;
-    }
     const validLines = lines.filter((l) => l.productId && l.quantity);
     if (validLines.length === 0) {
       setError('Ajoute au moins un produit.');
       return;
     }
 
+    const resolvedId = await resolveCustomerId();
+    if (dedupPrompt) return; // la boîte de dialogue va gérer la suite
+    if (!resolvedId) {
+      setError('Sélectionne ou crée un client.');
+      return;
+    }
+
+    await submitSale(resolvedId);
+  }
+
+  async function submitSale(finalCustomerId: string) {
+    const validLines = lines.filter((l) => l.productId && l.quantity);
     setLoading(true);
     try {
       const { invoice, totalProfit } = await createSale({
         customerId: finalCustomerId,
         date,
+        invoiceNumber: invoiceNumber.trim() || undefined,
         items: validLines.map((l) => ({
           productId: l.productId,
           quantity: Number(l.quantity),
@@ -105,6 +136,27 @@ export default function NewSalePage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // "Oui, même personne" → on réutilise la fiche trouvée par son nom exact
+  async function confirmSamePerson() {
+    if (!dedupPrompt) return;
+    const { matches } = await checkCustomerName(dedupPrompt.matchName);
+    setDedupPrompt(null);
+    if (matches[0]) await submitSale(matches[0].id);
+  }
+
+  // "Non, personne différente" → création forcée, avec suffixe si besoin
+  async function confirmDifferentPerson() {
+    if (!dedupPrompt) return;
+    const created = await createCustomerWithDedup({
+      name: dedupPrompt.matchName,
+      phone: newCustomerPhone.trim() || undefined,
+      customerType: newCustomerType || undefined,
+      forceDistinct: true,
+    });
+    setDedupPrompt(null);
+    await submitSale(created.id);
   }
 
   if (result) {
@@ -129,7 +181,11 @@ export default function NewSalePage() {
             </Stack>
           </Stack>
           <Stack direction="row" spacing={2} sx={{ mt: 4 }}>
-            <Button fullWidth variant="outlined" onClick={() => { setResult(null); setLines([{ productId: '', quantity: '', unitSalePrice: '' }]); }}>
+            <Button fullWidth variant="outlined" onClick={() => {
+              setResult(null); setLines([{ productId: '', quantity: '', unitSalePrice: '' }]);
+              setInvoiceNumber(''); setCustomerId(null); setNewCustomerName('');
+              setNewCustomerPhone(''); setNewCustomerType('');
+            }}>
               Nouvelle vente
             </Button>
             <Button fullWidth variant="contained" onClick={() => navigate('/ventes')}>
@@ -156,13 +212,45 @@ export default function NewSalePage() {
             if (!customer) setNewCustomerName('');
           }}
           onInputChange={(_, value, reason) => {
-            if (reason === 'input') setNewCustomerName(value);
+            if (reason === 'input') { setNewCustomerName(value); setCustomerId(null); }
           }}
           freeSolo
           renderInput={(params) => (
             <TextField {...params} placeholder="Rechercher ou créer un client…" fullWidth />
           )}
         />
+        {/* Visibles uniquement quand on tape un NOUVEAU nom (pas une sélection existante) */}
+        {!customerId && newCustomerName && (
+          <Stack direction="row" spacing={1.5} sx={{ mt: 1.5 }}>
+            <TextField
+              label="Téléphone (optionnel)" size="small" fullWidth
+              value={newCustomerPhone} onChange={(e) => setNewCustomerPhone(e.target.value)}
+            />
+            <TextField
+              select label="Type (optionnel)" size="small" fullWidth
+              value={newCustomerType} onChange={(e) => setNewCustomerType(e.target.value)}
+            >
+              <MenuItem value="">—</MenuItem>
+              <MenuItem value="DETAIL">Détail</MenuItem>
+              <MenuItem value="GROS">Gros</MenuItem>
+              <MenuItem value="MIXTE">Mixte</MenuItem>
+            </TextField>
+          </Stack>
+        )}
+      </Paper>
+
+      <Paper sx={{ p: 3, mb: 2 }}>
+        <Stack direction="row" spacing={1.5}>
+          <TextField
+            label="Date de la vente" type="date" value={date}
+            onChange={(e) => setDate(e.target.value)} fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            label="N° facture (optionnel)" placeholder="Auto si vide" value={invoiceNumber}
+            onChange={(e) => setInvoiceNumber(e.target.value)} fullWidth
+          />
+        </Stack>
       </Paper>
 
       <Paper sx={{ p: 3, mb: 2 }}>
@@ -269,6 +357,19 @@ export default function NewSalePage() {
       <Button variant="contained" size="large" fullWidth onClick={handleSubmit} disabled={loading}>
         {loading ? 'Enregistrement…' : 'ENREGISTRER LA VENTE'}
       </Button>
+
+      <Dialog open={!!dedupPrompt} onClose={() => setDedupPrompt(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>Client déjà existant</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            Un client nommé <strong>{dedupPrompt?.matchName}</strong> existe déjà. Est-ce la même personne ?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={confirmDifferentPerson}>Non, personne différente</Button>
+          <Button variant="contained" onClick={confirmSamePerson}>Oui, même personne</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

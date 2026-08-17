@@ -4,6 +4,7 @@ import type { Invoice } from '../types';
 export interface CreateSalePayload {
   customerId: string;
   date: string;
+  invoiceNumber?: string;
   items: { productId: string; quantity: number; unitSalePrice: number }[];
   discount?: number;
   paymentStatus: 'paid' | 'partial' | 'credit';

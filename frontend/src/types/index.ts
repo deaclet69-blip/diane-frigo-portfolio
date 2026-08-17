@@ -106,11 +106,20 @@ export interface StockMovement {
   movementType: 'ENTRY' | 'EXIT' | 'INVENTORY_ADJUSTMENT';
   quantity: number;
   date: string;
+  unitCost?: number | null;
+  supplierId?: string | null;
   referenceType: string | null;
   note: string | null;
   createdAt: string;
   product?: { name: string };
   createdBy?: { name: string };
+  supplier?: { name: string } | null;
+}
+
+export interface Supplier {
+  id: string;
+  name: string;
+  phone: string | null;
 }
 
 export interface ProductDetail {
@@ -375,6 +384,16 @@ export interface FullDashboard {
   topProductsByMargin: { productName: string; quantity: number; margin: number; revenue: number; marginPercent: number }[];
   stockByCategory: { category: string; cartons: number; percent: number }[];
   monthlySummary: { revenue: number; expenses: number; netProfit: number; avgMarginPercent: number };
+}
+
+export interface StockEntryReportRow {
+  date: string;
+  productName: string;
+  quantity: number;
+  unitCost: number | null;
+  totalCost: number | null;
+  supplierName: string | null;
+  note: string | null;
 }
 
 export interface ImportReport {

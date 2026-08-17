@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateStockMovementDto } from './dto/create-stock-movement.dto';
+import { UpdateStockMovementDto } from './dto/update-stock-movement.dto';
 
 export type StockStatus = 'RUPTURE' | 'ALERTE' | 'OK';
 
@@ -116,7 +117,11 @@ export class StockService {
           lte: filters.to ? new Date(filters.to) : undefined,
         },
       },
-      include: { product: { select: { name: true } }, createdBy: { select: { name: true } } },
+      include: {
+        product: { select: { name: true } },
+        createdBy: { select: { name: true } },
+        supplier: { select: { name: true } },
+      },
       orderBy: { date: 'desc' },
       take: 500,
     });
@@ -140,6 +145,7 @@ export class StockService {
         quantity: dto.quantity,
         date: new Date(dto.date),
         unitCost: dto.movementType === 'ENTRY' ? dto.unitCost : undefined,
+        supplierId: dto.movementType === 'ENTRY' ? dto.supplierId : undefined,
         referenceType: dto.movementType === 'INVENTORY_ADJUSTMENT' ? 'inventory' : 'manual_entry',
         note: dto.note,
         createdById: userId,
@@ -152,6 +158,48 @@ export class StockService {
       entityType: 'stock_movement',
       entityId: movement.id,
       afterData: movement,
+    });
+
+    return movement;
+  }
+
+  /**
+   * Corrige un mouvement de stock saisi par erreur (demande utilisateur).
+   * Restreint aux mouvements manuels — jamais ceux liés à une facture ou à
+   * un import, pour ne jamais désynchroniser une vente de son stock.
+   */
+  async updateMovement(id: string, dto: UpdateStockMovementDto, userId: string) {
+    const before = await this.prisma.stockMovement.findUnique({ where: { id } });
+    if (!before) throw new NotFoundException('Mouvement introuvable');
+    if (before.referenceType === 'invoice' || before.referenceType === 'excel_import') {
+      throw new ForbiddenException(
+        "Ce mouvement est lié à une facture ou à un import — corrige plutôt la facture, ou annule-la pour recréditer le stock.",
+      );
+    }
+
+    if (dto.quantity !== undefined && before.movementType === 'EXIT') {
+      const currentStock = await this.computeCurrentStock(before.productId);
+      const stockWithoutThisMovement = currentStock + before.quantity;
+      if (dto.quantity > stockWithoutThisMovement) {
+        throw new BadRequestException(
+          `Stock insuffisant pour cette correction : ${stockWithoutThisMovement} carton(s) disponible(s) au maximum.`,
+        );
+      }
+    }
+
+    const movement = await this.prisma.stockMovement.update({
+      where: { id },
+      data: {
+        quantity: dto.quantity,
+        unitCost: dto.unitCost,
+        supplierId: dto.supplierId,
+        note: dto.note,
+      },
+    });
+
+    await this.audit.log({
+      userId, action: 'update', entityType: 'stock_movement', entityId: id,
+      beforeData: before, afterData: movement,
     });
 
     return movement;

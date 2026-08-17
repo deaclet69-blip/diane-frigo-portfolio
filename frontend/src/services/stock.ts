@@ -23,7 +23,14 @@ export function createMovement(payload: {
   quantity: number;
   date: string;
   unitCost?: number;
+  supplierId?: string;
   note?: string;
 }) {
   return api.post<StockMovement>('/stock/movements', payload).then((r) => r.data);
+}
+
+export function updateMovement(id: string, payload: {
+  quantity?: number; unitCost?: number; supplierId?: string; note?: string;
+}) {
+  return api.patch<StockMovement>(`/stock/movements/${id}`, payload).then((r) => r.data);
 }

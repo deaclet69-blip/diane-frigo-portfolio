@@ -54,4 +54,10 @@ export class CreateSaleDto {
   @IsOptional()
   @IsBoolean()
   allowOverstock?: boolean; // override ADMIN — vente > stock disponible
+
+  // Numéro de facture personnalisé (optionnel — demande utilisateur).
+  // Laisser vide pour la génération automatique séquentielle habituelle.
+  @IsOptional()
+  @IsString()
+  invoiceNumber?: string;
 }

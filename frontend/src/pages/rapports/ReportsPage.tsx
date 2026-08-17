@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack } from '@mui/material';
-import { getProductsReport, getCustomersReport, getExpensesReport } from '../../services/reports';
+import { getProductsReport, getCustomersReport, getExpensesReport, getStockEntriesReport } from '../../services/reports';
+import type { StockEntryReportRow } from '../../types';
 
 function formatFcfa(value: number) {
   return `${Math.round(value).toLocaleString('fr-FR')} FCFA`;
@@ -10,11 +11,13 @@ export default function ReportsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
+  const [stockEntries, setStockEntries] = useState<StockEntryReportRow[]>([]);
 
   useEffect(() => {
     getProductsReport().then(setProducts);
     getCustomersReport().then(setCustomers);
     getExpensesReport().then(setExpenses);
+    getStockEntriesReport().then(setStockEntries);
   }, []);
 
   return (
@@ -22,6 +25,40 @@ export default function ReportsPage() {
       <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Rapports</Typography>
 
       <Stack spacing={3}>
+        <Paper>
+          <Box sx={{ p: 2.5, pb: 0 }}>
+            <Typography variant="subtitle1" fontWeight={700}>Entrées de stock</Typography>
+            <Typography variant="caption" color="text.secondary">Date, fournisseur et prix d'achat de chaque réapprovisionnement</Typography>
+          </Box>
+          <Table sx={{ mt: 1 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell>Produit</TableCell>
+                <TableCell align="right">Quantité</TableCell>
+                <TableCell>Fournisseur</TableCell>
+                <TableCell align="right">Prix d'achat</TableCell>
+                <TableCell align="right">Coût total</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {stockEntries.map((e, i) => (
+                <TableRow key={i}>
+                  <TableCell>{new Date(e.date).toLocaleDateString('fr-FR')}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{e.productName}</TableCell>
+                  <TableCell align="right">{e.quantity}</TableCell>
+                  <TableCell>{e.supplierName ?? '—'}</TableCell>
+                  <TableCell align="right">{e.unitCost != null ? formatFcfa(e.unitCost) : '—'}</TableCell>
+                  <TableCell align="right">{e.totalCost != null ? formatFcfa(e.totalCost) : '—'}</TableCell>
+                </TableRow>
+              ))}
+              {stockEntries.length === 0 && (
+                <TableRow><TableCell colSpan={6} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune entrée de stock.</TableCell></TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </Paper>
+
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Ventes par produit</Typography>

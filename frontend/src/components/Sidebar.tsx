@@ -3,7 +3,6 @@ import {
   Tooltip, useMediaQuery, IconButton, Avatar,
 } from '@mui/material';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
@@ -23,6 +22,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
 import LightModeIcon from '@mui/icons-material/LightModeOutlined';
 import { diane } from '../theme';
+import { useColorMode } from '../colorMode';
 import { getCurrentUser } from '../services/auth';
 
 const FULL_WIDTH = 272;
@@ -52,7 +52,7 @@ export default function Sidebar() {
   const user = getCurrentUser();
   const isCompact = useMediaQuery('(max-width:1200px)');
   const width = isCompact ? COMPACT_WIDTH : FULL_WIDTH;
-  const [darkVisual, setDarkVisual] = useState(false); // bascule visuelle (voir note en bas)
+  const { mode, toggle } = useColorMode();
 
   return (
     <Drawer
@@ -173,9 +173,9 @@ export default function Sidebar() {
                 {user?.role === 'ADMIN' ? 'Administrateur' : user?.role ?? ''}
               </Typography>
             </Box>
-            <Tooltip title="Bascule visuelle — thème sombre complet à venir">
-              <IconButton size="small" onClick={() => setDarkVisual((v) => !v)} sx={{ color: 'rgba(255,255,255,0.6)' }}>
-                {darkVisual ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+            <Tooltip title={mode === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}>
+              <IconButton size="small" onClick={toggle} sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                {mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
               </IconButton>
             </Tooltip>
           </>

@@ -74,7 +74,15 @@ export class SalesService {
       const status = dto.paymentStatus.toUpperCase() as 'PAID' | 'PARTIAL' | 'CREDIT';
 
       // 3. Facture + lignes
-      const invoiceNumber = await this.generateInvoiceNumber(tx);
+      let invoiceNumber = dto.invoiceNumber?.trim();
+      if (invoiceNumber) {
+        const existing = await tx.invoice.findUnique({ where: { invoiceNumber } });
+        if (existing) {
+          throw new BadRequestException(`Le numéro de facture "${invoiceNumber}" est déjà utilisé.`);
+        }
+      } else {
+        invoiceNumber = await this.generateInvoiceNumber(tx);
+      }
       const invoice = await tx.invoice.create({
         data: {
           invoiceNumber,

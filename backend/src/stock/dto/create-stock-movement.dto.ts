@@ -25,5 +25,9 @@ export class CreateStockMovementDto {
 
   @IsOptional()
   @IsString()
+  supplierId?: string;
+
+  @IsOptional()
+  @IsString()
   note?: string;
 }

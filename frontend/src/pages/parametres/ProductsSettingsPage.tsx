@@ -1,29 +1,35 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Stack, IconButton,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Stack, IconButton, MenuItem,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { getProducts, createProduct, updateProduct } from '../../services/products';
+import { getCategories, createCategory, ProductCategory } from '../../services/categories';
 import type { Product } from '../../types';
 
 function formatFcfa(value: number) {
   return `${value.toLocaleString('fr-FR')} FCFA`;
 }
 
+const NEW_CATEGORY = '__new__';
+
 const emptyForm = {
   name: '', referencePurchasePrice: '', referenceSalePrice: '', alertThreshold: '500',
+  categoryId: '', newCategoryName: '',
 };
 
 export default function ProductsSettingsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(emptyForm);
 
   function reload() {
     getProducts(true).then(setProducts);
+    getCategories().then(setCategories);
   }
 
   useEffect(reload, []);
@@ -41,16 +47,24 @@ export default function ProductsSettingsPage() {
       referencePurchasePrice: String(p.referencePurchasePrice),
       referenceSalePrice: String(p.referenceSalePrice),
       alertThreshold: String(p.alertThreshold),
+      categoryId: p.category?.id ?? '',
+      newCategoryName: '',
     });
     setOpen(true);
   }
 
   async function handleSave() {
+    let categoryId = form.categoryId;
+    if (categoryId === NEW_CATEGORY && form.newCategoryName.trim()) {
+      const created = await createCategory(form.newCategoryName.trim());
+      categoryId = created.id;
+    }
     const payload = {
       name: form.name,
       referencePurchasePrice: Number(form.referencePurchasePrice),
       referenceSalePrice: Number(form.referenceSalePrice),
       alertThreshold: Number(form.alertThreshold),
+      categoryId: categoryId || undefined,
     };
     if (editing) {
       await updateProduct(editing.id, payload);
@@ -75,6 +89,7 @@ export default function ProductsSettingsPage() {
           <TableHead>
             <TableRow>
               <TableCell>Nom</TableCell>
+              <TableCell>Catégorie</TableCell>
               <TableCell align="right">Prix d'achat réf.</TableCell>
               <TableCell align="right">Prix de vente réf.</TableCell>
               <TableCell align="right">Seuil d'alerte</TableCell>
@@ -85,6 +100,7 @@ export default function ProductsSettingsPage() {
             {products.map((p) => (
               <TableRow key={p.id} hover>
                 <TableCell sx={{ fontWeight: 600 }}>{p.name}</TableCell>
+                <TableCell>{p.category?.name ?? '—'}</TableCell>
                 <TableCell align="right">{formatFcfa(p.referencePurchasePrice)}</TableCell>
                 <TableCell align="right">{formatFcfa(p.referenceSalePrice)}</TableCell>
                 <TableCell align="right">{p.alertThreshold}</TableCell>
@@ -109,6 +125,29 @@ export default function ProductsSettingsPage() {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               fullWidth
             />
+            <TextField
+              select
+              label="Catégorie (optionnel)"
+              value={form.categoryId}
+              onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+              fullWidth
+              helperText="Utilisée pour 'Stock par catégorie' sur le tableau de bord"
+            >
+              <MenuItem value="">Aucune</MenuItem>
+              {categories.map((c) => (
+                <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+              ))}
+              <MenuItem value={NEW_CATEGORY}>+ Créer une nouvelle catégorie…</MenuItem>
+            </TextField>
+            {form.categoryId === NEW_CATEGORY && (
+              <TextField
+                label="Nom de la nouvelle catégorie"
+                value={form.newCategoryName}
+                onChange={(e) => setForm({ ...form, newCategoryName: e.target.value })}
+                fullWidth
+                autoFocus
+              />
+            )}
             <TextField
               label="Prix d'achat de référence (FCFA)"
               type="number"

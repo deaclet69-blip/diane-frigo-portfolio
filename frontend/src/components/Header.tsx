@@ -4,6 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../services/auth';
 import { getStockAlerts } from '../services/stock';
 import { diane } from '../theme';
@@ -20,6 +21,7 @@ const today = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'l
 export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const user = getCurrentUser();
   const [alertCount, setAlertCount] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getStockAlerts().then((items) => setAlertCount(items.length)).catch(() => {});
@@ -30,7 +32,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
       position="sticky"
       elevation={0}
       color="transparent"
-      sx={{ bgcolor: '#fff', borderBottom: '1px solid rgba(13,23,52,0.06)' }}
+      sx={{ bgcolor: 'background.paper', borderBottom: '1px solid rgba(128,128,128,0.15)' }}
     >
       <Toolbar sx={{ gap: 1.5 }}>
         <IconButton onClick={onMenuClick} sx={{ display: { sm: 'none' } }}>
@@ -42,10 +44,10 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         <Chip
           icon={<CalendarTodayIcon sx={{ fontSize: 16 }} />}
           label={today}
-          sx={{ bgcolor: diane.bg, fontWeight: 600, fontSize: 13, textTransform: 'capitalize', display: { xs: 'none', md: 'flex' } }}
+          sx={{ bgcolor: 'action.hover', fontWeight: 600, fontSize: 13, textTransform: 'capitalize', display: { xs: 'none', md: 'flex' } }}
         />
 
-        <IconButton>
+        <IconButton onClick={() => navigate('/notifications')}>
           <Badge badgeContent={alertCount} color="error">
             <NotificationsNoneIcon />
           </Badge>
@@ -56,7 +58,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           alignItems="center"
           spacing={1}
           onClick={logout}
-          sx={{ cursor: 'pointer', bgcolor: diane.bg, borderRadius: 3, px: 1, py: 0.5 }}
+          sx={{ cursor: 'pointer', bgcolor: 'action.hover', borderRadius: 3, px: 1, py: 0.5 }}
         >
           <Avatar sx={{ width: 32, height: 32, bgcolor: diane.indigo }}>
             {user?.email?.[0]?.toUpperCase() ?? 'U'}

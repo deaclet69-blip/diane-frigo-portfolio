@@ -24,6 +24,7 @@ import UsersSettingsPage from './pages/parametres/UsersSettingsPage';
 import ImportExcelPage from './pages/parametres/ImportExcelPage';
 import AuditLogsPage from './pages/parametres/AuditLogsPage';
 import AiChatPage from './pages/assistant/AiChatPage';
+import NotificationsPage from './pages/notifications/NotificationsPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -52,6 +53,7 @@ export const router = createBrowserRouter([
       { path: 'charges', element: <ChargesPage /> },
       { path: 'rapports', element: <ReportsPage /> },
       { path: 'assistant', element: <AiChatPage /> },
+      { path: 'notifications', element: <NotificationsPage /> },
       {
         path: 'parametres',
         element: <ParametresLayout />,

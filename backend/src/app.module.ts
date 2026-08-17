@@ -21,6 +21,7 @@ import { AiAdvisorModule } from './ai-advisor/ai-advisor.module';
 import { PricingModule } from './pricing/pricing.module';
 import { LossesModule } from './losses/losses.module';
 import { LoansModule } from './loans/loans.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
@@ -48,6 +49,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     PricingModule,
     LossesModule,
     LoansModule,
+    SuppliersModule,
     DashboardModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -1,4 +1,5 @@
 import { api } from './api';
+import type { StockEntryReportRow } from '../types';
 
 export function getProductsReport() {
   return api.get('/reports/products').then((r) => r.data);
@@ -14,4 +15,8 @@ export function getExpensesReport() {
 
 export function getSalesReport(from?: string, to?: string) {
   return api.get('/reports/sales', { params: { from, to } }).then((r) => r.data);
+}
+
+export function getStockEntriesReport(from?: string, to?: string) {
+  return api.get<StockEntryReportRow[]>('/reports/stock-entries', { params: { from, to } }).then((r) => r.data);
 }

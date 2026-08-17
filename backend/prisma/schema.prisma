@@ -130,6 +130,8 @@ model Supplier {
   phone   String?
   address String?
   notes   String?
+
+  stockMovements StockMovement[]
 }
 
 model Invoice {
@@ -196,6 +198,9 @@ model StockMovement {
   // "Analyse Rentabilité Produits". Nullable : uniquement renseigné pour
   // les entrées, pas pour les sorties/ajustements.
   unitCost       Decimal?     @db.Decimal(12, 2)
+  // Ajout — fournisseur de l'entrée de stock (demande utilisateur).
+  supplier       Supplier?    @relation(fields: [supplierId], references: [id])
+  supplierId     String?
   referenceType  String?      // 'invoice' | 'manual_entry' | 'inventory' | 'loss' | ...
   referenceId    String?
   note           String?

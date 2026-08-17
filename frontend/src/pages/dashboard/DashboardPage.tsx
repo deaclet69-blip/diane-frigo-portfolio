@@ -174,7 +174,10 @@ export default function DashboardPage() {
         <Paper sx={{ p: 3, flex: 1 }}>
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
             <Typography variant="subtitle1" fontWeight={700}>Alertes et notifications</Typography>
-            <Typography variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}>
+            <Typography
+              variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}
+              onClick={() => navigate('/notifications')}
+            >
               Tout voir
             </Typography>
           </Stack>

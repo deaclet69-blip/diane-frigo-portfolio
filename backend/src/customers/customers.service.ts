@@ -60,6 +60,42 @@ export class CustomersService {
     return customer;
   }
 
+  /**
+   * Vérifie si un nom de client correspond exactement à un client déjà
+   * existant — utilisé par l'écran "Nouvelle vente" pour proposer une
+   * confirmation ("est-ce la même personne ?") avant de créer un doublon.
+   */
+  async checkNameExists(name: string) {
+    const matches = await this.prisma.customer.findMany({
+      where: { name: { equals: name.trim(), mode: 'insensitive' }, mergedIntoId: null },
+    });
+    return { exists: matches.length > 0, matches };
+  }
+
+  /**
+   * Crée un client en garantissant l'unicité du nom : si le nom existe déjà
+   * ET que l'appelant confirme que ce n'est PAS la même personne, un
+   * suffixe numéroté est ajouté automatiquement (ex. "Natif (2)").
+   */
+  async createWithDedup(dto: CreateCustomerDto, forceDistinct: boolean, userId: string) {
+    if (!forceDistinct) {
+      const { exists, matches } = await this.checkNameExists(dto.name);
+      if (exists) return matches[0]; // même personne → on réutilise la fiche existante
+    }
+
+    let finalName = dto.name.trim();
+    if (forceDistinct) {
+      const { matches } = await this.checkNameExists(dto.name);
+      if (matches.length > 0) {
+        let n = 2;
+        while (matches.some((m) => m.name.toLowerCase() === `${dto.name.trim()} (${n})`.toLowerCase())) n++;
+        finalName = `${dto.name.trim()} (${n})`;
+      }
+    }
+
+    return this.create({ ...dto, name: finalName }, userId);
+  }
+
   async update(id: string, dto: UpdateCustomerDto, userId: string) {
     const before = await this.prisma.customer.findUnique({ where: { id } });
     const customer = await this.prisma.customer.update({ where: { id }, data: dto });
@@ -67,6 +103,31 @@ export class CustomersService {
       userId, action: 'update', entityType: 'customer', entityId: id, beforeData: before, afterData: customer,
     });
     return customer;
+  }
+
+  /**
+   * Suppression réelle — uniquement si le client n'a AUCUN historique
+   * (aucune facture, aucun dépôt). Dans le cas contraire, on refuse
+   * explicitement (les données financières ne doivent jamais disparaître) —
+   * on propose de le désactiver via la fusion ou de le laisser tel quel.
+   */
+  async remove(id: string, userId: string) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { id },
+      include: { invoices: true, deposits: true },
+    });
+    if (!customer) throw new NotFoundException('Client introuvable');
+    if (customer.invoices.length > 0 || customer.deposits.length > 0) {
+      throw new BadRequestException(
+        "Ce client a un historique (ventes ou dépôts) — impossible de le supprimer. Tu peux le fusionner avec un autre client si c'est un doublon.",
+      );
+    }
+
+    await this.prisma.customer.delete({ where: { id } });
+    await this.audit.log({
+      userId, action: 'update', entityType: 'customer_delete', entityId: id, beforeData: customer,
+    });
+    return { success: true };
   }
 
   /**

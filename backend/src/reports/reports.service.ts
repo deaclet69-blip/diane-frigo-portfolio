@@ -72,4 +72,29 @@ export class ReportsService {
       ),
     };
   }
+
+  /** Entrées de stock avec date, fournisseur et prix d'achat (demande utilisateur). */
+  async stockEntriesReport(from?: string, to?: string) {
+    const entries = await this.prisma.stockMovement.findMany({
+      where: {
+        movementType: 'ENTRY',
+        date: {
+          gte: from ? new Date(from) : undefined,
+          lte: to ? new Date(to) : undefined,
+        },
+      },
+      include: { product: { select: { name: true } }, supplier: { select: { name: true } } },
+      orderBy: { date: 'desc' },
+      take: 300,
+    });
+    return entries.map((e) => ({
+      date: e.date,
+      productName: e.product.name,
+      quantity: e.quantity,
+      unitCost: e.unitCost ? Number(e.unitCost) : null,
+      totalCost: e.unitCost ? Number(e.unitCost) * e.quantity : null,
+      supplierName: e.supplier?.name ?? null,
+      note: e.note,
+    }));
+  }
 }

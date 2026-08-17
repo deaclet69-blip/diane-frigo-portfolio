@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { StockService } from './stock.service';
 import { CreateStockMovementDto } from './dto/create-stock-movement.dto';
+import { UpdateStockMovementDto } from './dto/update-stock-movement.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -41,5 +42,17 @@ export class StockController {
   @Post('movements')
   createMovement(@Body() dto: CreateStockMovementDto, @CurrentUser() user: { id: string }) {
     return this.stockService.createMovement(dto, user.id);
+  }
+
+  // Correction d'une saisie erronée (demande utilisateur) — réservé
+  // ADMIN/RESPONSABLE/MAGASINIER, jamais sur un mouvement lié à une facture.
+  @Roles('ADMIN', 'RESPONSABLE', 'MAGASINIER')
+  @Patch('movements/:id')
+  updateMovement(
+    @Param('id') id: string,
+    @Body() dto: UpdateStockMovementDto,
+    @CurrentUser() user: { id: string },
+  ) {
+    return this.stockService.updateMovement(id, dto, user.id);
   }
 }

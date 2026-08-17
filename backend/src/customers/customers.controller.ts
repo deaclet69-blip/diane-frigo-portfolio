@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { IsString } from 'class-validator';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
@@ -13,6 +13,12 @@ class MergeCustomerDto {
   targetId!: string;
 }
 
+class CreateWithDedupDto extends CreateCustomerDto {
+  @IsOptional()
+  @IsBoolean()
+  forceDistinct?: boolean; // true = "ce n'est PAS la même personne, crée quand même"
+}
+
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'RESPONSABLE', 'VENDEUR')
 @Controller('customers')
@@ -22,6 +28,11 @@ export class CustomersController {
   @Get()
   findAll(@Query('search') search?: string) {
     return this.customersService.findAll(search);
+  }
+
+  @Get('check-name')
+  checkName(@Query('name') name: string) {
+    return this.customersService.checkNameExists(name);
   }
 
   @Get(':id')
@@ -34,9 +45,20 @@ export class CustomersController {
     return this.customersService.create(dto, user.id);
   }
 
+  // Utilisé par "Nouvelle vente" : gère la détection de doublon (§ demande utilisateur)
+  @Post('dedup')
+  createWithDedup(@Body() dto: CreateWithDedupDto, @CurrentUser() user: { id: string }) {
+    return this.customersService.createWithDedup(dto, !!dto.forceDistinct, user.id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateCustomerDto, @CurrentUser() user: { id: string }) {
     return this.customersService.update(id, dto, user.id);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+    return this.customersService.remove(id, user.id);
   }
 
   // Fusion réservée à ADMIN/RESPONSABLE — action sensible sur l'historique client
