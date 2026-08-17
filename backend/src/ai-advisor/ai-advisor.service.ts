@@ -19,39 +19,45 @@ insuffisantes pour répondre à quelque chose, dis-le simplement plutôt que de 
 export class AiAdvisorService {
   constructor(private snapshotService: BusinessSnapshotService) {}
 
-  private async callClaude(messages: { role: 'user' | 'assistant'; content: string }[]) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+  // Assistant IA propulsé par l'API Google Gemini (niveau gratuit — clé créée
+  // sur https://aistudio.google.com/apikey, aucune carte bancaire requise).
+  private async callGemini(messages: { role: 'user' | 'assistant'; content: string }[]) {
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new InternalServerErrorException(
-        "Clé API Anthropic manquante — ajoute ANTHROPIC_API_KEY dans le fichier .env du backend.",
+        "Clé API Gemini manquante — ajoute GEMINI_API_KEY dans le fichier .env du backend " +
+          '(clé gratuite sur https://aistudio.google.com/apikey).',
       );
     }
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+    const model = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash';
+    // Gemini utilise les rôles 'user' et 'model' (pas 'assistant').
+    const contents = messages.map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }],
+    }));
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents,
+          generationConfig: { maxOutputTokens: 1024 },
+        }),
       },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-5',
-        max_tokens: 1024,
-        system: SYSTEM_PROMPT,
-        messages,
-      }),
-    });
+    );
 
     if (!response.ok) {
       const text = await response.text();
-      throw new InternalServerErrorException(`Erreur API Claude (${response.status}) : ${text}`);
+      throw new InternalServerErrorException(`Erreur API Gemini (${response.status}) : ${text}`);
     }
 
     const data = await response.json();
-    return data.content
-      .filter((block: any) => block.type === 'text')
-      .map((block: any) => block.text)
-      .join('\n');
+    const parts = data.candidates?.[0]?.content?.parts ?? [];
+    return parts.map((p: any) => p.text ?? '').join('\n').trim();
   }
 
   /** Résumé automatique pour le bloc du tableau de bord. */
@@ -62,7 +68,7 @@ Donne un résumé court (5-8 lignes maximum) de l'état de santé général de l
 2 à 4 suggestions concrètes classées par priorité. Format : d'abord le résumé en prose, puis une
 liste à puces pour les suggestions.`;
 
-    const text = await this.callClaude([{ role: 'user', content: prompt }]);
+    const text = await this.callGemini([{ role: 'user', content: prompt }]);
     return { text, generatedAt: snapshot.generatedAt };
   }
 
@@ -79,7 +85,7 @@ la conversation) :\n\n${JSON.stringify(snapshot, null, 2)}`;
       { role: 'user', content: question },
     ];
 
-    const text = await this.callClaude(messages);
+    const text = await this.callGemini(messages);
     return { text };
   }
 }
