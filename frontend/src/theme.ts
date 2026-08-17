@@ -45,6 +45,17 @@ export function getTheme(mode: PaletteMode) {
       h6: { fontWeight: 600 },
     },
     components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          html: {
+            scrollbarWidth: 'none', // Firefox
+          },
+          body: {
+            scrollbarWidth: 'none', // Firefox
+            '&::-webkit-scrollbar': { display: 'none' }, // Chrome/Edge/Safari
+          },
+        },
+      },
       MuiPaper: {
         styleOverrides: {
           root: {
