@@ -36,7 +36,7 @@ export function getTheme(mode: PaletteMode) {
         default: isDark ? '#0B1220' : diane.bg,
         paper: isDark ? '#131B34' : '#FFFFFF',
       },
-      text: isDark ? { primary: '#E8ECF7', secondary: '#9AA4C0' } : undefined,
+      ...(isDark ? { text: { primary: '#E8ECF7', secondary: '#9AA4C0' } } : {}),
     },
     shape: { borderRadius: 14 },
     typography: {
