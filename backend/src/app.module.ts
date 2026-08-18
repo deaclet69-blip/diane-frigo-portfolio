@@ -23,6 +23,7 @@ import { LossesModule } from './losses/losses.module';
 import { LoansModule } from './loans/loans.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { SystemModule } from './system/system.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     LoansModule,
     SuppliersModule,
     DashboardModule,
+    SystemModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

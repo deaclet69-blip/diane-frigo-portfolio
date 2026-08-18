@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import RequirePermission from './components/RequirePermission';
+import RequireAdmin from './components/RequireAdmin';
 import LoginPage from './pages/auth/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import StockListPage from './pages/stock/StockListPage';
@@ -24,6 +25,7 @@ import ParametresLayout from './pages/parametres/ParametresLayout';
 import UsersSettingsPage from './pages/parametres/UsersSettingsPage';
 import ImportExcelPage from './pages/parametres/ImportExcelPage';
 import AuditLogsPage from './pages/parametres/AuditLogsPage';
+import DangerZonePage from './pages/parametres/DangerZonePage';
 import AiChatPage from './pages/assistant/AiChatPage';
 import NotificationsPage from './pages/notifications/NotificationsPage';
 
@@ -63,6 +65,7 @@ export const router = createBrowserRouter([
           { path: 'utilisateurs', element: <RequirePermission perm="utilisateurs"><UsersSettingsPage /></RequirePermission> },
           { path: 'import', element: <RequirePermission perm="parametres"><ImportExcelPage /></RequirePermission> },
           { path: 'audit', element: <RequirePermission perm="parametres"><AuditLogsPage /></RequirePermission> },
+          { path: 'danger', element: <RequireAdmin><DangerZonePage /></RequireAdmin> },
         ],
       },
     ],

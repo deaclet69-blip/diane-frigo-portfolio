@@ -7,7 +7,7 @@ export class AuditService {
 
   async log(params: {
     userId: string;
-    action: 'create' | 'update' | 'void' | 'login';
+    action: 'create' | 'update' | 'void' | 'login' | 'reset';
     entityType: string;
     entityId: string;
     beforeData?: unknown;

@@ -1,7 +1,8 @@
 import { Box, Typography, Tabs, Tab } from '@mui/material';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { getCurrentUser } from '../../services/auth';
 
-const tabs = [
+const baseTabs = [
   { label: 'Produits', path: '/parametres/produits' },
   { label: 'Utilisateurs', path: '/parametres/utilisateurs' },
   { label: 'Import Excel', path: '/parametres/import' },
@@ -11,6 +12,10 @@ const tabs = [
 export default function ParametresLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const user = getCurrentUser();
+  const tabs = user?.role === 'ADMIN'
+    ? [...baseTabs, { label: 'Zone dangereuse', path: '/parametres/danger' }]
+    : baseTabs;
   const current = tabs.find((t) => location.pathname.startsWith(t.path))?.path ?? tabs[0].path;
 
   return (
