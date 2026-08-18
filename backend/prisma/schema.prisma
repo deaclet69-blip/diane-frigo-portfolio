@@ -72,6 +72,10 @@ model User {
   role         Role     @relation(fields: [roleId], references: [id])
   roleId       String
   isActive     Boolean  @default(true)
+  // Pages/sections auxquelles cet utilisateur a accès (clés de la barre
+  // latérale, ex: "dashboard", "ventes", "stock"...). Ignoré pour le rôle
+  // ADMIN, qui a toujours accès à tout. Vide = aucun accès hors dashboard.
+  permissions  String[] @default(["dashboard"])
   createdAt    DateTime @default(now())
 
   createdInvoices        Invoice[]        @relation("InvoiceCreatedBy")

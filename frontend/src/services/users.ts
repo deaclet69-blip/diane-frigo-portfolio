@@ -5,8 +5,12 @@ export function getUsers() {
   return api.get<AppUser[]>('/users').then((r) => r.data);
 }
 
-export function createUser(payload: { name: string; email: string; password: string; roleName: string }) {
+export function createUser(payload: { name: string; email: string; password: string; roleName: string; permissions?: string[] }) {
   return api.post<AppUser>('/users', payload).then((r) => r.data);
+}
+
+export function changeUserPermissions(id: string, permissions: string[]) {
+  return api.patch(`/users/${id}/permissions`, { permissions }).then((r) => r.data);
 }
 
 export function setUserActive(id: string, isActive: boolean) {

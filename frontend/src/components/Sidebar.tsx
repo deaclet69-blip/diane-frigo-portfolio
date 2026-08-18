@@ -24,27 +24,29 @@ import LightModeIcon from '@mui/icons-material/LightModeOutlined';
 import { diane } from '../theme';
 import { useColorMode } from '../colorMode';
 import { getCurrentUser } from '../services/auth';
+import { hasPermission } from '../constants/permissions';
 
 const FULL_WIDTH = 272;
 const COMPACT_WIDTH = 76;
 
 // Structure calquée sur la nouvelle maquette "futuriste professionnel".
+// `key` doit correspondre à une clé de PERMISSION_SECTIONS (constants/permissions.ts).
 const navItems = [
-  { label: 'Tableau de bord', icon: <SpaceDashboardIcon />, to: '/', hasSub: false },
-  { label: 'Ventes', icon: <ShoppingCartIcon />, to: '/ventes', hasSub: true },
-  { label: 'Stock', icon: <Inventory2Icon />, to: '/stock', hasSub: true },
-  { label: 'Produits', icon: <CategoryIcon />, to: '/parametres/produits', hasSub: false },
-  { label: 'Clients', icon: <PeopleIcon />, to: '/clients', hasSub: true },
-  { label: 'Dépôts clients', icon: <AccountBalanceWalletIcon />, to: '/depots', hasSub: false },
-  { label: 'Achats', icon: <LocalShippingIcon />, to: '/stock/entree', hasSub: false },
-  { label: 'Dépenses / Charges', icon: <ReceiptLongIcon />, to: '/charges', hasSub: true },
-  { label: 'Pertes', icon: <TrendingDownIcon />, to: '/finances/pertes', hasSub: false },
-  { label: 'Rentabilité', icon: <InsightsIcon />, to: '/finances/tarification', hasSub: false },
-  { label: 'Rapports', icon: <BarChartIcon />, to: '/rapports', hasSub: true },
-  { label: 'Investissement', icon: <SavingsIcon />, to: '/finances/investissement', hasSub: false },
-  { label: 'Assistant IA', icon: <AutoAwesomeIcon />, to: '/assistant', hasSub: false },
-  { label: 'Utilisateurs', icon: <PersonOutlineIcon />, to: '/parametres/utilisateurs', hasSub: false },
-  { label: 'Paramètres', icon: <SettingsIcon />, to: '/parametres/produits', hasSub: true },
+  { key: 'dashboard', label: 'Tableau de bord', icon: <SpaceDashboardIcon />, to: '/', hasSub: false },
+  { key: 'ventes', label: 'Ventes', icon: <ShoppingCartIcon />, to: '/ventes', hasSub: true },
+  { key: 'stock', label: 'Stock', icon: <Inventory2Icon />, to: '/stock', hasSub: true },
+  { key: 'produits', label: 'Produits', icon: <CategoryIcon />, to: '/parametres/produits', hasSub: false },
+  { key: 'clients', label: 'Clients', icon: <PeopleIcon />, to: '/clients', hasSub: true },
+  { key: 'depots', label: 'Dépôts clients', icon: <AccountBalanceWalletIcon />, to: '/depots', hasSub: false },
+  { key: 'achats', label: 'Achats', icon: <LocalShippingIcon />, to: '/stock/entree', hasSub: false },
+  { key: 'charges', label: 'Dépenses / Charges', icon: <ReceiptLongIcon />, to: '/charges', hasSub: true },
+  { key: 'pertes', label: 'Pertes', icon: <TrendingDownIcon />, to: '/finances/pertes', hasSub: false },
+  { key: 'rentabilite', label: 'Rentabilité', icon: <InsightsIcon />, to: '/finances/tarification', hasSub: false },
+  { key: 'rapports', label: 'Rapports', icon: <BarChartIcon />, to: '/rapports', hasSub: true },
+  { key: 'investissement', label: 'Investissement', icon: <SavingsIcon />, to: '/finances/investissement', hasSub: false },
+  { key: 'assistant', label: 'Assistant IA', icon: <AutoAwesomeIcon />, to: '/assistant', hasSub: false },
+  { key: 'utilisateurs', label: 'Utilisateurs', icon: <PersonOutlineIcon />, to: '/parametres/utilisateurs', hasSub: false },
+  { key: 'parametres', label: 'Paramètres', icon: <SettingsIcon />, to: '/parametres/produits', hasSub: true },
 ];
 
 export default function Sidebar() {
@@ -53,6 +55,7 @@ export default function Sidebar() {
   const isCompact = useMediaQuery('(max-width:1200px)');
   const width = isCompact ? COMPACT_WIDTH : FULL_WIDTH;
   const { mode, toggle } = useColorMode();
+  const visibleNavItems = navItems.filter((item) => hasPermission(user, item.key));
 
   return (
     <Drawer
@@ -99,7 +102,7 @@ export default function Sidebar() {
         scrollbarWidth: 'none',
         '&::-webkit-scrollbar': { display: 'none' },
       }}>
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const button = (
             <ListItemButton
               key={item.to + item.label}

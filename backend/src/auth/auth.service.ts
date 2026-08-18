@@ -30,15 +30,22 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
-    return this.issueTokens(user.id, user.email, user.role.name);
+    return this.issueTokens(user.id, user.email, user.role.name, user.permissions);
   }
 
-  async refresh(userId: string, email: string, role: string) {
-    return this.issueTokens(userId, email, role);
+  async refresh(userId: string) {
+    // On recharge depuis la base (et pas depuis le payload du refresh token)
+    // pour que rôle/permissions/désactivation soient toujours à jour, même
+    // si l'admin les a changés pendant que l'utilisateur était connecté.
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { role: true } });
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('Compte introuvable ou désactivé');
+    }
+    return this.issueTokens(user.id, user.email, user.role.name, user.permissions);
   }
 
-  private issueTokens(userId: string, email: string, role: string) {
-    const payload = { sub: userId, email, role };
+  private issueTokens(userId: string, email: string, role: string, permissions: string[]) {
+    const payload = { sub: userId, email, role, permissions };
 
     const accessToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_SECRET ?? 'change-me-access',
@@ -53,7 +60,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: userId, email, role },
+      user: { id: userId, email, role, permissions },
     };
   }
 }

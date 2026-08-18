@@ -2,6 +2,7 @@ export interface AuthUser {
   id: string;
   email: string;
   role: 'ADMIN' | 'RESPONSABLE' | 'VENDEUR' | 'MAGASINIER';
+  permissions: string[];
 }
 
 export interface DashboardSummary {
@@ -350,6 +351,7 @@ export interface AppUser {
   email: string;
   isActive: boolean;
   role: { name: string };
+  permissions: string[];
   createdAt: string;
 }
 
