@@ -387,7 +387,10 @@ export interface FullDashboard {
   recentActivity: { type: string; label: string; sublabel: string; amount: number; timeAgo: string }[];
   topProductsByMargin: { productName: string; quantity: number; margin: number; revenue: number; marginPercent: number }[];
   stockByCategory: { category: string; cartons: number; percent: number }[];
-  monthlySummary: { revenue: number; expenses: number; netProfit: number; avgMarginPercent: number };
+  monthlySummary: {
+    revenue: number; expenses: number; netProfit: number; avgMarginPercent: number;
+    monthlyTarget: number | null; monthlyTargetProgressPercent: number;
+  };
 }
 
 export interface StockEntryReportRow {

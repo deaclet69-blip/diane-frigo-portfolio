@@ -62,7 +62,7 @@ export class DashboardService {
     const [
       itemsToday, itemsYesterday, items7d, monthSummary, stockOverview, deposits,
       unpaidInvoices, recentInvoices, recentStockMovements, recentExpenses,
-      productsReport, categories,
+      productsReport, categories, monthlyGoal,
     ] = await Promise.all([
       this.prisma.invoiceItem.findMany({ where: { invoice: { voidedAt: null, date: { gte: startToday } } } }),
       this.prisma.invoiceItem.findMany({ where: { invoice: { voidedAt: null, date: { gte: startYesterday, lt: startToday } } } }),
@@ -85,6 +85,7 @@ export class DashboardService {
       this.prisma.expense.findMany({ orderBy: { date: 'desc' }, take: 3, include: { category: true } }),
       this.reportsProductsReport(),
       this.prisma.category.findMany({ include: { products: true } }),
+      this.prisma.monthlyGoal.findUnique({ where: { month: startMonth } }),
     ]);
 
     const revenueToday = itemsToday.reduce((acc, i) => acc + Number(i.lineTotal), 0);
@@ -209,6 +210,12 @@ export class DashboardService {
         expenses: monthSummary.charges,
         netProfit: monthSummary.netResult,
         avgMarginPercent: monthSummary.revenue > 0 ? (monthSummary.grossProfit / monthSummary.revenue) * 100 : 0,
+        // Objectif mensuel défini dans Finances > Objectif (feuille "Graphiques"
+        // de l'ancien Excel). null tant qu'aucun objectif n'a été fixé pour ce mois.
+        monthlyTarget: monthlyGoal ? Number(monthlyGoal.targetProfit) : null,
+        monthlyTargetProgressPercent: monthlyGoal && Number(monthlyGoal.targetProfit) > 0
+          ? Math.min(100, Math.max(0, (monthSummary.netResult / Number(monthlyGoal.targetProfit)) * 100))
+          : 0,
       },
     };
   }

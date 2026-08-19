@@ -313,6 +313,10 @@ export default function DashboardPage() {
               <Stat label="Total des dépenses" value={data ? fcfa(data.monthlySummary.expenses) : '…'} />
               <Stat label="Bénéfice net" value={data ? fcfa(data.monthlySummary.netProfit) : '…'} color={diane.green} />
               <Stat label="Marge moyenne" value={data ? `${data.monthlySummary.avgMarginPercent.toFixed(0)}%` : '…'} />
+              <Stat
+                label="Objectif mensuel"
+                value={data ? (data.monthlySummary.monthlyTarget != null ? fcfa(data.monthlySummary.monthlyTarget) : 'Non défini') : '…'}
+              />
             </Stack>
           </Box>
 
@@ -320,13 +324,13 @@ export default function DashboardPage() {
             <Box sx={{ position: 'relative', display: 'inline-flex' }}>
               <CircularProgress
                 variant="determinate"
-                value={data ? Math.min(100, Math.max(0, data.monthlySummary.avgMarginPercent * 3)) : 0}
+                value={data ? data.monthlySummary.monthlyTargetProgressPercent : 0}
                 size={64} thickness={5}
                 sx={{ color: diane.green, '& .MuiCircularProgress-circle': { strokeLinecap: 'round' } }}
               />
               <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography variant="caption" fontWeight={800}>
-                  {data ? `${Math.min(100, Math.round(data.monthlySummary.avgMarginPercent * 3))}%` : '…'}
+                  {data ? `${Math.round(data.monthlySummary.monthlyTargetProgressPercent)}%` : '…'}
                 </Typography>
               </Box>
             </Box>
