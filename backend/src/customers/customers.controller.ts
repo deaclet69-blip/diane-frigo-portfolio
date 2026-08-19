@@ -6,6 +6,8 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 class MergeCustomerDto {
@@ -19,8 +21,8 @@ class CreateWithDedupDto extends CreateCustomerDto {
   forceDistinct?: boolean; // true = "ce n'est PAS la même personne, crée quand même"
 }
 
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'RESPONSABLE', 'VENDEUR')
+@UseGuards(JwtAuthGuard, PermissionsGuard, RolesGuard)
+@RequirePermission('clients')
 @Controller('customers')
 export class CustomersController {
   constructor(private customersService: CustomersService) {}

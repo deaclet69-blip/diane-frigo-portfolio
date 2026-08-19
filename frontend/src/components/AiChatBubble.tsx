@@ -51,9 +51,16 @@ export default function AiChatBubble() {
           sx={{
             position: 'fixed', bottom: { xs: 84, sm: 24 }, right: 24, zIndex: 1300,
             bgcolor: diane.indigo, color: '#fff', '&:hover': { bgcolor: diane.navy },
+            animation: 'diane-ai-glow 2.4s ease-in-out infinite',
+            boxShadow: `0 0 0 0 ${diane.indigo}`,
+            '@keyframes diane-ai-glow': {
+              '0%':   { boxShadow: `0 0 0 0 ${diane.indigo}66, 0 0 10px 2px ${diane.indigo}66` },
+              '50%':  { boxShadow: `0 0 0 10px ${diane.indigo}00, 0 0 22px 6px ${diane.blue}aa` },
+              '100%': { boxShadow: `0 0 0 0 ${diane.indigo}00, 0 0 10px 2px ${diane.indigo}00` },
+            },
           }}
         >
-          <AutoAwesomeIcon />
+          <AutoAwesomeIcon sx={{ animation: 'diane-ai-sparkle 2.4s ease-in-out infinite', '@keyframes diane-ai-sparkle': { '0%, 100%': { opacity: 1 }, '50%': { opacity: 0.55 } } }} />
         </Fab>
       </Zoom>
 

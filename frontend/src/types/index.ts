@@ -82,6 +82,7 @@ export interface StockOverviewItem {
   name: string;
   category: string | null;
   unit: string;
+  imageUrl?: string | null;
   currentStock: number;
   alertThreshold: number;
   status: StockStatus;
@@ -212,6 +213,7 @@ export interface Product {
   alertThreshold: number;
   isActive: boolean;
   category: { id: string; name: string } | null;
+  imageUrl?: string | null;
 }
 
 export interface AiSummary {
@@ -396,6 +398,32 @@ export interface StockEntryReportRow {
   totalCost: number | null;
   supplierName: string | null;
   note: string | null;
+}
+
+export type TraceabilityGranularity = 'day' | 'week' | 'month' | 'year';
+
+export interface TraceabilityRow {
+  period: string;
+  label: string;
+  recettes: number;
+  chiffreAffaires: number;
+  coutMarchandises: number;
+  margeBrute: number;
+  charges: number;
+  resultatNet: number;
+}
+
+export interface TraceabilityReport {
+  granularity: TraceabilityGranularity;
+  rows: TraceabilityRow[];
+  totals: {
+    recettes: number;
+    chiffreAffaires: number;
+    coutMarchandises: number;
+    margeBrute: number;
+    charges: number;
+    resultatNet: number;
+  };
 }
 
 export interface ImportReport {

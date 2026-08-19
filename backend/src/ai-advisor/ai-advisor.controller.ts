@@ -2,8 +2,8 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { IsArray, IsIn, IsOptional, IsString, MinLength } from 'class-validator';
 import { AiAdvisorService } from './ai-advisor.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 
 class ChatMessageDto {
   @IsIn(['user', 'assistant'])
@@ -23,10 +23,11 @@ class ChatDto {
   history?: ChatMessageDto[];
 }
 
-// Réservé ADMIN/RESPONSABLE — les données envoyées à l'IA couvrent finances
-// et clients, sensibles (cf. matrice de permissions §7).
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'RESPONSABLE')
+// Gouverné par la case à cocher "assistant" (Paramètres > Utilisateurs) —
+// les données envoyées à l'IA couvrent finances et clients, donc à cocher
+// avec discernement.
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission('assistant')
 @Controller('ai-advisor')
 export class AiAdvisorController {
   constructor(private aiAdvisorService: AiAdvisorService) {}

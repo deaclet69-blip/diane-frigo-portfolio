@@ -1,11 +1,11 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'RESPONSABLE')
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission('rapports')
 @Controller('reports')
 export class ReportsController {
   constructor(private reportsService: ReportsService) {}
@@ -33,5 +33,14 @@ export class ReportsController {
   @Get('stock-entries')
   stockEntries(@Query('from') from?: string, @Query('to') to?: string) {
     return this.reportsService.stockEntriesReport(from, to);
+  }
+
+  @Get('traceability')
+  traceability(
+    @Query('granularity') granularity: 'day' | 'week' | 'month' | 'year' = 'month',
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.reportsService.traceability(granularity, from, to);
   }
 }

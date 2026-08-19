@@ -101,6 +101,10 @@ model Product {
   referenceSalePrice      Decimal  @db.Decimal(12, 2)
   alertThreshold          Int      @default(500)
   isActive                Boolean  @default(true)
+  // Image du produit encodée en data URL (base64), affichée dans la page
+  // Stock. Pas de stockage fichier externe nécessaire (simple pour un
+  // hébergement comme Render sans disque persistant).
+  imageUrl                String?
 
   stockMovements StockMovement[]
   invoiceItems   InvoiceItem[]

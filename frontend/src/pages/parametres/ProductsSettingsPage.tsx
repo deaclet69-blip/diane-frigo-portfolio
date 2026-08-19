@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Button,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Stack, IconButton, MenuItem,
+  Avatar, Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import ImageIcon from '@mui/icons-material/Image';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { getProducts, createProduct, updateProduct } from '../../services/products';
 import { getCategories, createCategory, ProductCategory } from '../../services/categories';
+import { resizeImageToDataUrl } from '../../utils/image';
 import type { Product } from '../../types';
 
 function formatFcfa(value: number) {
@@ -17,7 +21,7 @@ const NEW_CATEGORY = '__new__';
 
 const emptyForm = {
   name: '', referencePurchasePrice: '', referenceSalePrice: '', alertThreshold: '500',
-  categoryId: '', newCategoryName: '',
+  categoryId: '', newCategoryName: '', imageUrl: '',
 };
 
 export default function ProductsSettingsPage() {
@@ -26,6 +30,7 @@ export default function ProductsSettingsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [imageError, setImageError] = useState('');
 
   function reload() {
     getProducts(true).then(setProducts);
@@ -37,6 +42,7 @@ export default function ProductsSettingsPage() {
   function openCreate() {
     setEditing(null);
     setForm(emptyForm);
+    setImageError('');
     setOpen(true);
   }
 
@@ -49,8 +55,27 @@ export default function ProductsSettingsPage() {
       alertThreshold: String(p.alertThreshold),
       categoryId: p.category?.id ?? '',
       newCategoryName: '',
+      imageUrl: p.imageUrl ?? '',
     });
+    setImageError('');
     setOpen(true);
+  }
+
+  async function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // permet de re-choisir le même fichier ensuite
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setImageError('Le fichier choisi n\'est pas une image.');
+      return;
+    }
+    try {
+      const dataUrl = await resizeImageToDataUrl(file);
+      setForm((f) => ({ ...f, imageUrl: dataUrl }));
+      setImageError('');
+    } catch {
+      setImageError('Impossible de lire cette image, réessaie avec une autre.');
+    }
   }
 
   async function handleSave() {
@@ -65,6 +90,7 @@ export default function ProductsSettingsPage() {
       referenceSalePrice: Number(form.referenceSalePrice),
       alertThreshold: Number(form.alertThreshold),
       categoryId: categoryId || undefined,
+      imageUrl: form.imageUrl, // '' = pas/plus d'image
     };
     if (editing) {
       await updateProduct(editing.id, payload);
@@ -88,6 +114,7 @@ export default function ProductsSettingsPage() {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell></TableCell>
               <TableCell>Nom</TableCell>
               <TableCell>Catégorie</TableCell>
               <TableCell align="right">Prix d'achat réf.</TableCell>
@@ -99,6 +126,11 @@ export default function ProductsSettingsPage() {
           <TableBody>
             {products.map((p) => (
               <TableRow key={p.id} hover>
+                <TableCell sx={{ width: 48 }}>
+                  <Avatar variant="rounded" src={p.imageUrl ?? undefined} sx={{ width: 34, height: 34 }}>
+                    <ImageIcon fontSize="small" />
+                  </Avatar>
+                </TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>{p.name}</TableCell>
                 <TableCell>{p.category?.name ?? '—'}</TableCell>
                 <TableCell align="right">{formatFcfa(p.referencePurchasePrice)}</TableCell>
@@ -119,6 +151,29 @@ export default function ProductsSettingsPage() {
         <DialogTitle>{editing ? 'Modifier le produit' : 'Nouveau produit'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Avatar variant="rounded" src={form.imageUrl || undefined} sx={{ width: 64, height: 64 }}>
+                <ImageIcon />
+              </Avatar>
+              <Stack spacing={0.5}>
+                <Button component="label" size="small" variant="outlined">
+                  {form.imageUrl ? 'Changer la photo' : 'Ajouter une photo'}
+                  <input type="file" accept="image/*" hidden onChange={handleImagePick} />
+                </Button>
+                {form.imageUrl && (
+                  <Button
+                    size="small"
+                    color="error"
+                    startIcon={<DeleteOutlineIcon fontSize="small" />}
+                    onClick={() => setForm((f) => ({ ...f, imageUrl: '' }))}
+                  >
+                    Retirer la photo
+                  </Button>
+                )}
+              </Stack>
+            </Stack>
+            {imageError && <Alert severity="warning">{imageError}</Alert>}
+
             <TextField
               label="Nom du produit"
               value={form.name}

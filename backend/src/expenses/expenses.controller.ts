@@ -3,8 +3,8 @@ import { IsIn } from 'class-validator';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -13,9 +13,9 @@ class ReclassifyDto {
   chargeType!: 'FIXE' | 'VARIABLE' | 'EXCEPTIONNEL';
 }
 
-// Finances : réservé ADMIN/RESPONSABLE (matrice de permissions §7)
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'RESPONSABLE')
+// Finances : gouverné par la case à cocher "charges" (Paramètres > Utilisateurs)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission('charges')
 @Controller('expenses')
 export class ExpensesController {
   constructor(

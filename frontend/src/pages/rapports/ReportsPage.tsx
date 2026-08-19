@@ -1,13 +1,175 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack } from '@mui/material';
-import { getProductsReport, getCustomersReport, getExpensesReport, getStockEntriesReport } from '../../services/reports';
-import type { StockEntryReportRow } from '../../types';
+import {
+  Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack,
+  ToggleButtonGroup, ToggleButton, TextField, Button, CircularProgress,
+  Select, MenuItem, FormControl, InputLabel,
+} from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
+import {
+  getProductsReport, getCustomersReport, getExpensesReport, getStockEntriesReport,
+  getTraceabilityReport,
+} from '../../services/reports';
+import type { StockEntryReportRow, TraceabilityGranularity, TraceabilityReport } from '../../types';
+import { diane } from '../../theme';
 
 function formatFcfa(value: number) {
   return `${Math.round(value).toLocaleString('fr-FR')} FCFA`;
 }
 
+const granularityLabels: Record<TraceabilityGranularity, string> = {
+  day: 'Jour', week: 'Semaine', month: 'Mois', year: 'Année',
+};
+
+function TraceabilitySection() {
+  const [granularity, setGranularity] = useState<TraceabilityGranularity>('month');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [data, setData] = useState<TraceabilityReport | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  function reload() {
+    setLoading(true);
+    getTraceabilityReport(granularity, from || undefined, to || undefined)
+      .then(setData)
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [granularity]);
+
+  function exportCsv() {
+    if (!data) return;
+    const headers = ['Période', 'Recettes (FCFA)', "Chiffre d'affaires (FCFA)", 'Coût marchandises (FCFA)', 'Marge brute (FCFA)', 'Charges (FCFA)', 'Résultat net (FCFA)'];
+    const lines = data.rows.map((r) => [
+      r.label, Math.round(r.recettes), Math.round(r.chiffreAffaires), Math.round(r.coutMarchandises),
+      Math.round(r.margeBrute), Math.round(r.charges), Math.round(r.resultatNet),
+    ]);
+    lines.push(['TOTAL', Math.round(data.totals.recettes), Math.round(data.totals.chiffreAffaires),
+      Math.round(data.totals.coutMarchandises), Math.round(data.totals.margeBrute),
+      Math.round(data.totals.charges), Math.round(data.totals.resultatNet)]);
+    const csv = [headers, ...lines].map((row) => row.join(';')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tracabilite-${granularity}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const displayRows = data ? [...data.rows].reverse() : [];
+
+  return (
+    <Paper>
+      <Box sx={{ p: 2.5, pb: 0 }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={1.5}>
+          <Box>
+            <Typography variant="subtitle1" fontWeight={700}>Traçabilité de l'argent</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Recettes encaissées, chiffre d'affaires et bénéfice par jour, semaine, mois ou année — pour analyser l'historique.
+            </Typography>
+          </Box>
+          <Button
+            size="small" variant="outlined" startIcon={<DownloadIcon fontSize="small" />}
+            onClick={exportCsv} disabled={!data || data.rows.length === 0}
+          >
+            Exporter CSV
+          </Button>
+        </Stack>
+
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mt: 2, mb: 1 }} alignItems={{ xs: 'stretch', sm: 'center' }}>
+          <ToggleButtonGroup
+            size="small" value={granularity} exclusive
+            onChange={(_, v) => v && setGranularity(v)}
+          >
+            {(Object.keys(granularityLabels) as TraceabilityGranularity[]).map((g) => (
+              <ToggleButton key={g} value={g}>{granularityLabels[g]}</ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+          <TextField
+            size="small" type="date" label="Du (optionnel)" value={from}
+            onChange={(e) => setFrom(e.target.value)} InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            size="small" type="date" label="Au (optionnel)" value={to}
+            onChange={(e) => setTo(e.target.value)} InputLabelProps={{ shrink: true }}
+          />
+          <Button size="small" variant="contained" onClick={reload} disabled={loading}>
+            Filtrer
+          </Button>
+        </Stack>
+      </Box>
+
+      {loading ? (
+        <Stack alignItems="center" sx={{ py: 4 }}><CircularProgress size={24} /></Stack>
+      ) : (
+        <Box sx={{ maxHeight: 480, overflow: 'auto', mt: 1 }}>
+          <Table stickyHeader size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Période</TableCell>
+                <TableCell align="right">Recettes</TableCell>
+                <TableCell align="right">CA</TableCell>
+                <TableCell align="right">Coût march.</TableCell>
+                <TableCell align="right">Marge brute</TableCell>
+                <TableCell align="right">Charges</TableCell>
+                <TableCell align="right">Résultat net</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {displayRows.map((r) => (
+                <TableRow key={r.period} hover>
+                  <TableCell sx={{ fontWeight: 600, textTransform: 'capitalize' }}>{r.label}</TableCell>
+                  <TableCell align="right">{formatFcfa(r.recettes)}</TableCell>
+                  <TableCell align="right">{formatFcfa(r.chiffreAffaires)}</TableCell>
+                  <TableCell align="right">{formatFcfa(r.coutMarchandises)}</TableCell>
+                  <TableCell align="right">{formatFcfa(r.margeBrute)}</TableCell>
+                  <TableCell align="right" sx={{ color: diane.red }}>{formatFcfa(r.charges)}</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700, color: r.resultatNet >= 0 ? diane.green : diane.red }}>
+                    {formatFcfa(r.resultatNet)}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {displayRows.length === 0 && (
+                <TableRow><TableCell colSpan={7} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune donnée pour cette période.</TableCell></TableRow>
+              )}
+            </TableBody>
+            {data && data.rows.length > 0 && (
+              <TableBody>
+                <TableRow sx={{ bgcolor: diane.bg, '& td': { fontWeight: 800, borderTop: `2px solid ${diane.navy}` } }}>
+                  <TableCell>TOTAL</TableCell>
+                  <TableCell align="right">{formatFcfa(data.totals.recettes)}</TableCell>
+                  <TableCell align="right">{formatFcfa(data.totals.chiffreAffaires)}</TableCell>
+                  <TableCell align="right">{formatFcfa(data.totals.coutMarchandises)}</TableCell>
+                  <TableCell align="right">{formatFcfa(data.totals.margeBrute)}</TableCell>
+                  <TableCell align="right" sx={{ color: diane.red }}>{formatFcfa(data.totals.charges)}</TableCell>
+                  <TableCell align="right" sx={{ color: data.totals.resultatNet >= 0 ? diane.green : diane.red }}>
+                    {formatFcfa(data.totals.resultatNet)}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+          </Table>
+        </Box>
+      )}
+    </Paper>
+  );
+}
+
+type ReportSection = 'tracabilite' | 'entrees' | 'ventes' | 'clients' | 'charges';
+
+const sectionLabels: Record<ReportSection, string> = {
+  tracabilite: "Traçabilité de l'argent",
+  entrees: 'Entrées de stock',
+  ventes: 'Ventes par produit',
+  clients: 'Top clients',
+  charges: 'Charges par catégorie',
+};
+
 export default function ReportsPage() {
+  const [section, setSection] = useState<ReportSection>('tracabilite');
   const [products, setProducts] = useState<any[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
@@ -22,9 +184,26 @@ export default function ReportsPage() {
 
   return (
     <Box>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Rapports</Typography>
+      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={1.5} sx={{ mb: 3 }}>
+        <Typography variant="h5" fontWeight={700}>Rapports</Typography>
+        <FormControl size="small" sx={{ minWidth: 260 }}>
+          <InputLabel id="report-section-label">Choisir un rapport</InputLabel>
+          <Select
+            labelId="report-section-label"
+            label="Choisir un rapport"
+            value={section}
+            onChange={(e) => setSection(e.target.value as ReportSection)}
+          >
+            {(Object.keys(sectionLabels) as ReportSection[]).map((key) => (
+              <MenuItem key={key} value={key}>{sectionLabels[key]}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Stack>
 
-      <Stack spacing={3}>
+      {section === 'tracabilite' && <TraceabilitySection />}
+
+      {section === 'entrees' && (
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Entrées de stock</Typography>
@@ -58,7 +237,9 @@ export default function ReportsPage() {
             </TableBody>
           </Table>
         </Paper>
+      )}
 
+      {section === 'ventes' && (
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Ventes par produit</Typography>
@@ -87,7 +268,9 @@ export default function ReportsPage() {
             </TableBody>
           </Table>
         </Paper>
+      )}
 
+      {section === 'clients' && (
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Top clients</Typography>
@@ -116,7 +299,9 @@ export default function ReportsPage() {
             </TableBody>
           </Table>
         </Paper>
+      )}
 
+      {section === 'charges' && (
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Charges par catégorie</Typography>
@@ -141,7 +326,7 @@ export default function ReportsPage() {
             </TableBody>
           </Table>
         </Paper>
-      </Stack>
+      )}
     </Box>
   );
 }

@@ -14,6 +14,7 @@ export function createProduct(payload: {
   referencePurchasePrice: number;
   referenceSalePrice: number;
   alertThreshold?: number;
+  imageUrl?: string;
 }) {
   return api.post<Product>('/products', payload).then((r) => r.data);
 }

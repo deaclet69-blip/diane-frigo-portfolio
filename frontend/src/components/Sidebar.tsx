@@ -1,6 +1,6 @@
 import {
   Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography, Stack,
-  Tooltip, useMediaQuery, IconButton, Avatar,
+  Tooltip, IconButton, Avatar,
 } from '@mui/material';
 import { NavLink, useNavigate } from 'react-router-dom';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
@@ -19,10 +19,13 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ViewSidebarOutlinedIcon from '@mui/icons-material/ViewSidebarOutlined';
+import ViewSidebarIcon from '@mui/icons-material/ViewSidebar';
 import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
 import LightModeIcon from '@mui/icons-material/LightModeOutlined';
 import { diane } from '../theme';
 import { useColorMode } from '../colorMode';
+import { useSidebarState } from '../sidebarState';
 import { getCurrentUser } from '../services/auth';
 import { hasPermission } from '../constants/permissions';
 
@@ -52,139 +55,214 @@ const navItems = [
 export default function Sidebar() {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const isCompact = useMediaQuery('(max-width:1200px)');
+  // Purement manuel désormais : l'utilisateur ouvre/ferme via la poignée
+  // sur le bord, état mémorisé (voir sidebarState.tsx).
+  const { collapsed, toggle: toggleSidebar } = useSidebarState();
+  const isCompact = collapsed;
   const width = isCompact ? COMPACT_WIDTH : FULL_WIDTH;
   const { mode, toggle } = useColorMode();
   const visibleNavItems = navItems.filter((item) => hasPermission(user, item.key));
 
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width,
-        flexShrink: 0,
-        display: { xs: 'none', sm: 'block' },
-        '& .MuiDrawer-paper': {
+    <>
+      <Drawer
+        variant="permanent"
+        sx={{
           width,
-          bgcolor: diane.navy,
-          color: '#fff',
-          border: 'none',
-          display: 'flex',
-          flexDirection: 'column',
-          overflowX: 'hidden',
-          transition: 'width 0.2s ease',
-        },
-      }}
-    >
-      <Stack direction="row" alignItems="center" spacing={1.2} sx={{ px: isCompact ? 0 : 2.25, py: 2, justifyContent: isCompact ? 'center' : 'flex-start' }}>
-        <Box
-          component="img"
-          src="/favicon.svg"
-          alt="DIANE FRIGO"
-          sx={{ width: 32, height: 32, flexShrink: 0, borderRadius: '8px' }}
-        />
-        {!isCompact && (
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 800, letterSpacing: 0.3, lineHeight: 1.1, fontSize: 14 }}>
-              DIANE FRIGO
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.45)', letterSpacing: 1.3, fontSize: 9 }}>
-              MANAGEMENT
-            </Typography>
-          </Box>
-        )}
-      </Stack>
-
-      <List sx={{
-        flexGrow: 1, px: isCompact ? 0.5 : 1.25, overflowY: 'auto',
-        // Défilement invisible : fonctionne quand même sur les très petits
-        // écrans, mais sans barre visible qui casse le design.
-        scrollbarWidth: 'none',
-        '&::-webkit-scrollbar': { display: 'none' },
-      }}>
-        {visibleNavItems.map((item) => {
-          const button = (
-            <ListItemButton
-              key={item.to + item.label}
-              component={NavLink}
-              to={item.to}
-              end={item.to === '/'}
-              sx={{
-                borderRadius: 2.5,
-                mb: 0.15,
-                py: 0.6,
-                minHeight: 36,
-                justifyContent: isCompact ? 'center' : 'flex-start',
-                color: 'rgba(255,255,255,0.68)',
-                '&.active': { bgcolor: diane.indigo, color: '#fff' },
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'inherit', minWidth: isCompact ? 0 : 34, justifyContent: 'center', '& svg': { fontSize: 19 } }}>
-                {item.icon}
-              </ListItemIcon>
-              {!isCompact && (
-                <>
-                  <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: 12.5, fontWeight: 500 }} />
-                  {item.hasSub && <ChevronRightIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.35)' }} />}
-                </>
-              )}
-            </ListItemButton>
-          );
-          return isCompact ? (
-            <Tooltip key={item.to + item.label} title={item.label} placement="right">
-              {button}
-            </Tooltip>
-          ) : button;
-        })}
-      </List>
-
-      {!isCompact && (
-        <Box sx={{ px: 1.25, pb: 1 }}>
-          <Box
-            sx={{
-              borderRadius: 3,
-              p: 1.5,
-              background: `linear-gradient(160deg, ${diane.indigo} 0%, ${diane.navy} 100%)`,
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>DIANE FRIGO</Typography>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>
-              La gestion intelligente de votre chambre froide
-            </Typography>
-            <LocalShippingIcon sx={{ position: 'absolute', right: -6, bottom: -8, fontSize: 56, color: 'rgba(255,255,255,0.1)' }} />
-          </Box>
-        </Box>
-      )}
-
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1.2}
-        sx={{ px: isCompact ? 1 : 2, py: 1.25, borderTop: '1px solid rgba(255,255,255,0.08)' }}
+          flexShrink: 0,
+          display: { xs: 'none', sm: 'block' },
+          '& .MuiDrawer-paper': {
+            width,
+            bgcolor: diane.navy,
+            color: '#fff',
+            border: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            overflowX: 'hidden',
+            transition: 'width 0.2s ease',
+          },
+        }}
       >
-        <Avatar sx={{ width: 34, height: 34, bgcolor: diane.blue, fontSize: 14 }}>
-          {user?.email?.[0]?.toUpperCase() ?? 'U'}
-        </Avatar>
-        {!isCompact && (
-          <>
+        {/* px fixe (jamais conditionné par isCompact) : le logo "DIANE FRIGO"
+            reste exactement à la même position, ouvert ou fermé — seul le
+            texte à côté apparaît/disparaît. */}
+        <Stack direction="row" alignItems="center" spacing={1.2} sx={{ px: 2.25, py: 2.25 }}>
+          <Box
+            component="img"
+            src="/favicon.svg"
+            alt="DIANE FRIGO"
+            sx={{ width: 32, height: 32, flexShrink: 0, borderRadius: '8px' }}
+          />
+          {!isCompact && (
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-              <Typography variant="body2" fontWeight={700} noWrap>{user?.email?.split('@')[0] ?? 'Utilisateur'}</Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
-                {user?.role === 'ADMIN' ? 'Administrateur' : user?.role ?? ''}
+              <Typography variant="body2" sx={{ fontWeight: 800, letterSpacing: 0.3, lineHeight: 1.1, fontSize: 14 }}>
+                DIANE FRIGO
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.45)', letterSpacing: 1.3, fontSize: 9 }}>
+                MANAGEMENT
               </Typography>
             </Box>
-            <Tooltip title={mode === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}>
-              <IconButton size="small" onClick={toggle} sx={{ color: 'rgba(255,255,255,0.6)' }}>
-                {mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
-              </IconButton>
+          )}
+        </Stack>
+        <Box sx={{ mx: isCompact ? 1 : 2.25, mb: 1, height: '1px', bgcolor: 'rgba(255,255,255,0.08)' }} />
+
+        <List sx={{
+          flexGrow: 1, px: isCompact ? 0.75 : 1.25, pt: 0.5, overflowY: 'auto',
+          // Défilement invisible : fonctionne quand même sur les très petits
+          // écrans, mais sans barre visible qui casse le design.
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}>
+          {visibleNavItems.map((item) => {
+            const button = (
+              <ListItemButton
+                key={item.to + item.label}
+                component={NavLink}
+                to={item.to}
+                end={item.to === '/'}
+                sx={{
+                  position: 'relative',
+                  borderRadius: isCompact ? 2 : 2.5,
+                  mb: isCompact ? 0.5 : 0.15,
+                  py: isCompact ? 0.75 : 0.6,
+                  minHeight: 36,
+                  justifyContent: 'center',
+                  color: 'rgba(255,255,255,0.68)',
+                  transition: 'background-color 0.15s ease, box-shadow 0.15s ease',
+                  // Petit repère coloré à gauche même en mode réduit, pour
+                  // que la page active se reconnaisse au premier coup d'œil.
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    left: isCompact ? 6 : 0,
+                    top: '20%',
+                    bottom: '20%',
+                    width: 3,
+                    borderRadius: 3,
+                    bgcolor: diane.blue,
+                    opacity: 0,
+                    transition: 'opacity 0.15s ease',
+                  },
+                  '&.active': {
+                    bgcolor: 'rgba(255,255,255,0.08)',
+                    color: '#fff',
+                    boxShadow: isCompact ? `inset 0 0 0 1px ${diane.indigo}55` : 'none',
+                  },
+                  '&.active::before': { opacity: 1 },
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'inherit', minWidth: isCompact ? 0 : 34, justifyContent: 'center', '& svg': { fontSize: 19 } }}>
+                  {item.icon}
+                </ListItemIcon>
+                {!isCompact && (
+                  <>
+                    <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: 12.5, fontWeight: 500 }} />
+                    {item.hasSub && <ChevronRightIcon sx={{ fontSize: 16, color: 'rgba(255,255,255,0.35)' }} />}
+                  </>
+                )}
+              </ListItemButton>
+            );
+            return isCompact ? (
+              <Tooltip key={item.to + item.label} title={item.label} placement="right">
+                {button}
+              </Tooltip>
+            ) : button;
+          })}
+        </List>
+
+        {!isCompact ? (
+          <Box sx={{ px: 1.25, pb: 1 }}>
+            <Box
+              sx={{
+                borderRadius: 3,
+                p: 1.5,
+                background: `linear-gradient(160deg, ${diane.indigo} 0%, ${diane.navy} 100%)`,
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>DIANE FRIGO</Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>
+                La gestion intelligente de votre chambre froide
+              </Typography>
+              <LocalShippingIcon sx={{ position: 'absolute', right: -6, bottom: -8, fontSize: 56, color: 'rgba(255,255,255,0.1)' }} />
+            </Box>
+          </Box>
+        ) : (
+          // Version réduite du même bloc : un médaillon dégradé avec l'icône
+          // de la marque, pour ne pas laisser un vide "trop simple" en bas
+          // de la barre compacte.
+          <Box sx={{ display: 'flex', justifyContent: 'center', pb: 1.5 }}>
+            <Tooltip title="DIANE FRIGO — gestion de la chambre froide" placement="right">
+              <Box
+                sx={{
+                  width: 40, height: 40, borderRadius: '12px',
+                  background: `linear-gradient(160deg, ${diane.indigo} 0%, ${diane.navy} 100%)`,
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <LocalShippingIcon sx={{ fontSize: 20, color: 'rgba(255,255,255,0.85)' }} />
+              </Box>
             </Tooltip>
-          </>
+          </Box>
         )}
-      </Stack>
-    </Drawer>
+
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1.2}
+          sx={{ px: isCompact ? 1 : 2, py: 1.25, borderTop: '1px solid rgba(255,255,255,0.08)', justifyContent: isCompact ? 'center' : 'flex-start' }}
+        >
+          <Avatar sx={{ width: 34, height: 34, bgcolor: diane.blue, fontSize: 14 }}>
+            {user?.email?.[0]?.toUpperCase() ?? 'U'}
+          </Avatar>
+          {!isCompact && (
+            <>
+              <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                <Typography variant="body2" fontWeight={700} noWrap>{user?.email?.split('@')[0] ?? 'Utilisateur'}</Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+                  {user?.role === 'ADMIN' ? 'Administrateur' : user?.role ?? ''}
+                </Typography>
+              </Box>
+              <Tooltip title={mode === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}>
+                <IconButton size="small" onClick={toggle} sx={{ color: 'rgba(255,255,255,0.6)' }}>
+                  {mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+        </Stack>
+      </Drawer>
+
+      {/* Poignée de bascule : petit bouton rond à cheval sur le bord de la
+          barre (moitié dedans, moitié dans le contenu) — ne bouge jamais
+          avec le logo ni le texte, toujours au même endroit vertical. */}
+      <Tooltip title={collapsed ? 'Ouvrir le menu' : 'Réduire le menu'} placement="right">
+        <IconButton
+          onClick={toggleSidebar}
+          size="small"
+          sx={{
+            display: { xs: 'none', sm: 'flex' },
+            position: 'fixed',
+            top: 28,
+            left: width - 14,
+            zIndex: 1250,
+            width: 28,
+            height: 28,
+            bgcolor: diane.navy,
+            color: '#fff',
+            border: `2px solid ${diane.indigo}`,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
+            transition: 'left 0.2s ease, background-color 0.15s ease',
+            '&:hover': { bgcolor: diane.indigo },
+          }}
+        >
+          {collapsed ? <ViewSidebarOutlinedIcon sx={{ fontSize: 15 }} /> : <ViewSidebarIcon sx={{ fontSize: 15 }} />}
+        </IconButton>
+      </Tooltip>
+    </>
   );
 }
 

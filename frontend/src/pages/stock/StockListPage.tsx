@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Box, Typography, Paper, InputAdornment, TextField, ToggleButtonGroup, ToggleButton,
-  Table, TableHead, TableRow, TableCell, TableBody, Stack, Button,
+  Table, TableHead, TableRow, TableCell, TableBody, Stack, Button, Avatar,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
+import ImageIcon from '@mui/icons-material/Image';
 import { useNavigate } from 'react-router-dom';
 import { getStockOverview } from '../../services/stock';
 import type { StockOverview, StockStatus } from '../../types';
@@ -68,6 +69,7 @@ export default function StockListPage() {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell></TableCell>
               <TableCell>Produit</TableCell>
               <TableCell>Catégorie</TableCell>
               <TableCell align="right">Stock restant</TableCell>
@@ -84,6 +86,11 @@ export default function StockListPage() {
                 sx={{ cursor: 'pointer' }}
                 onClick={() => navigate(`/stock/${item.id}`)}
               >
+                <TableCell sx={{ width: 48 }}>
+                  <Avatar variant="rounded" src={item.imageUrl ?? undefined} sx={{ width: 34, height: 34 }}>
+                    <ImageIcon fontSize="small" />
+                  </Avatar>
+                </TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>{item.name}</TableCell>
                 <TableCell>{item.category ?? '—'}</TableCell>
                 <TableCell align="right">
@@ -97,7 +104,7 @@ export default function StockListPage() {
             ))}
             {data && filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                   Aucun produit ne correspond à la recherche.
                 </TableCell>
               </TableRow>

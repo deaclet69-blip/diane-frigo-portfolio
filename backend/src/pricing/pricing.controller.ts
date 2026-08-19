@@ -2,8 +2,8 @@ import { Body, Controller, Get, Patch, Query, UseGuards } from '@nestjs/common';
 import { IsNumber, IsOptional, Max, Min } from 'class-validator';
 import { PricingService } from './pricing.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 class UpdatePricingSettingsDto {
@@ -22,8 +22,8 @@ class UpdatePricingSettingsDto {
   @IsOptional() @IsNumber() @Min(0) estimatedMonthlyCartonsSold?: number;
 }
 
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'RESPONSABLE')
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission('rentabilite')
 @Controller('pricing')
 export class PricingController {
   constructor(private pricingService: PricingService) {}

@@ -2,12 +2,12 @@ import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { LoansService } from './loans.service';
 import { UpsertLoanDto } from './dto/upsert-loan.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'RESPONSABLE')
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission('investissement')
 @Controller('loans')
 export class LoansController {
   constructor(private loansService: LoansService) {}

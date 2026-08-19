@@ -52,6 +52,7 @@ export class StockService {
           name: product.name,
           category: product.category?.name ?? null,
           unit: product.unit,
+          imageUrl: product.imageUrl,
           currentStock,
           alertThreshold: product.alertThreshold,
           status: computeStatus(currentStock, product.alertThreshold),

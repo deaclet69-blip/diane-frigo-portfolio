@@ -2,12 +2,12 @@ import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { LossesService } from './losses.service';
 import { CreateLossDto } from './dto/create-loss.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'RESPONSABLE', 'MAGASINIER')
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermission('pertes')
 @Controller('losses')
 export class LossesController {
   constructor(private lossesService: LossesService) {}

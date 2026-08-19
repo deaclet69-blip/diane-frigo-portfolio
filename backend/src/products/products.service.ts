@@ -29,7 +29,7 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto, userId: string) {
-    const product = await this.prisma.product.create({ data: dto });
+    const product = await this.prisma.product.create({ data: normalizeImage(dto) });
     await this.audit.log({
       userId,
       action: 'create',
@@ -42,7 +42,7 @@ export class ProductsService {
 
   async update(id: string, dto: UpdateProductDto, userId: string) {
     const before = await this.findById(id);
-    const product = await this.prisma.product.update({ where: { id }, data: dto });
+    const product = await this.prisma.product.update({ where: { id }, data: normalizeImage(dto) });
     await this.audit.log({
       userId,
       action: 'update',
@@ -53,4 +53,12 @@ export class ProductsService {
     });
     return product;
   }
+}
+
+// dto.imageUrl === '' (chaîne vide, envoyée quand l'utilisateur clique sur
+// "Supprimer l'image") est converti en `null` pour bien effacer la colonne
+// en base plutôt que d'y stocker une chaîne vide.
+function normalizeImage<T extends { imageUrl?: string }>(dto: T) {
+  if (dto.imageUrl === undefined) return dto;
+  return { ...dto, imageUrl: dto.imageUrl === '' ? null : dto.imageUrl };
 }

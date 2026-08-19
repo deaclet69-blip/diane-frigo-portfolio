@@ -9,6 +9,14 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
 export const api = axios.create({ baseURL: API_BASE_URL });
 
+// Déclenche une notification visible (voir components/ApiErrorNotification.tsx)
+// pour qu'une erreur API ne se traduise plus jamais par une page silencieusement
+// vide. Événement global plutôt qu'un contexte React : évite de devoir modifier
+// chacune des pages qui appellent l'API.
+function notifyApiError(message: string, severity: 'error' | 'warning' = 'error') {
+  window.dispatchEvent(new CustomEvent('api-error', { detail: { message, severity } }));
+}
+
 // Injecte le token d'accès sur chaque requête
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
@@ -38,9 +46,22 @@ api.interceptors.response.use(
         } catch {
           localStorage.clear();
           window.location.href = '/login';
+          return Promise.reject(error);
         }
       }
+      return Promise.reject(error);
     }
+
+    // Toute autre erreur : on prévient l'utilisateur au lieu de laisser la
+    // page se charger avec des données vides sans explication.
+    if (error.response?.status === 403) {
+      notifyApiError("Accès refusé : vous n'avez pas la permission de voir ces données. Contactez un administrateur si vous pensez que c'est une erreur.");
+    } else if (error.response && error.response.status >= 500) {
+      notifyApiError('Une erreur est survenue côté serveur. Réessayez dans un instant.');
+    } else if (!error.response) {
+      notifyApiError('Impossible de contacter le serveur. Vérifiez votre connexion internet.', 'warning');
+    }
+
     return Promise.reject(error);
   },
 );

@@ -1,6 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+export type TraceabilityGranularity = 'day' | 'week' | 'month' | 'year';
+
+export interface TraceabilityRow {
+  period: string;
+  label: string;
+  recettes: number;
+  chiffreAffaires: number;
+  coutMarchandises: number;
+  margeBrute: number;
+  charges: number;
+  resultatNet: number;
+}
+
 @Injectable()
 export class ReportsService {
   constructor(private prisma: PrismaService) {}
@@ -71,6 +84,101 @@ export class ReportsService {
         (acc, inv) => acc + inv.items.reduce((s, it) => s + Number(it.lineProfit), 0), 0,
       ),
     };
+  }
+
+  /**
+   * Traçabilité de l'argent — vue jour / semaine / mois / année pour le
+   * comptable ou le vendeur : recettes réellement encaissées (Payment),
+   * chiffre d'affaires facturé (InvoiceItem.lineTotal), coût des
+   * marchandises, marge brute, charges (Expense) et résultat net par
+   * période. `from`/`to` (format YYYY-MM-DD) filtrent une plage de dates ;
+   * sans filtre, tout l'historique est agrégé.
+   */
+  async traceability(granularity: TraceabilityGranularity, from?: string, to?: string) {
+    const hasFilter = !!from || !!to;
+    const dateFilter = { gte: from ? new Date(from) : undefined, lte: to ? new Date(to) : undefined };
+
+    const [items, payments, expenses] = await Promise.all([
+      this.prisma.invoiceItem.findMany({
+        where: { invoice: { voidedAt: null, ...(hasFilter ? { date: dateFilter } : {}) } },
+        include: { invoice: { select: { date: true } } },
+      }),
+      this.prisma.payment.findMany({ where: hasFilter ? { date: dateFilter } : {} }),
+      this.prisma.expense.findMany({ where: hasFilter ? { date: dateFilter } : {} }),
+    ]);
+
+    const buckets = new Map<string, TraceabilityRow>();
+    const getBucket = (key: string): TraceabilityRow => {
+      let row = buckets.get(key);
+      if (!row) {
+        row = {
+          period: key,
+          label: this.periodLabel(key, granularity),
+          recettes: 0,
+          chiffreAffaires: 0,
+          coutMarchandises: 0,
+          margeBrute: 0,
+          charges: 0,
+          resultatNet: 0,
+        };
+        buckets.set(key, row);
+      }
+      return row;
+    };
+
+    for (const item of items) {
+      const row = getBucket(this.periodKey(new Date(item.invoice.date), granularity));
+      row.chiffreAffaires += Number(item.lineTotal);
+      row.coutMarchandises += item.quantity * Number(item.unitPurchasePrice);
+      row.margeBrute += Number(item.lineProfit);
+    }
+    for (const p of payments) {
+      getBucket(this.periodKey(new Date(p.date), granularity)).recettes += Number(p.amount);
+    }
+    for (const e of expenses) {
+      getBucket(this.periodKey(new Date(e.date), granularity)).charges += Number(e.amount);
+    }
+
+    const rows = Array.from(buckets.values())
+      .map((r) => ({ ...r, resultatNet: r.margeBrute - r.charges }))
+      .sort((a, b) => a.period.localeCompare(b.period));
+
+    const totals = rows.reduce(
+      (acc, r) => ({
+        recettes: acc.recettes + r.recettes,
+        chiffreAffaires: acc.chiffreAffaires + r.chiffreAffaires,
+        coutMarchandises: acc.coutMarchandises + r.coutMarchandises,
+        margeBrute: acc.margeBrute + r.margeBrute,
+        charges: acc.charges + r.charges,
+        resultatNet: acc.resultatNet + r.resultatNet,
+      }),
+      { recettes: 0, chiffreAffaires: 0, coutMarchandises: 0, margeBrute: 0, charges: 0, resultatNet: 0 },
+    );
+
+    return { granularity, rows, totals };
+  }
+
+  private periodKey(date: Date, granularity: TraceabilityGranularity): string {
+    if (granularity === 'day') return date.toISOString().slice(0, 10);
+    if (granularity === 'month') return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    if (granularity === 'year') return String(date.getFullYear());
+    // semaine ISO approximative — même logique que FinancesService.getRecettes
+    const onejan = new Date(date.getFullYear(), 0, 1);
+    const week = Math.ceil(((date.getTime() - onejan.getTime()) / 86400000 + onejan.getDay() + 1) / 7);
+    return `${date.getFullYear()}-S${week}`;
+  }
+
+  private periodLabel(key: string, granularity: TraceabilityGranularity): string {
+    if (granularity === 'day') {
+      return new Date(key).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    if (granularity === 'month') {
+      const [y, m] = key.split('-');
+      return new Date(Number(y), Number(m) - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    }
+    if (granularity === 'year') return key;
+    const [year, week] = key.split('-S');
+    return `Semaine ${week} — ${year}`;
   }
 
   /** Entrées de stock avec date, fournisseur et prix d'achat (demande utilisateur). */

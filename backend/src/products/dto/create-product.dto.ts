@@ -25,4 +25,11 @@ export class CreateProductDto {
   @IsInt()
   @Min(0)
   alertThreshold?: number;
+
+  // Data URL base64 (ex: "data:image/jpeg;base64,...") envoyée par le
+  // frontend après redimensionnement/compression côté navigateur.
+  // Chaîne vide = suppression de l'image (voir ProductsService).
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }
