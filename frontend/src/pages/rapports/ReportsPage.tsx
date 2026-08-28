@@ -7,7 +7,7 @@ import {
 import DownloadIcon from '@mui/icons-material/Download';
 import {
   getProductsReport, getCustomersReport, getExpensesReport, getStockEntriesReport,
-  getTraceabilityReport,
+  getTraceabilityReport, getVelocityReport, VelocityRow,
 } from '../../services/reports';
 import type { StockEntryReportRow, TraceabilityGranularity, TraceabilityReport } from '../../types';
 import { diane } from '../../theme';
@@ -158,12 +158,13 @@ function TraceabilitySection() {
   );
 }
 
-type ReportSection = 'tracabilite' | 'entrees' | 'ventes' | 'clients' | 'charges';
+type ReportSection = 'tracabilite' | 'entrees' | 'ventes' | 'vitesse' | 'clients' | 'charges';
 
 const sectionLabels: Record<ReportSection, string> = {
   tracabilite: "Traçabilité de l'argent",
   entrees: 'Entrées de stock',
   ventes: 'Ventes par produit',
+  vitesse: "Vitesse d'écoulement",
   clients: 'Top clients',
   charges: 'Charges par catégorie',
 };
@@ -174,12 +175,14 @@ export default function ReportsPage() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
   const [stockEntries, setStockEntries] = useState<StockEntryReportRow[]>([]);
+  const [velocity, setVelocity] = useState<VelocityRow[]>([]);
 
   useEffect(() => {
     getProductsReport().then(setProducts);
     getCustomersReport().then(setCustomers);
     getExpensesReport().then(setExpenses);
     getStockEntriesReport().then(setStockEntries);
+    getVelocityReport(30).then(setVelocity);
   }, []);
 
   return (
@@ -264,6 +267,54 @@ export default function ReportsPage() {
               ))}
               {products.length === 0 && (
                 <TableRow><TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune donnée.</TableCell></TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </Paper>
+      )}
+
+      {section === 'vitesse' && (
+        <Paper>
+          <Box sx={{ p: 2.5, pb: 0 }}>
+            <Typography variant="subtitle1" fontWeight={700}>Vitesse d'écoulement des produits</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Classement du produit qui part le plus vite au moins vite (30 derniers jours) — pour savoir quoi racheter en priorité.
+            </Typography>
+          </Box>
+          <Table sx={{ mt: 1 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Rang</TableCell>
+                <TableCell>Produit</TableCell>
+                <TableCell align="right">Vendu (30j)</TableCell>
+                <TableCell align="right">Rythme / jour</TableCell>
+                <TableCell align="right">Stock actuel</TableCell>
+                <TableCell align="right">Jours de stock restants</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {velocity.map((v) => (
+                <TableRow key={v.productId}>
+                  <TableCell sx={{ fontWeight: 700 }}>#{v.rank}</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>{v.productName}</TableCell>
+                  <TableCell align="right">{v.quantitySoldWindow}</TableCell>
+                  <TableCell align="right">{v.avgDailyQuantity.toFixed(1)} cartons/j</TableCell>
+                  <TableCell align="right">{v.currentStock}</TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{
+                      fontWeight: 700,
+                      color: v.daysOfStockRemaining !== null && v.daysOfStockRemaining < 7 ? diane.red
+                        : v.daysOfStockRemaining !== null && v.daysOfStockRemaining < 15 ? diane.orange
+                        : diane.green,
+                    }}
+                  >
+                    {v.daysOfStockRemaining !== null ? `~${Math.round(v.daysOfStockRemaining)} j` : '—'}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {velocity.length === 0 && (
+                <TableRow><TableCell colSpan={6} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune donnée.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

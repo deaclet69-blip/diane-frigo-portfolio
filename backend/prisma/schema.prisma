@@ -149,6 +149,11 @@ model Invoice {
   customerId     String
   date           DateTime      @db.Date
   status         InvoiceStatus @default(PAID)
+  // Ajout — remplace customerType sur la fiche client : le type de prix
+  // (détail/gros) se décide À CHAQUE VENTE, pas une fois pour toutes sur
+  // le client (demande utilisateur — un même client peut acheter en détail
+  // une fois et en gros une autre fois).
+  saleType       CustomerType  @default(DETAIL)
   subtotal       Decimal       @db.Decimal(14, 2)
   discount       Decimal       @db.Decimal(14, 2) @default(0)
   total          Decimal       @db.Decimal(14, 2)

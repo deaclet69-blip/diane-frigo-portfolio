@@ -12,6 +12,7 @@ export interface CreateSalePayload {
   paymentMethod?: string;
   leaveInDeposit?: boolean;
   allowOverstock?: boolean;
+  saleType?: 'DETAIL' | 'GROS';
 }
 
 export function createSale(payload: CreateSalePayload) {

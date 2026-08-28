@@ -128,32 +128,33 @@ export class DashboardService {
     const receivablesTotal = unpaidInvoices.reduce((acc, i) => acc + Number(i.balanceDue), 0);
     const receivablesCount = unpaidInvoices.length;
 
-    // Alertes
-    const alerts: { type: string; title: string; detail: string; timeAgo: string }[] = [];
+    // Alertes — chacune porte un lien vers la page où voir le détail
+    // (demande utilisateur : pouvoir cliquer pour voir "qui" est concerné).
+    const alerts: { type: string; title: string; detail: string; timeAgo: string; link: string }[] = [];
     const alertItems = stockOverview.items.filter((i) => i.status !== 'OK');
     if (alertItems.length > 0) {
       alerts.push({
         type: 'warning', title: 'Stock faible',
-        detail: `${alertItems.length} produit(s) sont en stock faible`, timeAgo: '',
+        detail: `${alertItems.length} produit(s) sont en stock faible`, timeAgo: '', link: '/stock',
       });
     }
     const ruptures = stockOverview.items.filter((i) => i.status === 'RUPTURE');
     if (ruptures.length > 0) {
       alerts.push({
         type: 'error', title: 'Rupture de stock',
-        detail: `${ruptures.length} produit(s) en rupture de stock`, timeAgo: '',
+        detail: `${ruptures.length} produit(s) en rupture de stock`, timeAgo: '', link: '/stock',
       });
     }
     if (receivablesCount > 0) {
       alerts.push({
         type: 'error', title: 'Paiement en retard',
-        detail: `${receivablesCount} facture(s) ont un solde impayé`, timeAgo: '',
+        detail: `${receivablesCount} facture(s) ont un solde impayé`, timeAgo: '', link: '/ventes?impayees=1',
       });
     }
     if (depositsCartons > 0) {
       alerts.push({
         type: 'info', title: 'Dépôt à retirer',
-        detail: `${deposits.filter((d) => d.movements.length > 0).length} client(s) ont des dépôts à retirer`, timeAgo: '',
+        detail: `${deposits.filter((d) => d.movements.length > 0).length} client(s) ont des dépôts à retirer`, timeAgo: '', link: '/depots',
       });
     }
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, TextField,
   InputAdornment, Stack, Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  IconButton, MenuItem, Alert,
+  IconButton, Alert,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCustomers, createCustomer, updateCustomer, deleteCustomer } from '../../services/customers';
 import type { Customer } from '../../types';
 
-const emptyForm = { name: '', phone: '', customerType: '' };
+const emptyForm = { name: '', phone: '' };
 
 export default function ClientsListPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -42,17 +42,13 @@ export default function ClientsListPage() {
   function openEdit(c: Customer, e: React.MouseEvent) {
     e.stopPropagation();
     setEditing(c);
-    setForm({ name: c.name, phone: c.phone ?? '', customerType: c.customerType ?? '' });
+    setForm({ name: c.name, phone: c.phone ?? '' });
     setOpen(true);
   }
 
   async function handleSave() {
     if (!form.name.trim()) return;
-    const payload = {
-      name: form.name.trim(),
-      phone: form.phone || undefined,
-      customerType: form.customerType || undefined,
-    };
+    const payload = { name: form.name.trim(), phone: form.phone || undefined };
     if (editing) {
       await updateCustomer(editing.id, payload);
     } else {
@@ -98,7 +94,6 @@ export default function ClientsListPage() {
             <TableRow>
               <TableCell>Nom</TableCell>
               <TableCell>Téléphone</TableCell>
-              <TableCell>Type</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
@@ -107,7 +102,6 @@ export default function ClientsListPage() {
               <TableRow key={c.id} hover sx={{ cursor: 'pointer' }} onClick={() => navigate(`/clients/${c.id}`)}>
                 <TableCell sx={{ fontWeight: 600 }}>{c.name}</TableCell>
                 <TableCell>{c.phone ?? '—'}</TableCell>
-                <TableCell>{c.customerType ?? '—'}</TableCell>
                 <TableCell align="right">
                   <IconButton size="small" onClick={(e) => openEdit(c, e)}>
                     <EditIcon fontSize="small" />
@@ -123,7 +117,7 @@ export default function ClientsListPage() {
             ))}
             {customers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                <TableCell colSpan={3} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                   Aucun client trouvé.
                 </TableCell>
               </TableRow>
@@ -138,15 +132,6 @@ export default function ClientsListPage() {
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField label="Nom" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} fullWidth />
             <TextField label="Téléphone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} fullWidth />
-            <TextField
-              select label="Type" value={form.customerType}
-              onChange={(e) => setForm({ ...form, customerType: e.target.value })} fullWidth
-            >
-              <MenuItem value="">—</MenuItem>
-              <MenuItem value="DETAIL">Détail</MenuItem>
-              <MenuItem value="GROS">Gros</MenuItem>
-              <MenuItem value="MIXTE">Mixte</MenuItem>
-            </TextField>
           </Stack>
         </DialogContent>
         <DialogActions>

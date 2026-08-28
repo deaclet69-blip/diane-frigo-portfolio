@@ -95,6 +95,7 @@ export class SalesService {
           amountPaid,
           balanceDue,
           isDepositSale: !!dto.leaveInDeposit,
+          saleType: dto.saleType ?? 'DETAIL',
           createdById: userId,
           items: {
             create: lineData.map((l) => ({

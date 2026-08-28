@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Box, useMediaQuery } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import Sidebar, { FULL_WIDTH, COMPACT_WIDTH } from '../components/Sidebar';
 import Header from '../components/Header';
 import MobileBottomNav from '../components/MobileBottomNav';
+import MobileNavDrawer from '../components/MobileNavDrawer';
 import AiChatBubble from '../components/AiChatBubble';
 import { useBrowserNotifications } from '../hooks/useBrowserNotifications';
 import { useSidebarState } from '../sidebarState';
@@ -11,11 +13,13 @@ import { useSidebarState } from '../sidebarState';
 // l'utilisateur (bouton menu en haut de la Sidebar — état persisté et
 // initialisé selon la taille d'écran, voir App.tsx / sidebarState.tsx).
 // Mobile (<600px, breakpoint MUI "sm") : sidebar masquée, remplacée par une
-// navigation basse (§17 du brief).
+// navigation basse (§17 du brief) + un menu complet ouvert par le bouton
+// hamburger du Header (toutes les pages, pas seulement les 5 raccourcis).
 export default function AppLayout() {
   const isMobile = useMediaQuery('(max-width:599px)');
   const { collapsed } = useSidebarState();
   const sidebarWidth = isMobile ? 0 : collapsed ? COMPACT_WIDTH : FULL_WIDTH;
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useBrowserNotifications();
 
@@ -27,12 +31,13 @@ export default function AppLayout() {
         width: { xs: '100%', sm: `calc(100% - ${sidebarWidth}px)` },
         transition: 'width 0.2s ease',
       }}>
-        <Header />
+        <Header onMenuClick={() => setMobileNavOpen(true)} />
         <Box sx={{ p: { xs: 2, sm: 3 }, pb: isMobile ? 10 : 3 }}>
           <Outlet />
         </Box>
       </Box>
       {isMobile && <MobileBottomNav />}
+      {isMobile && <MobileNavDrawer open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />}
       <AiChatBubble />
     </Box>
   );

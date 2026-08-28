@@ -35,6 +35,11 @@ export class ReportsController {
     return this.reportsService.stockEntriesReport(from, to);
   }
 
+  @Get('velocity')
+  velocity(@Query('days') days?: string) {
+    return this.reportsService.velocityReport(days ? Number(days) : 30);
+  }
+
   @Get('traceability')
   traceability(
     @Query('granularity') granularity: 'day' | 'week' | 'month' | 'year' = 'month',

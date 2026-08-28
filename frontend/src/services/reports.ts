@@ -26,3 +26,17 @@ export function getTraceabilityReport(granularity: TraceabilityGranularity, from
     .get<TraceabilityReport>('/reports/traceability', { params: { granularity, from, to } })
     .then((r) => r.data);
 }
+
+export interface VelocityRow {
+  productId: string;
+  productName: string;
+  quantitySoldWindow: number;
+  avgDailyQuantity: number;
+  currentStock: number;
+  daysOfStockRemaining: number | null;
+  rank: number;
+}
+
+export function getVelocityReport(days = 30) {
+  return api.get<VelocityRow[]>('/reports/velocity', { params: { days } }).then((r) => r.data);
+}

@@ -1,8 +1,9 @@
 import { Type } from 'class-transformer';
 import {
-  ArrayMinSize, IsArray, IsBoolean, IsDateString, IsIn, IsInt, IsNumber, IsOptional, IsString,
+  ArrayMinSize, IsArray, IsBoolean, IsDateString, IsEnum, IsIn, IsInt, IsNumber, IsOptional, IsString,
   Min, ValidateNested,
 } from 'class-validator';
+import { CustomerType } from '@prisma/client';
 
 export class SaleItemDto {
   @IsString()
@@ -60,4 +61,10 @@ export class CreateSaleDto {
   @IsOptional()
   @IsString()
   invoiceNumber?: string;
+
+  // Type de prix appliqué à CETTE vente précise (détail/gros) — décidé à
+  // chaque vente, pas fixé sur la fiche client (demande utilisateur).
+  @IsOptional()
+  @IsEnum(CustomerType)
+  saleType?: CustomerType;
 }

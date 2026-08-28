@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
-import { AppBar, Toolbar, IconButton, Avatar, Box, Typography, Stack, Badge, Chip } from '@mui/material';
+import {
+  AppBar, Toolbar, IconButton, Avatar, Box, Typography, Stack, Badge, Chip,
+  Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Button,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../services/auth';
 import { getStockAlerts } from '../services/stock';
@@ -21,6 +25,8 @@ const today = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'l
 export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const user = getCurrentUser();
   const [alertCount, setAlertCount] = useState(0);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,7 +63,7 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           direction="row"
           alignItems="center"
           spacing={1}
-          onClick={logout}
+          onClick={(e) => setMenuAnchor(e.currentTarget)}
           sx={{ cursor: 'pointer', bgcolor: 'action.hover', borderRadius: 3, px: 1, py: 0.5 }}
         >
           <Avatar sx={{ width: 32, height: 32, bgcolor: diane.indigo }}>
@@ -67,9 +73,32 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
             <Typography variant="body2" fontWeight={700} lineHeight={1.2}>
               {user?.email?.split('@')[0] ?? 'Utilisateur'}
             </Typography>
+            <Typography variant="caption" color="text.secondary" lineHeight={1}>
+              {user ? roleLabels[user.role] ?? user.role : ''}
+            </Typography>
           </Box>
           <KeyboardArrowDownIcon fontSize="small" sx={{ color: 'text.secondary' }} />
         </Stack>
+
+        <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
+          <MenuItem onClick={() => { setMenuAnchor(null); setConfirmOpen(true); }}>
+            <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
+            Se déconnecter
+          </MenuItem>
+        </Menu>
+
+        <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)} maxWidth="xs" fullWidth>
+          <DialogTitle>Se déconnecter ?</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" color="text.secondary">
+              Tu devras te reconnecter avec ton email et ton mot de passe pour revenir.
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setConfirmOpen(false)}>Annuler</Button>
+            <Button variant="contained" color="error" onClick={logout}>Se déconnecter</Button>
+          </DialogActions>
+        </Dialog>
       </Toolbar>
     </AppBar>
   );

@@ -14,9 +14,60 @@ export interface TraceabilityRow {
   resultatNet: number;
 }
 
+export interface VelocityRow {
+  productId: string;
+  productName: string;
+  quantitySoldWindow: number;
+  avgDailyQuantity: number;
+  currentStock: number;
+  daysOfStockRemaining: number | null; // null si le produit ne s'écoule pas du tout sur la période
+  rank: number;
+}
+
 @Injectable()
 export class ReportsService {
   constructor(private prisma: PrismaService) {}
+
+  /**
+   * Vitesse d'écoulement par produit (demande utilisateur) : classe les
+   * produits du plus vendu au moins vendu sur une fenêtre récente (par
+   * défaut 30 jours), avec le nombre de jours de stock restants au rythme
+   * actuel — pour savoir quoi racheter en priorité.
+   */
+  async velocityReport(windowDays = 30) {
+    const since = new Date(Date.now() - windowDays * 86400000);
+
+    const [products, items, movements] = await Promise.all([
+      this.prisma.product.findMany({ where: { isActive: true } }),
+      this.prisma.invoiceItem.findMany({
+        where: { invoice: { voidedAt: null, date: { gte: since } } },
+      }),
+      this.prisma.stockMovement.findMany(),
+    ]);
+
+    const soldByProduct = new Map<string, number>();
+    for (const it of items) {
+      soldByProduct.set(it.productId, (soldByProduct.get(it.productId) ?? 0) + it.quantity);
+    }
+
+    const rows: Omit<VelocityRow, 'rank'>[] = products.map((p) => {
+      const productMovements = movements.filter((m) => m.productId === p.id);
+      const get = (t: string) => productMovements
+        .filter((m) => m.movementType === t)
+        .reduce((acc, m) => acc + m.quantity, 0);
+      const currentStock = get('ENTRY') + get('INVENTORY_ADJUSTMENT') - get('EXIT');
+
+      const quantitySoldWindow = soldByProduct.get(p.id) ?? 0;
+      const avgDailyQuantity = quantitySoldWindow / windowDays;
+      const daysOfStockRemaining = avgDailyQuantity > 0 ? currentStock / avgDailyQuantity : null;
+
+      return { productId: p.id, productName: p.name, quantitySoldWindow, avgDailyQuantity, currentStock, daysOfStockRemaining };
+    });
+
+    return rows
+      .sort((a, b) => b.quantitySoldWindow - a.quantitySoldWindow)
+      .map((r, i) => ({ ...r, rank: i + 1 }));
+  }
 
   async productsReport() {
     const items = await this.prisma.invoiceItem.findMany({

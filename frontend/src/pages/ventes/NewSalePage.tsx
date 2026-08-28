@@ -29,9 +29,9 @@ export default function NewSalePage() {
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [newCustomerName, setNewCustomerName] = useState('');
   const [newCustomerPhone, setNewCustomerPhone] = useState('');
-  const [newCustomerType, setNewCustomerType] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [saleType, setSaleType] = useState<'DETAIL' | 'GROS'>('DETAIL');
   const [lines, setLines] = useState<Line[]>([{ productId: '', quantity: '', unitSalePrice: '' }]);
   const [discount, setDiscount] = useState('0');
   const [paymentStatus, setPaymentStatus] = useState<'paid' | 'partial' | 'credit'>('paid');
@@ -88,7 +88,6 @@ export default function NewSalePage() {
     const created = await createCustomerWithDedup({
       name: newCustomerName.trim(),
       phone: newCustomerPhone.trim() || undefined,
-      customerType: newCustomerType || undefined,
       forceDistinct,
     });
     return created.id;
@@ -120,6 +119,7 @@ export default function NewSalePage() {
         customerId: finalCustomerId,
         date,
         invoiceNumber: invoiceNumber.trim() || undefined,
+        saleType,
         items: validLines.map((l) => ({
           productId: l.productId,
           quantity: Number(l.quantity),
@@ -152,7 +152,6 @@ export default function NewSalePage() {
     const created = await createCustomerWithDedup({
       name: dedupPrompt.matchName,
       phone: newCustomerPhone.trim() || undefined,
-      customerType: newCustomerType || undefined,
       forceDistinct: true,
     });
     setDedupPrompt(null);
@@ -184,7 +183,7 @@ export default function NewSalePage() {
             <Button fullWidth variant="outlined" onClick={() => {
               setResult(null); setLines([{ productId: '', quantity: '', unitSalePrice: '' }]);
               setInvoiceNumber(''); setCustomerId(null); setNewCustomerName('');
-              setNewCustomerPhone(''); setNewCustomerType('');
+              setNewCustomerPhone('');
             }}>
               Nouvelle vente
             </Button>
@@ -219,28 +218,17 @@ export default function NewSalePage() {
             <TextField {...params} placeholder="Rechercher ou créer un client…" fullWidth />
           )}
         />
-        {/* Visibles uniquement quand on tape un NOUVEAU nom (pas une sélection existante) */}
+        {/* Visible uniquement quand on tape un NOUVEAU nom (pas une sélection existante) */}
         {!customerId && newCustomerName && (
-          <Stack direction="row" spacing={1.5} sx={{ mt: 1.5 }}>
-            <TextField
-              label="Téléphone (optionnel)" size="small" fullWidth
-              value={newCustomerPhone} onChange={(e) => setNewCustomerPhone(e.target.value)}
-            />
-            <TextField
-              select label="Type (optionnel)" size="small" fullWidth
-              value={newCustomerType} onChange={(e) => setNewCustomerType(e.target.value)}
-            >
-              <MenuItem value="">—</MenuItem>
-              <MenuItem value="DETAIL">Détail</MenuItem>
-              <MenuItem value="GROS">Gros</MenuItem>
-              <MenuItem value="MIXTE">Mixte</MenuItem>
-            </TextField>
-          </Stack>
+          <TextField
+            label="Téléphone (optionnel)" size="small" fullWidth sx={{ mt: 1.5 }}
+            value={newCustomerPhone} onChange={(e) => setNewCustomerPhone(e.target.value)}
+          />
         )}
       </Paper>
 
       <Paper sx={{ p: 3, mb: 2 }}>
-        <Stack direction="row" spacing={1.5}>
+        <Stack direction="row" spacing={1.5} sx={{ mb: 1.5 }}>
           <TextField
             label="Date de la vente" type="date" value={date}
             onChange={(e) => setDate(e.target.value)} fullWidth
@@ -251,6 +239,13 @@ export default function NewSalePage() {
             onChange={(e) => setInvoiceNumber(e.target.value)} fullWidth
           />
         </Stack>
+        <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+          Type de prix appliqué à cette vente
+        </Typography>
+        <ToggleButtonGroup value={saleType} exclusive onChange={(_, v) => v && setSaleType(v)} size="small" fullWidth>
+          <ToggleButton value="DETAIL">Détail</ToggleButton>
+          <ToggleButton value="GROS">Gros</ToggleButton>
+        </ToggleButtonGroup>
       </Paper>
 
       <Paper sx={{ p: 3, mb: 2 }}>

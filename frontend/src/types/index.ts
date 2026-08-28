@@ -187,6 +187,7 @@ export interface Invoice {
   amountPaid: number;
   balanceDue: number;
   isDepositSale: boolean;
+  saleType: 'DETAIL' | 'GROS' | 'MIXTE';
   voidedAt: string | null;
   voidedReason: string | null;
   createdAt: string;
@@ -383,7 +384,7 @@ export interface FullDashboard {
   };
   revenueTrend: { date: string; revenue: number }[];
   salesByProduct: { name: string; value: number; percent: number }[];
-  alerts: { type: string; title: string; detail: string; timeAgo: string }[];
+  alerts: { type: string; title: string; detail: string; timeAgo: string; link: string }[];
   recentActivity: { type: string; label: string; sublabel: string; amount: number; timeAgo: string }[];
   topProductsByMargin: { productName: string; quantity: number; margin: number; revenue: number; marginPercent: number }[];
   stockByCategory: { category: string; cartons: number; percent: number }[];

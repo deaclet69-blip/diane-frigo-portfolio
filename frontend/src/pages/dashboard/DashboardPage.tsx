@@ -188,7 +188,10 @@ export default function DashboardPage() {
             {data?.alerts.map((a, i) => {
               const s = alertStyle[a.type] ?? alertStyle.info;
               return (
-                <ListItem key={i} disableGutters sx={{ py: 0.75 }}>
+                <ListItem
+                  key={i} disableGutters sx={{ py: 0.75, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' }, borderRadius: 1 }}
+                  onClick={() => navigate(a.link)}
+                >
                   <ListItemIcon sx={{ minWidth: 40 }}>
                     <Box sx={{ width: 32, height: 32, borderRadius: 2, bgcolor: s.bg, color: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {s.icon}
