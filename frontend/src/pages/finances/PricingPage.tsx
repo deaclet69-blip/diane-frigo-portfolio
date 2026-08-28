@@ -39,22 +39,25 @@ export default function PricingPage() {
     if (!settings) return;
     setSaveError(null);
     // On n'envoie QUE les champs modifiables (jamais `id`/`updatedAt`) — le
-    // serveur rejette toute donnée en trop, c'était la cause du bug
+    // serveur rejette toute donnée en trop, c'était une cause du bug
     // "l'enregistrement ne marche pas" signalé par l'utilisateur.
+    // Number(...) est indispensable ici : les champs "Decimal" de la base
+    // arrivent du serveur sous forme de texte (ex. "0.08"), pas de vrai
+    // nombre — sans cette conversion, le serveur les refusait tous.
     const payload = {
-      targetMarginFloor: settings.targetMarginFloor,
-      targetMarginWholesaleBulk: settings.targetMarginWholesaleBulk,
-      targetMarginWholesale: settings.targetMarginWholesale,
-      targetMarginRetail: settings.targetMarginRetail,
-      marginAlertCritical: settings.marginAlertCritical,
-      marginAlertGood: settings.marginAlertGood,
-      marginAlertExcellent: settings.marginAlertExcellent,
-      stockRotationFastDays: settings.stockRotationFastDays,
-      stockRotationDormantDays: settings.stockRotationDormantDays,
-      acceptableLossRate: settings.acceptableLossRate,
-      priceRoundingFcfa: settings.priceRoundingFcfa,
-      estimatedMonthlyFixedCharges: settings.estimatedMonthlyFixedCharges,
-      estimatedMonthlyCartonsSold: settings.estimatedMonthlyCartonsSold,
+      targetMarginFloor: Number(settings.targetMarginFloor),
+      targetMarginWholesaleBulk: Number(settings.targetMarginWholesaleBulk),
+      targetMarginWholesale: Number(settings.targetMarginWholesale),
+      targetMarginRetail: Number(settings.targetMarginRetail),
+      marginAlertCritical: Number(settings.marginAlertCritical),
+      marginAlertGood: Number(settings.marginAlertGood),
+      marginAlertExcellent: Number(settings.marginAlertExcellent),
+      stockRotationFastDays: Number(settings.stockRotationFastDays),
+      stockRotationDormantDays: Number(settings.stockRotationDormantDays),
+      acceptableLossRate: Number(settings.acceptableLossRate),
+      priceRoundingFcfa: Number(settings.priceRoundingFcfa),
+      estimatedMonthlyFixedCharges: Number(settings.estimatedMonthlyFixedCharges),
+      estimatedMonthlyCartonsSold: Number(settings.estimatedMonthlyCartonsSold),
     };
     try {
       await updatePricingSettings(payload);
