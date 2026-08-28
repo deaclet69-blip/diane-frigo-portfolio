@@ -32,7 +32,7 @@ export default function AppLayout() {
         transition: 'width 0.2s ease',
       }}>
         <Header onMenuClick={() => setMobileNavOpen(true)} />
-        <Box sx={{ p: { xs: 2, sm: 3 }, pb: isMobile ? 20 : 3 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, pb: isMobile ? 28 : 3 }}>
           <Outlet />
         </Box>
       </Box>
