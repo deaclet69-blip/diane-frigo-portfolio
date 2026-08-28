@@ -24,20 +24,64 @@ function TraceabilitySection() {
   const [granularity, setGranularity] = useState<TraceabilityGranularity>('month');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
+  // Valeur tapée dans le champ de recherche précise — son FORMAT change selon
+  // la vue active (date complète / date complète aussi pour semaine / mois
+  // "YYYY-MM" / année seule). Demande utilisateur : rechercher directement
+  // un jour, une semaine, un mois ou une année précis.
+  const [searchValue, setSearchValue] = useState('');
   const [data, setData] = useState<TraceabilityReport | null>(null);
   const [loading, setLoading] = useState(false);
 
-  function reload() {
+  function reload(overrideFrom?: string, overrideTo?: string) {
     setLoading(true);
-    getTraceabilityReport(granularity, from || undefined, to || undefined)
+    getTraceabilityReport(granularity, overrideFrom ?? from ?? undefined, overrideTo ?? to ?? undefined)
       .then(setData)
       .finally(() => setLoading(false));
   }
 
   useEffect(() => {
-    reload();
+    setSearchValue('');
+    setFrom('');
+    setTo('');
+    reload('', '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [granularity]);
+
+  function applySearch(value: string) {
+    setSearchValue(value);
+    if (!value) {
+      setFrom(''); setTo('');
+      reload('', '');
+      return;
+    }
+    let f = '';
+    let t = '';
+    if (granularity === 'day') {
+      f = value; t = value;
+    } else if (granularity === 'week') {
+      // `value` = n'importe quelle date de la semaine choisie → on calcule
+      // lundi (début) et dimanche (fin), comme dans la feuille Excel.
+      const d = new Date(value + 'T00:00:00');
+      const dayOfWeek = (d.getDay() + 6) % 7; // 0 = lundi
+      const monday = new Date(d);
+      monday.setDate(d.getDate() - dayOfWeek);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      f = monday.toISOString().slice(0, 10);
+      t = sunday.toISOString().slice(0, 10);
+    } else if (granularity === 'month') {
+      // `value` au format "YYYY-MM"
+      const [y, m] = value.split('-').map(Number);
+      f = `${y}-${String(m).padStart(2, '0')}-01`;
+      const lastDay = new Date(y, m, 0).getDate();
+      t = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    } else if (granularity === 'year') {
+      f = `${value}-01-01`;
+      t = `${value}-12-31`;
+    }
+    setFrom(f); setTo(t);
+    reload(f, t);
+  }
 
   function exportCsv() {
     if (!data) return;
@@ -60,6 +104,10 @@ function TraceabilitySection() {
   }
 
   const displayRows = data ? [...data.rows].reverse() : [];
+  const searchLabel: Record<TraceabilityGranularity, string> = {
+    day: 'Rechercher un jour précis', week: 'Rechercher une semaine (choisis un jour de cette semaine)',
+    month: 'Rechercher un mois précis', year: 'Rechercher une année précise',
+  };
 
   return (
     <Paper>
@@ -88,17 +136,32 @@ function TraceabilitySection() {
               <ToggleButton key={g} value={g}>{granularityLabels[g]}</ToggleButton>
             ))}
           </ToggleButtonGroup>
-          <TextField
-            size="small" type="date" label="Du (optionnel)" value={from}
-            onChange={(e) => setFrom(e.target.value)} InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            size="small" type="date" label="Au (optionnel)" value={to}
-            onChange={(e) => setTo(e.target.value)} InputLabelProps={{ shrink: true }}
-          />
-          <Button size="small" variant="contained" onClick={reload} disabled={loading}>
-            Filtrer
-          </Button>
+
+          {(granularity === 'day' || granularity === 'week') && (
+            <TextField
+              size="small" type="date" label={searchLabel[granularity]} value={searchValue}
+              onChange={(e) => applySearch(e.target.value)} InputLabelProps={{ shrink: true }}
+            />
+          )}
+          {granularity === 'month' && (
+            <TextField
+              size="small" type="month" label={searchLabel.month} value={searchValue}
+              onChange={(e) => applySearch(e.target.value)} InputLabelProps={{ shrink: true }}
+            />
+          )}
+          {granularity === 'year' && (
+            <TextField
+              size="small" type="number" label={searchLabel.year} value={searchValue}
+              onChange={(e) => applySearch(e.target.value)}
+              sx={{ width: 160 }} inputProps={{ min: 2020, max: 2100 }}
+            />
+          )}
+
+          {searchValue && (
+            <Button size="small" onClick={() => applySearch('')}>
+              Réinitialiser
+            </Button>
+          )}
         </Stack>
       </Box>
 

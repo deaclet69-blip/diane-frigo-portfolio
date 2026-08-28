@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Stack, LinearProgress, Table, TableHead, TableRow, TableCell, TableBody, Chip } from '@mui/material';
+import {
+  Box, Typography, Paper, Stack, LinearProgress, Table, TableHead, TableRow, TableCell, TableBody,
+  Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from 'react-router-dom';
-import { getFinanceSummary, getRecovery } from '../../services/finances';
+import { getFinanceSummary, getRecovery, setMonthlyGoal } from '../../services/finances';
 import type { FinanceSummary, RecoveryStatus } from '../../types';
 import { diane } from '../../theme';
 
@@ -9,15 +13,37 @@ function formatFcfa(value: number) {
   return `${Math.round(value).toLocaleString('fr-FR')} FCFA`;
 }
 
+const monthLabel = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
 export default function FinancesPage() {
   const [summary, setSummary] = useState<FinanceSummary | null>(null);
   const [recovery, setRecovery] = useState<RecoveryStatus | null>(null);
+  const [goalDialogOpen, setGoalDialogOpen] = useState(false);
+  const [goalInput, setGoalInput] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
+  function reload() {
     getFinanceSummary('month').then(setSummary);
     getRecovery().then(setRecovery);
-  }, []);
+  }
+
+  useEffect(reload, []);
+
+  function openGoalDialog() {
+    setGoalInput(recovery?.goal != null ? String(recovery.goal) : '');
+    setGoalDialogOpen(true);
+  }
+
+  async function handleSaveGoal() {
+    if (!goalInput) return;
+    const firstOfMonth = new Date();
+    firstOfMonth.setDate(1);
+    await setMonthlyGoal(firstOfMonth.toISOString().slice(0, 10), Number(goalInput));
+    setGoalDialogOpen(false);
+    reload();
+  }
+
+  const goalProgress = summary && recovery?.goal ? Math.min(100, (summary.netResult / recovery.goal) * 100) : 0;
 
   return (
     <Box>
@@ -43,6 +69,45 @@ export default function FinancesPage() {
           </Typography>
         </Paper>
       </Stack>
+
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ textTransform: 'capitalize' }}>
+            Objectif de {monthLabel}
+          </Typography>
+          <Button size="small" startIcon={<EditIcon fontSize="small" />} onClick={openGoalDialog}>
+            {recovery?.goal != null ? 'Modifier' : 'Fixer un objectif'}
+          </Button>
+        </Stack>
+
+        {recovery?.goal != null ? (
+          <>
+            <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+              <Typography variant="body2" color="text.secondary">
+                Résultat net du mois : {summary ? formatFcfa(summary.netResult) : '…'}
+              </Typography>
+              <Typography variant="body2" fontWeight={700}>
+                Objectif : {formatFcfa(recovery.goal)}
+              </Typography>
+            </Stack>
+            <LinearProgress
+              variant="determinate"
+              value={Math.max(0, goalProgress)}
+              sx={{
+                height: 10, borderRadius: 5, mb: 1, bgcolor: diane.blueLight,
+                '& .MuiLinearProgress-bar': { bgcolor: goalProgress >= 100 ? diane.green : diane.blue },
+              }}
+            />
+            <Typography variant="caption" color="text.secondary">
+              {goalProgress.toFixed(1)}% de l'objectif atteint ce mois-ci
+            </Typography>
+          </>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            Aucun objectif fixé pour ce mois — clique sur "Fixer un objectif" pour te donner un chiffre à atteindre.
+          </Typography>
+        )}
+      </Paper>
 
       {summary && (
         <Paper sx={{ p: 2.5, mb: 3 }}>
@@ -158,6 +223,25 @@ export default function FinancesPage() {
           )}
         </Paper>
       )}
+
+      <Dialog open={goalDialogOpen} onClose={() => setGoalDialogOpen(false)} fullWidth maxWidth="xs">
+        <DialogTitle sx={{ textTransform: 'capitalize' }}>Objectif de {monthLabel}</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Résultat net à atteindre (FCFA)"
+            type="number"
+            value={goalInput}
+            onChange={(e) => setGoalInput(e.target.value)}
+            fullWidth
+            sx={{ mt: 1 }}
+            autoFocus
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setGoalDialogOpen(false)}>Annuler</Button>
+          <Button variant="contained" onClick={handleSaveGoal}>Enregistrer</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, Typography, Stack } from '@mui/material';
+import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, Typography, Stack, IconButton, Tooltip } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -15,7 +15,11 @@ import SavingsIcon from '@mui/icons-material/Savings';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
+import LightModeIcon from '@mui/icons-material/LightModeOutlined';
 import { diane } from '../theme';
+import { useColorMode } from '../colorMode';
+import { getCurrentUser } from '../services/auth';
 
 const navItems = [
   { label: 'Tableau de bord', icon: <SpaceDashboardIcon />, to: '/' },
@@ -36,18 +40,21 @@ const navItems = [
 ];
 
 export default function MobileNavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { mode, toggle } = useColorMode();
+  const user = getCurrentUser();
+
   return (
     <Drawer
       anchor="left"
       open={open}
       onClose={onClose}
-      sx={{ '& .MuiDrawer-paper': { width: 260, bgcolor: diane.navy, color: '#fff' } }}
+      sx={{ '& .MuiDrawer-paper': { width: 260, bgcolor: diane.navy, color: '#fff', display: 'flex', flexDirection: 'column' } }}
     >
       <Stack direction="row" alignItems="center" spacing={1.2} sx={{ px: 2.25, py: 2 }}>
         <Box component="img" src="/favicon.svg" alt="DIANE FRIGO" sx={{ width: 30, height: 30, borderRadius: '8px' }} />
         <Typography variant="body2" sx={{ fontWeight: 800, fontSize: 14 }}>DIANE FRIGO</Typography>
       </Stack>
-      <List sx={{ px: 1 }}>
+      <List sx={{ px: 1, flexGrow: 1, overflowY: 'auto' }}>
         {navItems.map((item) => (
           <ListItemButton
             key={item.to + item.label}
@@ -65,6 +72,22 @@ export default function MobileNavDrawer({ open, onClose }: { open: boolean; onCl
           </ListItemButton>
         ))}
       </List>
+
+      <Stack
+        direction="row" alignItems="center" spacing={1.2}
+        sx={{ px: 2, py: 1.5, borderTop: '1px solid rgba(255,255,255,0.08)' }}
+      >
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }} noWrap>
+            {user?.email ?? ''}
+          </Typography>
+        </Box>
+        <Tooltip title={mode === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}>
+          <IconButton size="small" onClick={toggle} sx={{ color: 'rgba(255,255,255,0.75)' }}>
+            {mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
+      </Stack>
     </Drawer>
   );
 }
