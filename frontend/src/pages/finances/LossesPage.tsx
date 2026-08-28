@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Button, Stack,
+  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button, Stack,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Alert, LinearProgress,
 } from '@mui/material';
 import { getLosses, getMonthlyLossRate, createLoss } from '../../services/losses';
@@ -95,7 +95,8 @@ export default function LossesPage() {
       )}
 
       <Paper>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
@@ -126,6 +127,7 @@ export default function LossesPage() {
             )}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Button,
+  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Stack, IconButton, MenuItem,
   Avatar, Alert,
 } from '@mui/material';
@@ -111,7 +111,8 @@ export default function ProductsSettingsPage() {
       </Stack>
 
       <Paper>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
@@ -145,6 +146,7 @@ export default function ProductsSettingsPage() {
             ))}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">

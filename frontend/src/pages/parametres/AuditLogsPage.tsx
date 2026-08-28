@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Paper, Table, TableHead, TableRow, TableCell, TableBody, Chip } from '@mui/material';
+import { Box, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Chip } from '@mui/material';
 import { getAuditLogs } from '../../services/admin';
 import type { AuditLogEntry } from '../../types';
 import { diane } from '../../theme';
@@ -21,7 +21,8 @@ export default function AuditLogsPage() {
   return (
     <Box>
       <Paper>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
@@ -52,6 +53,7 @@ export default function AuditLogsPage() {
             )}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
     </Box>
   );

@@ -63,14 +63,12 @@ export function getTheme(mode: PaletteMode) {
           root: {
             boxShadow: isDark ? '0 2px 12px rgba(0,0,0,0.35)' : '0 2px 12px rgba(13, 23, 52, 0.06)',
             backgroundImage: 'none',
-            // Correctif global mobile — la plupart des tableaux sont posés
-            // directement dans une carte (Paper) sans conteneur dédié ;
-            // ça leur permet de défiler À L'INTÉRIEUR de la carte plutôt
-            // que de faire déborder le texte hors de l'écran.
-            overflowX: 'auto',
           },
         },
       },
+      // Correctif mobile pour les tableaux (via <TableContainer>, pas via
+      // un overflow global sur Paper — ça coupait certaines cartes
+      // verticalement, corrigé suite au signalement utilisateur).
       MuiTableContainer: {
         styleOverrides: {
           root: { overflowX: 'auto' },

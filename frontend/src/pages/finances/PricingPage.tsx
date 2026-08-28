@@ -23,6 +23,7 @@ export default function PricingPage() {
   const [checkPriceValue, setCheckPriceValue] = useState('');
   const [checkResult, setCheckResult] = useState<PriceCheckResult | null>(null);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function reload() {
     getPricingSettings().then(setSettings);
@@ -36,10 +37,33 @@ export default function PricingPage() {
 
   async function handleSaveSettings() {
     if (!settings) return;
-    await updatePricingSettings(settings);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-    reload();
+    setSaveError(null);
+    // On n'envoie QUE les champs modifiables (jamais `id`/`updatedAt`) — le
+    // serveur rejette toute donnée en trop, c'était la cause du bug
+    // "l'enregistrement ne marche pas" signalé par l'utilisateur.
+    const payload = {
+      targetMarginFloor: settings.targetMarginFloor,
+      targetMarginWholesaleBulk: settings.targetMarginWholesaleBulk,
+      targetMarginWholesale: settings.targetMarginWholesale,
+      targetMarginRetail: settings.targetMarginRetail,
+      marginAlertCritical: settings.marginAlertCritical,
+      marginAlertGood: settings.marginAlertGood,
+      marginAlertExcellent: settings.marginAlertExcellent,
+      stockRotationFastDays: settings.stockRotationFastDays,
+      stockRotationDormantDays: settings.stockRotationDormantDays,
+      acceptableLossRate: settings.acceptableLossRate,
+      priceRoundingFcfa: settings.priceRoundingFcfa,
+      estimatedMonthlyFixedCharges: settings.estimatedMonthlyFixedCharges,
+      estimatedMonthlyCartonsSold: settings.estimatedMonthlyCartonsSold,
+    };
+    try {
+      await updatePricingSettings(payload);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+      reload();
+    } catch (err: any) {
+      setSaveError(err?.response?.data?.message ?? "Échec de l'enregistrement.");
+    }
   }
 
   async function handleCheckPrice() {
@@ -183,16 +207,17 @@ export default function PricingPage() {
             <Stack direction="row" spacing={2}>
               <TextField
                 label="Charges fixes mensuelles estimées (FCFA)" type="number" fullWidth
-                value={settings.estimatedMonthlyFixedCharges}
-                onChange={(e) => setSettings({ ...settings, estimatedMonthlyFixedCharges: Number(e.target.value) })}
+                value={settings.estimatedMonthlyFixedCharges || ''}
+                onChange={(e) => setSettings({ ...settings, estimatedMonthlyFixedCharges: e.target.value === '' ? 0 : Number(e.target.value) })}
               />
               <TextField
                 label="Ventes mensuelles estimées (cartons, tous produits)" type="number" fullWidth
-                value={settings.estimatedMonthlyCartonsSold}
-                onChange={(e) => setSettings({ ...settings, estimatedMonthlyCartonsSold: Number(e.target.value) })}
+                value={settings.estimatedMonthlyCartonsSold || ''}
+                onChange={(e) => setSettings({ ...settings, estimatedMonthlyCartonsSold: e.target.value === '' ? 0 : Number(e.target.value) })}
               />
             </Stack>
             {saved && <Alert severity="success">Paramètres enregistrés.</Alert>}
+            {saveError && <Alert severity="error">{saveError}</Alert>}
             <Button variant="contained" onClick={handleSaveSettings} sx={{ alignSelf: 'flex-start' }}>
               Enregistrer les paramètres
             </Button>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack,
+  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Stack,
   ToggleButtonGroup, ToggleButton, TextField, Button, CircularProgress,
   Select, MenuItem, FormControl, InputLabel,
 } from '@mui/material';
@@ -169,7 +169,8 @@ function TraceabilitySection() {
         <Stack alignItems="center" sx={{ py: 4 }}><CircularProgress size={24} /></Stack>
       ) : (
         <Box sx={{ maxHeight: 480, overflow: 'auto', mt: 1 }}>
-          <Table stickyHeader size="small">
+          <TableContainer>
+<Table stickyHeader size="small">
             <TableHead>
               <TableRow>
                 <TableCell>Période</TableCell>
@@ -215,6 +216,7 @@ function TraceabilitySection() {
               </TableBody>
             )}
           </Table>
+</TableContainer>
         </Box>
       )}
     </Paper>
@@ -275,7 +277,8 @@ export default function ReportsPage() {
             <Typography variant="subtitle1" fontWeight={700}>Entrées de stock</Typography>
             <Typography variant="caption" color="text.secondary">Date, fournisseur et prix d'achat de chaque réapprovisionnement</Typography>
           </Box>
-          <Table sx={{ mt: 1 }}>
+          <TableContainer>
+<Table sx={{ mt: 1 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Date</TableCell>
@@ -302,6 +305,7 @@ export default function ReportsPage() {
               )}
             </TableBody>
           </Table>
+</TableContainer>
         </Paper>
       )}
 
@@ -310,7 +314,8 @@ export default function ReportsPage() {
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Ventes par produit</Typography>
           </Box>
-          <Table>
+          <TableContainer>
+<Table>
             <TableHead>
               <TableRow>
                 <TableCell>Produit</TableCell>
@@ -333,6 +338,7 @@ export default function ReportsPage() {
               )}
             </TableBody>
           </Table>
+</TableContainer>
         </Paper>
       )}
 
@@ -344,7 +350,8 @@ export default function ReportsPage() {
               Classement du produit qui part le plus vite au moins vite (30 derniers jours) — pour savoir quoi racheter en priorité.
             </Typography>
           </Box>
-          <Table sx={{ mt: 1 }}>
+          <TableContainer>
+<Table sx={{ mt: 1 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Rang</TableCell>
@@ -381,6 +388,7 @@ export default function ReportsPage() {
               )}
             </TableBody>
           </Table>
+</TableContainer>
         </Paper>
       )}
 
@@ -389,7 +397,8 @@ export default function ReportsPage() {
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Top clients</Typography>
           </Box>
-          <Table>
+          <TableContainer>
+<Table>
             <TableHead>
               <TableRow>
                 <TableCell>Client</TableCell>
@@ -412,6 +421,7 @@ export default function ReportsPage() {
               )}
             </TableBody>
           </Table>
+</TableContainer>
         </Paper>
       )}
 
@@ -420,7 +430,8 @@ export default function ReportsPage() {
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Charges par catégorie</Typography>
           </Box>
-          <Table>
+          <TableContainer>
+<Table>
             <TableHead>
               <TableRow>
                 <TableCell>Catégorie</TableCell>
@@ -439,6 +450,7 @@ export default function ReportsPage() {
               )}
             </TableBody>
           </Table>
+</TableContainer>
         </Paper>
       )}
     </Box>

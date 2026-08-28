@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Box, Typography, Paper, InputAdornment, TextField, ToggleButtonGroup, ToggleButton,
-  Table, TableHead, TableRow, TableCell, TableBody, Stack, Button, Avatar,
+  Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Stack, Button, Avatar,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -66,7 +66,8 @@ export default function StockListPage() {
       </Stack>
 
       <Paper>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
@@ -111,6 +112,7 @@ export default function StockListPage() {
             )}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
     </Box>
   );

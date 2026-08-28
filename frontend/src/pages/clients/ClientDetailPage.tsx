@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Stack, Table, TableHead, TableRow, TableCell, TableBody, IconButton, Chip } from '@mui/material';
+import { Box, Typography, Paper, Stack, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, IconButton, Chip } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getCustomerDetail } from '../../services/customers';
@@ -71,7 +71,8 @@ export default function ClientDetailPage() {
         <Box sx={{ p: 2.5, pb: 0 }}>
           <Typography variant="subtitle1" fontWeight={700}>Historique des achats</Typography>
         </Box>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell>Facture</TableCell>
@@ -98,6 +99,7 @@ export default function ClientDetailPage() {
             )}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
     </Box>
   );

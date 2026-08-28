@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Button,
+  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Chip,
   ToggleButtonGroup, ToggleButton,
 } from '@mui/material';
@@ -96,7 +96,8 @@ export default function ChargesPage() {
       </ToggleButtonGroup>
 
       <Paper>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
@@ -145,6 +146,7 @@ export default function ChargesPage() {
             )}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">

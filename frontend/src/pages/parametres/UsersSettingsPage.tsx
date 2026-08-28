@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Paper, Table, TableHead, TableRow, TableCell, TableBody, Button, Switch,
+  Box, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button, Switch,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Chip,
   FormGroup, FormControlLabel, Checkbox, Typography, Alert,
 } from '@mui/material';
@@ -55,7 +55,8 @@ export default function UsersSettingsPage() {
       </Stack>
 
       <Paper>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell>Nom</TableCell>
@@ -109,6 +110,7 @@ export default function UsersSettingsPage() {
             ))}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
 
       {/* Création d'un nouvel utilisateur */}

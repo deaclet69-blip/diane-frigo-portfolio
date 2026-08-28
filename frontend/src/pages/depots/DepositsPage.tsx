@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Button,
+  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Alert,
 } from '@mui/material';
 import { getDepositBalances, createWithdrawal } from '../../services/deposits';
@@ -46,7 +46,8 @@ export default function DepositsPage() {
       <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Dépôts clients</Typography>
 
       <Paper>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell>Client</TableCell>
@@ -81,6 +82,7 @@ export default function DepositsPage() {
             )}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">

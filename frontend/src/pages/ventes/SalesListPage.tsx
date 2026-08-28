@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Chip, Stack, Button } from '@mui/material';
+import { Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Chip, Stack, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getInvoices } from '../../services/sales';
@@ -51,7 +51,8 @@ export default function SalesListPage() {
       )}
 
       <Paper>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell>Facture</TableCell>
@@ -102,6 +103,7 @@ export default function SalesListPage() {
             )}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
     </Box>
   );

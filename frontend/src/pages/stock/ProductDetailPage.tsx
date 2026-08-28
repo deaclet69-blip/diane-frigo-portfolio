@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, Table, TableHead, TableRow, TableCell, TableBody,
+  Box, Typography, Paper, Stack, Table, TableContainer, TableHead, TableRow, TableCell, TableBody,
   Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Alert, Button,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -107,7 +107,8 @@ export default function ProductDetailPage() {
             Une erreur de saisie ? Clique sur le crayon pour corriger la quantité.
           </Typography>
         </Box>
-        <Table>
+        <TableContainer>
+<Table>
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
@@ -154,6 +155,7 @@ export default function ProductDetailPage() {
             )}
           </TableBody>
         </Table>
+</TableContainer>
       </Paper>
 
       <Dialog open={!!editing} onClose={() => setEditing(null)} fullWidth maxWidth="xs">
