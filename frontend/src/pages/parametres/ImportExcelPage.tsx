@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Box, Typography, Paper, Button, Stack, Alert, Table, TableHead, TableRow, TableCell,
+  Box, Typography, Paper, Button, Stack, Alert, Table, TableContainer, TableHead, TableRow, TableCell,
   TableBody, Chip, LinearProgress,
 } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -96,7 +96,8 @@ export default function ImportExcelPage() {
           </Stack>
 
           {(preview.errors.length > 0 || preview.duplicates.length > 0) && (
-            <Table size="small" sx={{ mb: 2 }}>
+            <TableContainer>
+<Table size="small" sx={{ mb: 2 }}>
               <TableHead>
                 <TableRow><TableCell>Ligne</TableCell><TableCell>Problème</TableCell></TableRow>
               </TableHead>
@@ -109,6 +110,7 @@ export default function ImportExcelPage() {
                 ))}
               </TableBody>
             </Table>
+</TableContainer>
           )}
 
           <Button variant="contained" onClick={handleConfirm} disabled={loading}>

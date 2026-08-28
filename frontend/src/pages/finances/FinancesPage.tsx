@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, LinearProgress, Table, TableHead, TableRow, TableCell, TableBody,
+  Box, Typography, Paper, Stack, LinearProgress, Table, TableContainer, TableHead, TableRow, TableCell, TableBody,
   Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -188,7 +188,8 @@ export default function FinancesPage() {
           </Typography>
 
           {!recovery.isPositive && recovery.perProduct.length > 0 && (
-            <Table size="small" sx={{ mt: 2 }}>
+            <TableContainer>
+<Table size="small" sx={{ mt: 2 }}>
               <TableHead>
                 <TableRow>
                   <TableCell>Produit</TableCell>
@@ -220,6 +221,7 @@ export default function FinancesPage() {
                 ))}
               </TableBody>
             </Table>
+</TableContainer>
           )}
         </Paper>
       )}

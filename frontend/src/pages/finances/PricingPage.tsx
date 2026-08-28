@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, TextField, MenuItem, Table, TableHead, TableRow, TableCell,
+  Box, Typography, Paper, Stack, TextField, MenuItem, Table, TableContainer, TableHead, TableRow, TableCell,
   TableBody, Button, Alert, Divider,
 } from '@mui/material';
 import { getPricingSettings, updatePricingSettings, getProfitabilityAnalysis, checkPrice } from '../../services/pricing';
@@ -95,7 +95,8 @@ export default function PricingPage() {
                 : "Méthode : ton estimation de départ (ci-dessous) — pas encore assez d'historique réel (il faut 2 mois avec des charges Fixe enregistrées)"}
             </Alert>
           </Box>
-          <Table sx={{ mt: 1 }}>
+          <TableContainer>
+<Table sx={{ mt: 1 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Produit</TableCell>
@@ -123,6 +124,7 @@ export default function PricingPage() {
               ))}
             </TableBody>
           </Table>
+</TableContainer>
         </Paper>
       )}
 

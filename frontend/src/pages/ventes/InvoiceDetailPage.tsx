@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, Table, TableHead, TableRow, TableCell, TableBody,
+  Box, Typography, Paper, Stack, Table, TableContainer, TableHead, TableRow, TableCell, TableBody,
   IconButton, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -64,7 +64,8 @@ export default function InvoiceDetailPage() {
           </Box>
         </Stack>
 
-        <Table size="small">
+        <TableContainer>
+<Table size="small">
           <TableHead>
             <TableRow>
               <TableCell>Produit</TableCell>
@@ -84,6 +85,7 @@ export default function InvoiceDetailPage() {
             ))}
           </TableBody>
         </Table>
+</TableContainer>
 
         <Stack spacing={0.5} sx={{ mt: 2, alignItems: 'flex-end' }}>
           <Typography variant="body2">Sous-total : {formatFcfa(invoice.subtotal)}</Typography>

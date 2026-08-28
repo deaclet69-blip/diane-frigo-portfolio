@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, LinearProgress, Table, TableHead, TableRow, TableCell,
+  Box, Typography, Paper, Stack, LinearProgress, Table, TableContainer, TableHead, TableRow, TableCell,
   TableBody, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Alert,
 } from '@mui/material';
 import { getLoanStatus, upsertLoan } from '../../services/loans';
@@ -141,7 +141,8 @@ export default function LoansPage() {
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Par produit — pour atteindre l'objectif</Typography>
           </Box>
-          <Table sx={{ mt: 1 }}>
+          <TableContainer>
+<Table sx={{ mt: 1 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Produit</TableCell>
@@ -169,6 +170,7 @@ export default function LoansPage() {
               ))}
             </TableBody>
           </Table>
+</TableContainer>
         </Paper>
       )}
 
