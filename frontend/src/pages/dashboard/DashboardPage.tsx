@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Stack, Chip, List, ListItem, ListItemIcon, ListItemText,
-  LinearProgress, CircularProgress, Button, Divider,
+  LinearProgress, CircularProgress, Button, Divider, useTheme,
 } from '@mui/material';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
@@ -54,6 +54,16 @@ export default function DashboardPage() {
   const [data, setData] = useState<FullDashboard | null>(null);
   const user = getCurrentUser();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+  const gridColor = isDark ? 'rgba(255,255,255,0.12)' : '#eee';
+  const axisColor = isDark ? 'rgba(255,255,255,0.55)' : theme.palette.text.secondary;
+  const tooltipStyle = {
+    backgroundColor: isDark ? '#1C2648' : '#fff',
+    border: `1px solid ${isDark ? 'rgba(255,255,255,0.15)' : '#eee'}`,
+    borderRadius: 8,
+    color: isDark ? '#E8ECF7' : '#111',
+  };
 
   useEffect(() => {
     getFullDashboard().then(setData);
@@ -109,18 +119,21 @@ export default function DashboardPage() {
         <Paper sx={{ p: 3, flex: 1.6 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
             <Typography variant="subtitle1" fontWeight={700}>Évolution du chiffre d'affaires</Typography>
-            <Chip label="7 derniers jours" size="small" sx={{ bgcolor: diane.bg, fontWeight: 600 }} />
+            <Chip label="7 derniers jours" size="small" sx={{ bgcolor: 'action.hover', color: 'text.primary', fontWeight: 600 }} />
           </Stack>
           <ResponsiveContainer width="100%" height={230}>
-            <LineChart data={data?.revenueTrend ?? []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+            <LineChart data={data?.revenueTrend ?? []} margin={{ top: 5, right: 8, left: -12, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
               <XAxis
-                dataKey="date" fontSize={11}
+                dataKey="date" fontSize={11} stroke={axisColor} tickLine={false} axisLine={{ stroke: gridColor }}
                 tickFormatter={(d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
               />
-              <YAxis fontSize={11} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(v: number) => fcfa(v)} labelFormatter={(d) => new Date(d).toLocaleDateString('fr-FR')} />
-              <Line type="monotone" dataKey="revenue" stroke={diane.indigo} strokeWidth={3} dot={{ r: 4, fill: diane.indigo }} />
+              <YAxis fontSize={11} stroke={axisColor} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+              <Tooltip
+                formatter={(v: number) => fcfa(v)} labelFormatter={(d) => new Date(d).toLocaleDateString('fr-FR')}
+                contentStyle={tooltipStyle} labelStyle={{ color: isDark ? '#E8ECF7' : '#111' }}
+              />
+              <Line type="monotone" dataKey="revenue" stroke={diane.indigo} strokeWidth={3} dot={{ r: 4, fill: diane.indigo, strokeWidth: 0 }} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </Paper>
@@ -140,7 +153,7 @@ export default function DashboardPage() {
                         <Cell key={i} fill={donutColors[i % donutColors.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(v: number) => fcfa(v)} />
+                    <Tooltip formatter={(v: number) => fcfa(v)} contentStyle={tooltipStyle} labelStyle={{ color: isDark ? '#E8ECF7' : '#111' }} />
                   </PieChart>
                 </ResponsiveContainer>
                 <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center' }}>
