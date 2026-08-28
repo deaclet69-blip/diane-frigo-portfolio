@@ -29,6 +29,10 @@ export function getExpenseCategories() {
   return api.get<ExpenseCategory[]>('/expense-categories').then((r) => r.data);
 }
 
+export function createExpenseCategory(name: string) {
+  return api.post<ExpenseCategory>('/expense-categories', { name }).then((r) => r.data);
+}
+
 export function createExpense(payload: {
   categoryId: string; description?: string; amount: number; date: string;
   chargeType: ChargeType;

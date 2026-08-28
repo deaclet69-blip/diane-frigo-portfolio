@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { IsIn } from 'class-validator';
+import { IsIn, IsString, MinLength } from 'class-validator';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { RequirePermission } from '../auth/decorators/require-permission.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -13,9 +13,15 @@ class ReclassifyDto {
   chargeType!: 'FIXE' | 'VARIABLE' | 'EXCEPTIONNEL';
 }
 
-// Finances : gouverné par la case à cocher "charges" (Paramètres > Utilisateurs)
-@UseGuards(JwtAuthGuard, PermissionsGuard)
-@RequirePermission('charges')
+class CreateExpenseCategoryDto {
+  @IsString()
+  @MinLength(2)
+  name!: string;
+}
+
+// Finances : réservé ADMIN/RESPONSABLE (matrice de permissions §7)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'RESPONSABLE')
 @Controller('expenses')
 export class ExpensesController {
   constructor(
@@ -51,5 +57,15 @@ export class ExpenseCategoriesController {
   @Get()
   findAll() {
     return this.prisma.expenseCategory.findMany({ orderBy: { name: 'asc' } });
+  }
+
+  // Ajout — il n'existait auparavant aucun moyen de créer une catégorie de
+  // charge depuis l'application (seulement via le script de seed initial).
+  // Nécessaire notamment si la liste a été vidée par "Zone de danger".
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'RESPONSABLE')
+  @Post()
+  create(@Body() dto: CreateExpenseCategoryDto) {
+    return this.prisma.expenseCategory.create({ data: { name: dto.name } });
   }
 }

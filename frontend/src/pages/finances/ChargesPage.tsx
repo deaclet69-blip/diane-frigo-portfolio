@@ -4,7 +4,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Chip,
   ToggleButtonGroup, ToggleButton,
 } from '@mui/material';
-import { getExpenses, getExpenseCategories, createExpense, reclassifyExpense } from '../../services/finances';
+import { getExpenses, getExpenseCategories, createExpense, reclassifyExpense, createExpenseCategory } from '../../services/finances';
 import type { Expense, ExpenseCategory, ChargeType } from '../../types';
 import { diane } from '../../theme';
 
@@ -27,13 +27,15 @@ const typeConfig: Record<ChargeType, { label: string; color: string; bg: string;
   },
 };
 
+const NEW_CATEGORY = '__new__';
+
 export default function ChargesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [filter, setFilter] = useState<'ALL' | ChargeType>('ALL');
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    categoryId: '', description: '', amount: '', date: new Date().toISOString().slice(0, 10),
+    categoryId: '', newCategoryName: '', description: '', amount: '', date: new Date().toISOString().slice(0, 10),
     chargeType: 'VARIABLE' as ChargeType,
   });
 
@@ -41,22 +43,32 @@ export default function ChargesPage() {
     getExpenses(filter === 'ALL' ? {} : { chargeType: filter }).then(setExpenses);
   }
 
-  useEffect(() => {
+  function reloadCategories() {
     getExpenseCategories().then(setCategories);
-  }, []);
+  }
+
+  useEffect(reloadCategories, []);
   useEffect(reload, [filter]);
 
   async function handleCreate() {
-    if (!form.categoryId || !form.amount) return;
+    if (!form.amount) return;
+    let categoryId = form.categoryId;
+    if (categoryId === NEW_CATEGORY) {
+      if (!form.newCategoryName.trim()) return;
+      const created = await createExpenseCategory(form.newCategoryName.trim());
+      categoryId = created.id;
+      reloadCategories();
+    }
+    if (!categoryId) return;
     await createExpense({
-      categoryId: form.categoryId,
+      categoryId,
       description: form.description || undefined,
       amount: Number(form.amount),
       date: form.date,
       chargeType: form.chargeType,
     });
     setOpen(false);
-    setForm({ ...form, description: '', amount: '' });
+    setForm({ ...form, categoryId: '', newCategoryName: '', description: '', amount: '' });
     reload();
   }
 
@@ -163,7 +175,17 @@ export default function ChargesPage() {
               {categories.map((c) => (
                 <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
               ))}
+              <MenuItem value={NEW_CATEGORY}>+ Créer une nouvelle catégorie…</MenuItem>
             </TextField>
+            {form.categoryId === NEW_CATEGORY && (
+              <TextField
+                label="Nom de la nouvelle catégorie"
+                value={form.newCategoryName}
+                onChange={(e) => setForm({ ...form, newCategoryName: e.target.value })}
+                fullWidth
+                autoFocus
+              />
+            )}
             <TextField
               label="Montant (FCFA)"
               type="number"
