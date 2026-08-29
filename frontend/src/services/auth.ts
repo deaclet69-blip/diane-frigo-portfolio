@@ -11,7 +11,7 @@ export async function login(email: string, password: string) {
 
 export function logout() {
   localStorage.clear();
-  window.location.href = '/login';
+  window.location.href = '/#/login';
 }
 
 export function getCurrentUser(): AuthUser | null {

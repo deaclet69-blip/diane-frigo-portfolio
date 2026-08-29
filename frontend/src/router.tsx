@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createHashRouter } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import RequirePermission from './components/RequirePermission';
@@ -29,7 +29,7 @@ import DangerZonePage from './pages/parametres/DangerZonePage';
 import AiChatPage from './pages/assistant/AiChatPage';
 import NotificationsPage from './pages/notifications/NotificationsPage';
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   { path: '/login', element: <LoginPage /> },
   {
     path: '/',
