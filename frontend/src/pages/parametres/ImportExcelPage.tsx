@@ -95,10 +95,10 @@ export default function ImportExcelPage() {
             </Box>
           </Stack>
 
-          {preview.newProducts.length > 0 && (
+          {(preview.newProducts?.length ?? 0) > 0 && (
             <Alert severity="info" sx={{ mb: 2 }}>
-              <strong>{preview.newProducts.length} nouveau(x) produit(s)</strong> seront créés automatiquement
-              (avec le prix trouvé à leur première apparition dans le fichier) : {preview.newProducts.join(', ')}.
+              <strong>{preview.newProducts?.length ?? 0} nouveau(x) produit(s)</strong> seront créés automatiquement
+              (avec le prix trouvé à leur première apparition dans le fichier) : {(preview.newProducts ?? []).join(', ')}.
               Tu pourras ajuster leurs prix ou leur catégorie ensuite dans Paramètres &gt; Produits.
             </Alert>
           )}
