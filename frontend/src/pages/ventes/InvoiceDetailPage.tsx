@@ -96,6 +96,13 @@ export default function InvoiceDetailPage() {
             <Typography variant="body2" sx={{ color: diane.red }}>Solde dû : {formatFcfa(invoice.balanceDue)}</Typography>
           )}
         </Stack>
+
+        {invoice.note && (
+          <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid rgba(128,128,128,0.15)' }}>
+            <Typography variant="caption" color="text.secondary">Note</Typography>
+            <Typography variant="body2">{invoice.note}</Typography>
+          </Box>
+        )}
       </Paper>
 
       {!invoice.voidedAt && (

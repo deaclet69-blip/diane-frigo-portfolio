@@ -188,6 +188,7 @@ export interface Invoice {
   balanceDue: number;
   isDepositSale: boolean;
   saleType: 'DETAIL' | 'GROS' | 'MIXTE';
+  note?: string | null;
   voidedAt: string | null;
   voidedReason: string | null;
   createdAt: string;

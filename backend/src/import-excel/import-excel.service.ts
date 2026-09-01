@@ -37,8 +37,13 @@ const HEADER_MAP: Record<string, string[]> = {
   productName: ['produit'],
   entries: ['entrees', 'entree'],
   exits: ['sorties', 'sortie'],
-  purchasePrice: ['prixachat'],
-  salePrice: ['prixvente'],
+  // Alias corrigés (bug détecté par l'utilisateur) — l'en-tête réel
+  // "Prix d'achat (FCFA)" devient "prixdachatfcfa" une fois nettoyé (le "d"
+  // de "d'achat" et le "(FCFA)" en font partie), pas juste "prixachat".
+  // Match en "commence par" ci-dessous pour tolérer d'autres variations
+  // futures (unité différente, libellé légèrement modifié...).
+  purchasePrice: ['prixdachat', 'prixachat'],
+  salePrice: ['prixdevente', 'prixvente'],
   invoiceNumber: ['nfacture', 'numerofacture', 'facture'],
   customerName: ['client'],
   observation: ['observations', 'observation'],
@@ -71,7 +76,7 @@ export class ImportExcelService {
     const headerRow = rows[headerRowIndex].map((h) => (typeof h === 'string' ? normalizeHeader(h) : ''));
     const colIndex: Record<string, number> = {};
     for (const [field, aliases] of Object.entries(HEADER_MAP)) {
-      const idx = headerRow.findIndex((h) => aliases.includes(h));
+      const idx = headerRow.findIndex((h) => aliases.some((a) => h.startsWith(a)));
       if (idx !== -1) colIndex[field] = idx;
     }
     if (colIndex.productName === undefined) {
@@ -214,14 +219,9 @@ export class ImportExcelService {
       return { dryRun: true, report };
     }
 
-    // Import réel — CHAQUE facture/entrée dans sa PROPRE petite transaction
-    // (plutôt qu'une seule transaction géante pour tout le fichier). Neon
-    // coupe les longues transactions sur sa connexion groupée ; avec ce
-    // découpage, un import de centaines de lignes ne dépend plus de tenir
-    // une seule connexion ouverte pendant plusieurs minutes. Bonus : si ça
-    // s'interrompt en cours de route, relancer l'import reprend exactement
-    // là où il s'est arrêté (les factures déjà créées sont détectées comme
-    // doublons et ignorées, rien n'est jamais dupliqué).
+    // Import réel — sans transaction (voir note plus bas). L'ordre respecte
+    // les dépendances : produits déjà créés plus haut, puis mouvements de
+    // stock, puis factures.
     let importedInvoices = 0;
     let importedEntries = 0;
 
@@ -243,55 +243,61 @@ export class ImportExcelService {
     for (const [invoiceNumber, lines] of saleGroups.entries()) {
       const first = lines[0].row;
 
-      await this.prisma.$transaction(async (tx) => {
-        let customer = first.customerName
-          ? await tx.customer.findFirst({ where: { name: first.customerName } })
-          : null;
-        if (!customer) {
-          customer = await tx.customer.create({
-            data: { name: first.customerName ?? `Client facture ${invoiceNumber}` },
-          });
-        }
-
-        const itemsData = lines.map(({ row: r, productId }) => {
-          const product = products.find((p) => p.id === productId)!;
-          const unitPurchasePrice = r.purchasePrice ?? Number(product.referencePurchasePrice);
-          const unitSalePrice = r.salePrice ?? Number(product.referenceSalePrice);
-          const lineTotal = r.exits * unitSalePrice;
-          const unitMargin = unitSalePrice - unitPurchasePrice;
-          const lineProfit = r.exits * unitMargin;
-          return { productId, quantity: r.exits, unitPurchasePrice, unitSalePrice, lineTotal, unitMargin, lineProfit };
+      // Plus de $transaction ici : la connexion groupée de Neon coupe même
+      // les petites transactions par intermittence (observé en pratique).
+      // On enregistre les étapes l'une après l'autre — un import est une
+      // opération ponctuelle, pas une vente du quotidien : le très faible
+      // risque d'incohérence partielle en cas de coupure en plein milieu
+      // est largement acceptable ici, et un nouvel essai ne duplique rien
+      // (la facture serait déjà détectée comme doublon).
+      let customer = first.customerName
+        ? await this.prisma.customer.findFirst({ where: { name: first.customerName } })
+        : null;
+      if (!customer) {
+        customer = await this.prisma.customer.create({
+          data: { name: first.customerName ?? `Client facture ${invoiceNumber}` },
         });
-        const total = itemsData.reduce((acc, l) => acc + l.lineTotal, 0);
+      }
 
-        const invoice = await tx.invoice.create({
-          data: {
-            invoiceNumber,
-            customerId: customer.id,
-            date: first.date!,
-            status: 'PAID', // l'Excel ne trace pas de crédit/partiel — hypothèse "payé comptant" (cf. Étape 1)
-            subtotal: total,
-            discount: 0,
-            total,
-            amountPaid: total,
-            balanceDue: 0,
-            createdById: userId,
-            items: { create: itemsData },
-          },
-        });
+      const itemsData = lines.map(({ row: r, productId }) => {
+        const product = products.find((p) => p.id === productId)!;
+        const unitPurchasePrice = r.purchasePrice ?? Number(product.referencePurchasePrice);
+        const unitSalePrice = r.salePrice ?? Number(product.referenceSalePrice);
+        const lineTotal = r.exits * unitSalePrice;
+        const unitMargin = unitSalePrice - unitPurchasePrice;
+        const lineProfit = r.exits * unitMargin;
+        return { productId, quantity: r.exits, unitPurchasePrice, unitSalePrice, lineTotal, unitMargin, lineProfit };
+      });
+      const total = itemsData.reduce((acc, l) => acc + l.lineTotal, 0);
 
-        await tx.stockMovement.createMany({
-          data: itemsData.map((l) => ({
-            productId: l.productId,
-            movementType: 'EXIT' as const,
-            quantity: l.quantity,
-            date: first.date!,
-            referenceType: 'excel_import',
-            referenceId: invoice.id,
-            createdById: userId,
-          })),
-        });
-      }, { timeout: 15000 });
+      const invoice = await this.prisma.invoice.create({
+        data: {
+          invoiceNumber,
+          customerId: customer.id,
+          date: first.date!,
+          status: 'PAID', // l'Excel ne trace pas de crédit/partiel — hypothèse "payé comptant" (cf. Étape 1)
+          subtotal: total,
+          discount: 0,
+          total,
+          amountPaid: total,
+          balanceDue: 0,
+          createdById: userId,
+          note: first.observation || undefined,
+          items: { create: itemsData },
+        },
+      });
+
+      await this.prisma.stockMovement.createMany({
+        data: itemsData.map((l) => ({
+          productId: l.productId,
+          movementType: 'EXIT' as const,
+          quantity: l.quantity,
+          date: first.date!,
+          referenceType: 'excel_import',
+          referenceId: invoice.id,
+          createdById: userId,
+        })),
+      });
 
       importedInvoices++;
     }

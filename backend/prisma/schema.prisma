@@ -160,6 +160,9 @@ model Invoice {
   amountPaid     Decimal       @db.Decimal(14, 2) @default(0)
   balanceDue     Decimal       @db.Decimal(14, 2) @default(0)
   isDepositSale  Boolean       @default(false)
+  // Ajout — note libre sur la facture (ex. récupérée automatiquement
+  // depuis la colonne "Observations" lors d'un import Excel).
+  note           String?
   createdBy      User          @relation("InvoiceCreatedBy", fields: [createdById], references: [id])
   createdById    String
   createdAt      DateTime      @default(now())
