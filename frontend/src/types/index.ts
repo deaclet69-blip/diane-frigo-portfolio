@@ -434,6 +434,7 @@ export interface ImportReport {
   totalRows: number;
   stockEntriesFound: number;
   invoicesFound: number;
+  newProducts: string[];
   errors: { rowNumber: number; reason: string }[];
   duplicates: { rowNumber: number; reason: string }[];
   missingData: { rowNumber: number; reason: string }[];

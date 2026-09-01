@@ -113,6 +113,52 @@ export class ImportExcelService {
     const products = await this.prisma.product.findMany();
     const productByName = new Map(products.map((p) => [p.name.trim().toLowerCase(), p]));
 
+    // Produits présents dans le fichier mais absents de Paramètres > Produits
+    // — créés automatiquement (demande utilisateur), avec le prix trouvé sur
+    // leur toute première ligne dans le fichier comme prix de référence.
+    const newProductDefaults = new Map<string, { name: string; purchasePrice: number; salePrice: number }>();
+    for (const row of rows) {
+      if (!row.productName) continue;
+      const key = row.productName.trim().toLowerCase();
+      if (productByName.has(key) || newProductDefaults.has(key)) continue;
+      newProductDefaults.set(key, {
+        name: row.productName.trim(),
+        purchasePrice: row.purchasePrice ?? 0,
+        salePrice: row.salePrice ?? 0,
+      });
+    }
+
+    if (!dryRun) {
+      // Création réelle, avant de traiter les lignes, pour que chaque ligne
+      // du fichier puisse ensuite trouver son produit normalement.
+      for (const def of newProductDefaults.values()) {
+        const created = await this.prisma.product.create({
+          data: {
+            name: def.name,
+            referencePurchasePrice: def.purchasePrice,
+            referenceSalePrice: def.salePrice,
+            alertThreshold: 500,
+          },
+        });
+        productByName.set(def.name.trim().toLowerCase(), created);
+        products.push(created);
+        await this.audit.log({
+          userId, action: 'create', entityType: 'product', entityId: created.id, afterData: created,
+        });
+      }
+    } else {
+      // Aperçu uniquement : entrées temporaires (jamais enregistrées) pour
+      // que les compteurs de l'aperçu soient corrects sans rien créer.
+      for (const def of newProductDefaults.values()) {
+        productByName.set(def.name.trim().toLowerCase(), {
+          id: `preview-${def.name}`,
+          name: def.name,
+          referencePurchasePrice: def.purchasePrice,
+          referenceSalePrice: def.salePrice,
+        } as any);
+      }
+    }
+
     const existingInvoiceNumbers = new Set(
       (await this.prisma.invoice.findMany({ select: { invoiceNumber: true } })).map((i) => i.invoiceNumber),
     );
@@ -158,6 +204,7 @@ export class ImportExcelService {
       totalRows: rows.length,
       stockEntriesFound: entryMovements.length,
       invoicesFound: saleGroups.size,
+      newProducts: Array.from(newProductDefaults.values()).map((d) => d.name),
       errors: [...errors, ...looseExits],
       duplicates: skippedDuplicates,
       missingData: errors.filter((e) => e.reason.includes('manquante')),
