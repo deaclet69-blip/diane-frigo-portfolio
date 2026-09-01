@@ -214,28 +214,36 @@ export class ImportExcelService {
       return { dryRun: true, report };
     }
 
-    // Import réel — une seule transaction pour tout le fichier
+    // Import réel — CHAQUE facture/entrée dans sa PROPRE petite transaction
+    // (plutôt qu'une seule transaction géante pour tout le fichier). Neon
+    // coupe les longues transactions sur sa connexion groupée ; avec ce
+    // découpage, un import de centaines de lignes ne dépend plus de tenir
+    // une seule connexion ouverte pendant plusieurs minutes. Bonus : si ça
+    // s'interrompt en cours de route, relancer l'import reprend exactement
+    // là où il s'est arrêté (les factures déjà créées sont détectées comme
+    // doublons et ignorées, rien n'est jamais dupliqué).
     let importedInvoices = 0;
     let importedEntries = 0;
 
-    await this.prisma.$transaction(async (tx) => {
-      for (const { row, productId } of entryMovements) {
-        await tx.stockMovement.create({
-          data: {
-            productId,
-            movementType: 'ENTRY',
-            quantity: row.entries,
-            date: row.date!,
-            referenceType: 'excel_import',
-            note: `Import Excel — ligne ${row.rowNumber}`,
-            createdById: userId,
-          },
-        });
-        importedEntries++;
-      }
+    for (const { row, productId } of entryMovements) {
+      await this.prisma.stockMovement.create({
+        data: {
+          productId,
+          movementType: 'ENTRY',
+          quantity: row.entries,
+          date: row.date!,
+          referenceType: 'excel_import',
+          note: `Import Excel — ligne ${row.rowNumber}`,
+          createdById: userId,
+        },
+      });
+      importedEntries++;
+    }
 
-      for (const [invoiceNumber, lines] of saleGroups.entries()) {
-        const first = lines[0].row;
+    for (const [invoiceNumber, lines] of saleGroups.entries()) {
+      const first = lines[0].row;
+
+      await this.prisma.$transaction(async (tx) => {
         let customer = first.customerName
           ? await tx.customer.findFirst({ where: { name: first.customerName } })
           : null;
@@ -283,10 +291,10 @@ export class ImportExcelService {
             createdById: userId,
           })),
         });
+      }, { timeout: 15000 });
 
-        importedInvoices++;
-      }
-    }, { timeout: 120000, maxWait: 20000 }); // délai généreux — un import peut porter sur des centaines de lignes
+      importedInvoices++;
+    }
 
     await this.audit.log({
       userId, action: 'create', entityType: 'excel_import', entityId: 'bulk',
