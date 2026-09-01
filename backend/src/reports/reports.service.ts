@@ -244,7 +244,7 @@ export class ReportsService {
       },
       include: { product: { select: { name: true } }, supplier: { select: { name: true } } },
       orderBy: { date: 'desc' },
-      take: 300,
+      take: 2000, // idem Ventes/Stock
     });
     return entries.map((e) => ({
       date: e.date,

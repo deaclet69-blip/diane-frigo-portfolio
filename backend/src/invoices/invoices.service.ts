@@ -26,7 +26,10 @@ export class InvoicesService {
         items: { include: { product: { select: { name: true } } } },
       },
       orderBy: { date: 'desc' },
-      take: 200,
+      // 2000 au lieu de 200 — avec plusieurs centaines de ventes réelles
+      // (import Excel notamment), 200 coupait les plus anciennes de la
+      // liste sans prévenir (bug détecté par l'utilisateur).
+      take: 2000,
     });
   }
 

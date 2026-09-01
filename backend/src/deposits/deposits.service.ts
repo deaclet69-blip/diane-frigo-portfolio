@@ -46,7 +46,7 @@ export class DepositsService {
       where: customerId ? { deposit: { customerId } } : {},
       include: { deposit: { include: { customer: true, product: true } } },
       orderBy: { date: 'desc' },
-      take: 300,
+      take: 2000, // idem Ventes/Stock
     });
   }
 

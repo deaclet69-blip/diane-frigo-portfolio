@@ -91,7 +91,8 @@ export class StockService {
     const movements = await this.prisma.stockMovement.findMany({
       where: { productId },
       orderBy: { date: 'desc' },
-      take: 200,
+      // 2000 au lieu de 200 — mêmes raisons que Ventes (import Excel notamment).
+      take: 2000,
       include: { createdBy: { select: { name: true } } },
     });
 
