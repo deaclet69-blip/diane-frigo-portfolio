@@ -45,7 +45,10 @@ export class AiAdvisorService {
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
           contents,
-          generationConfig: { maxOutputTokens: 1024 },
+          // Augmenté (1024 -> 4096) — avec de vraies données importées,
+          // l'IA a davantage à dire et se faisait couper en plein milieu
+          // de réponse (signalé par l'utilisateur).
+          generationConfig: { maxOutputTokens: 4096 },
         }),
       },
     );
