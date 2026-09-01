@@ -270,12 +270,18 @@ export class ImportExcelService {
       });
       const total = itemsData.reduce((acc, l) => acc + l.lineTotal, 0);
 
+      // Type détail/gros lu depuis la colonne Observations de l'Excel
+      // (ex. "Vente en gros - payé comptant") — l'import mettait tout en
+      // "Détail" par défaut avant ce correctif (bug détecté par l'utilisateur).
+      const saleType = first.observation?.toLowerCase().includes('gros') ? 'GROS' : 'DETAIL';
+
       const invoice = await this.prisma.invoice.create({
         data: {
           invoiceNumber,
           customerId: customer.id,
           date: first.date!,
           status: 'PAID', // l'Excel ne trace pas de crédit/partiel — hypothèse "payé comptant" (cf. Étape 1)
+          saleType,
           subtotal: total,
           discount: 0,
           total,
