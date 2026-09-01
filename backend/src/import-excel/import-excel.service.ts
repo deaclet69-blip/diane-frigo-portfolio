@@ -287,6 +287,19 @@ export class ImportExcelService {
         },
       });
 
+      // Sans ceci, "Recettes" (Rapports > Traçabilité) restait à 0 pour
+      // toutes les ventes importées — ce total est calculé à partir des
+      // VRAIS paiements enregistrés (table Payment), pas juste du champ
+      // amountPaid de la facture. Bug détecté par l'utilisateur.
+      await this.prisma.payment.create({
+        data: {
+          invoiceId: invoice.id,
+          amount: total,
+          date: first.date!,
+          method: 'Import Excel',
+        },
+      });
+
       await this.prisma.stockMovement.createMany({
         data: itemsData.map((l) => ({
           productId: l.productId,
