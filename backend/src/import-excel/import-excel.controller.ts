@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Controller, InternalServerErrorException, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImportExcelService } from './import-excel.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -16,15 +16,30 @@ export class ImportExcelController {
 
   @Post('preview')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 20 * 1024 * 1024 } }))
-  preview(@UploadedFile() file: Express.Multer.File, @CurrentUser() user: { id: string }) {
+  async preview(@UploadedFile() file: Express.Multer.File, @CurrentUser() user: { id: string }) {
     if (!file) throw new BadRequestException('Aucun fichier reçu.');
-    return this.importExcelService.preview(file.buffer, user.id);
+    try {
+      return await this.importExcelService.preview(file.buffer, user.id);
+    } catch (err: any) {
+      if (err instanceof BadRequestException) throw err;
+      throw new InternalServerErrorException(
+        `Échec de la lecture du fichier : ${err?.message ?? 'erreur inconnue'}`,
+      );
+    }
   }
 
   @Post('confirm')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 20 * 1024 * 1024 } }))
-  confirm(@UploadedFile() file: Express.Multer.File, @CurrentUser() user: { id: string }) {
+  async confirm(@UploadedFile() file: Express.Multer.File, @CurrentUser() user: { id: string }) {
     if (!file) throw new BadRequestException('Aucun fichier reçu.');
-    return this.importExcelService.confirm(file.buffer, user.id);
+    try {
+      return await this.importExcelService.confirm(file.buffer, user.id);
+    } catch (err: any) {
+      if (err instanceof BadRequestException) throw err;
+      throw new InternalServerErrorException(
+        `Échec de l'import : ${err?.message ?? 'erreur inconnue'}. ` +
+          'Aucune donnée partielle n\'a été enregistrée (tout ou rien).',
+      );
+    }
   }
 }

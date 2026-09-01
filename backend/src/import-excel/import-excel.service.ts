@@ -124,7 +124,7 @@ export class ImportExcelService {
     const looseExits: RowIssue[] = [];
 
     for (const row of rows) {
-      const product = row.productName ? productByName.get(row.productName.toLowerCase()) : undefined;
+      const product = row.productName ? productByName.get(row.productName.trim().toLowerCase()) : undefined;
       if (!product) {
         errors.push({ rowNumber: row.rowNumber, reason: `Produit inconnu : "${row.productName}"` });
         continue;
@@ -239,7 +239,7 @@ export class ImportExcelService {
 
         importedInvoices++;
       }
-    });
+    }, { timeout: 120000, maxWait: 20000 }); // délai généreux — un import peut porter sur des centaines de lignes
 
     await this.audit.log({
       userId, action: 'create', entityType: 'excel_import', entityId: 'bulk',
