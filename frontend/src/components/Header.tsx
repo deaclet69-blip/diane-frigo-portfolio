@@ -14,13 +14,13 @@ import { getStockAlerts } from '../services/stock';
 import { diane } from '../theme';
 
 const roleLabels: Record<string, string> = {
-  ADMIN: 'Administrateur',
-  RESPONSABLE: 'Responsable',
-  VENDEUR: 'Vendeur',
-  MAGASINIER: 'Magasinier',
+  ADMIN: 'Administrator',
+  RESPONSABLE: 'Manager',
+  VENDEUR: 'Salesperson',
+  MAGASINIER: 'Warehouse Staff',
 };
 
-const today = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+const today = new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' });
 
 export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const user = getCurrentUser();
@@ -83,20 +83,20 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
           <MenuItem onClick={() => { setMenuAnchor(null); setConfirmOpen(true); }}>
             <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
-            Se déconnecter
+            Sign out
           </MenuItem>
         </Menu>
 
         <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)} maxWidth="xs" fullWidth>
-          <DialogTitle>Se déconnecter ?</DialogTitle>
+          <DialogTitle>Sign out?</DialogTitle>
           <DialogContent>
             <Typography variant="body2" color="text.secondary">
-              Tu devras te reconnecter avec ton email et ton mot de passe pour revenir.
+              You'll need to sign back in with your email and password to return.
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setConfirmOpen(false)}>Annuler</Button>
-            <Button variant="contained" color="error" onClick={logout}>Se déconnecter</Button>
+            <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
+            <Button variant="contained" color="error" onClick={logout}>Sign out</Button>
           </DialogActions>
         </Dialog>
       </Toolbar>

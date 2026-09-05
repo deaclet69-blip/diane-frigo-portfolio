@@ -35,21 +35,21 @@ const COMPACT_WIDTH = 76;
 // Structure calquée sur la nouvelle maquette "futuriste professionnel".
 // `key` doit correspondre à une clé de PERMISSION_SECTIONS (constants/permissions.ts).
 const navItems = [
-  { key: 'dashboard', label: 'Tableau de bord', icon: <SpaceDashboardIcon />, to: '/', hasSub: false },
-  { key: 'ventes', label: 'Ventes', icon: <ShoppingCartIcon />, to: '/ventes', hasSub: true },
+  { key: 'dashboard', label: 'Dashboard', icon: <SpaceDashboardIcon />, to: '/', hasSub: false },
+  { key: 'ventes', label: 'Sales', icon: <ShoppingCartIcon />, to: '/ventes', hasSub: true },
   { key: 'stock', label: 'Stock', icon: <Inventory2Icon />, to: '/stock', hasSub: true },
-  { key: 'produits', label: 'Produits', icon: <CategoryIcon />, to: '/parametres/produits', hasSub: false },
-  { key: 'clients', label: 'Clients', icon: <PeopleIcon />, to: '/clients', hasSub: true },
-  { key: 'depots', label: 'Dépôts clients', icon: <AccountBalanceWalletIcon />, to: '/depots', hasSub: false },
-  { key: 'achats', label: 'Achats', icon: <LocalShippingIcon />, to: '/stock/entree', hasSub: false },
-  { key: 'charges', label: 'Dépenses / Charges', icon: <ReceiptLongIcon />, to: '/charges', hasSub: true },
-  { key: 'pertes', label: 'Pertes', icon: <TrendingDownIcon />, to: '/finances/pertes', hasSub: false },
-  { key: 'rentabilite', label: 'Rentabilité', icon: <InsightsIcon />, to: '/finances/tarification', hasSub: false },
-  { key: 'rapports', label: 'Rapports', icon: <BarChartIcon />, to: '/rapports', hasSub: true },
-  { key: 'investissement', label: 'Investissement', icon: <SavingsIcon />, to: '/finances/investissement', hasSub: false },
-  { key: 'assistant', label: 'Assistant IA', icon: <AutoAwesomeIcon />, to: '/assistant', hasSub: false },
-  { key: 'utilisateurs', label: 'Utilisateurs', icon: <PersonOutlineIcon />, to: '/parametres/utilisateurs', hasSub: false },
-  { key: 'parametres', label: 'Paramètres', icon: <SettingsIcon />, to: '/parametres/produits', hasSub: true },
+  { key: 'produits', label: 'Products', icon: <CategoryIcon />, to: '/parametres/produits', hasSub: false },
+  { key: 'clients', label: 'Customers', icon: <PeopleIcon />, to: '/clients', hasSub: true },
+  { key: 'depots', label: 'Customer Deposits', icon: <AccountBalanceWalletIcon />, to: '/depots', hasSub: false },
+  { key: 'achats', label: 'Purchases', icon: <LocalShippingIcon />, to: '/stock/entree', hasSub: false },
+  { key: 'charges', label: 'Expenses', icon: <ReceiptLongIcon />, to: '/charges', hasSub: true },
+  { key: 'pertes', label: 'Losses', icon: <TrendingDownIcon />, to: '/finances/pertes', hasSub: false },
+  { key: 'rentabilite', label: 'Profitability', icon: <InsightsIcon />, to: '/finances/tarification', hasSub: false },
+  { key: 'rapports', label: 'Reports', icon: <BarChartIcon />, to: '/rapports', hasSub: true },
+  { key: 'investissement', label: 'Investment', icon: <SavingsIcon />, to: '/finances/investissement', hasSub: false },
+  { key: 'assistant', label: 'AI Assistant', icon: <AutoAwesomeIcon />, to: '/assistant', hasSub: false },
+  { key: 'utilisateurs', label: 'Users', icon: <PersonOutlineIcon />, to: '/parametres/utilisateurs', hasSub: false },
+  { key: 'parametres', label: 'Settings', icon: <SettingsIcon />, to: '/parametres/produits', hasSub: true },
 ];
 
 export default function Sidebar() {
@@ -184,7 +184,7 @@ export default function Sidebar() {
             >
               <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>DIANE FRIGO</Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>
-                La gestion intelligente de votre chambre froide
+                Smart management for your cold storage business
               </Typography>
               <LocalShippingIcon sx={{ position: 'absolute', right: -6, bottom: -8, fontSize: 56, color: 'rgba(255,255,255,0.1)' }} />
             </Box>
@@ -223,10 +223,10 @@ export default function Sidebar() {
               <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                 <Typography variant="body2" fontWeight={700} noWrap>{user?.email?.split('@')[0] ?? 'Utilisateur'}</Typography>
                 <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {user?.role === 'ADMIN' ? 'Administrateur' : user?.role ?? ''}
+                  {user?.role === 'ADMIN' ? 'Administrator' : user?.role ?? ''}
                 </Typography>
               </Box>
-              <Tooltip title={mode === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}>
+              <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
                 <IconButton size="small" onClick={toggle} sx={{ color: 'rgba(255,255,255,0.6)' }}>
                   {mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
                 </IconButton>

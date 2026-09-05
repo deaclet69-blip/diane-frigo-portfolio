@@ -28,11 +28,13 @@ import type { FullDashboard } from '../../types';
 import { getCurrentUser } from '../../services/auth';
 import { diane } from '../../theme';
 
+import { usd } from '../../utils/currency';
+
 function fcfa(v: number) {
-  return `${Math.round(v).toLocaleString('fr-FR')} FCFA`;
+  return usd(v);
 }
 function fcfaShort(v: number) {
-  return `${Math.round(v).toLocaleString('fr-FR')}`;
+  return usd(v);
 }
 
 const donutColors = [diane.indigo, diane.blue, diane.orange, '#C4C9E8'];
@@ -73,8 +75,8 @@ export default function DashboardPage() {
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 3 }}>
         <Box>
-          <Typography variant="h5" fontWeight={800}>Tableau de bord</Typography>
-          <Typography variant="body2" color="text.secondary">Vue d'ensemble de votre activité</Typography>
+          <Typography variant="h5" fontWeight={800}>Dashboard</Typography>
+          <Typography variant="body2" color="text.secondary">Overview of your business</Typography>
         </Box>
       </Stack>
 
@@ -88,29 +90,29 @@ export default function DashboardPage() {
         }}
       >
         <KpiCard
-          icon={<TrendingUpIcon />} iconBg={diane.blue} label="Chiffre d'affaires" sublabel="Aujourd'hui"
+          icon={<TrendingUpIcon />} iconBg={diane.blue} label="Revenue" sublabel="Today"
           value={data ? fcfa(data.kpis.revenueToday) : '…'}
           change={data?.kpis.revenueChangePercent ?? null}
         />
         <KpiCard
-          icon={<SavingsIcon />} iconBg={diane.green} label="Bénéfice net" sublabel="Aujourd'hui"
+          icon={<SavingsIcon />} iconBg={diane.green} label="Net Profit" sublabel="Today"
           value={data ? fcfa(data.kpis.profitToday) : '…'}
           change={data?.kpis.profitChangePercent ?? null}
         />
         <KpiCard
-          icon={<Inventory2Icon />} iconBg={diane.purple} label="Stock actuel" sublabel="Valeur du stock"
-          value={data ? `${data.kpis.stockCartons.toLocaleString('fr-FR')} cartons` : '…'}
+          icon={<Inventory2Icon />} iconBg={diane.purple} label="Current Stock" sublabel="Stock Value"
+          value={data ? `${data.kpis.stockCartons.toLocaleString('en-US')} boxes` : '…'}
           footer={data ? fcfa(data.kpis.stockValue) : undefined}
         />
         <KpiCard
-          icon={<PersonOutlineIcon />} iconBg={diane.orange} label="Dépôts clients" sublabel="Stock en dépôt"
-          value={data ? `${data.kpis.depositsCartons.toLocaleString('fr-FR')} cartons` : '…'}
+          icon={<PersonOutlineIcon />} iconBg={diane.orange} label="Customer Deposits" sublabel="Stock on Deposit"
+          value={data ? `${data.kpis.depositsCartons.toLocaleString('en-US')} boxes` : '…'}
           footer={data ? fcfa(data.kpis.depositsValue) : undefined}
         />
         <KpiCard
-          icon={<CreditCardIcon />} iconBg={diane.red} label="Créances clients" sublabel="Montant dû"
+          icon={<CreditCardIcon />} iconBg={diane.red} label="Accounts Receivable" sublabel="Amount Due"
           value={data ? fcfa(data.kpis.receivablesTotal) : '…'}
-          footer={data ? `${data.kpis.receivablesCount} client(s) concerné(s)` : undefined}
+          footer={data ? `${data.kpis.receivablesCount} customer(s) affected` : undefined}
         />
       </Box>
 
@@ -118,19 +120,19 @@ export default function DashboardPage() {
       <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2.5} sx={{ mb: 2.5 }}>
         <Paper sx={{ p: 3, flex: 1.6 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-            <Typography variant="subtitle1" fontWeight={700}>Évolution du chiffre d'affaires</Typography>
-            <Chip label="7 derniers jours" size="small" sx={{ bgcolor: 'action.hover', color: 'text.primary', fontWeight: 600 }} />
+            <Typography variant="subtitle1" fontWeight={700}>Revenue Trend</Typography>
+            <Chip label="Last 7 days" size="small" sx={{ bgcolor: 'action.hover', color: 'text.primary', fontWeight: 600 }} />
           </Stack>
           <ResponsiveContainer width="100%" height={230}>
             <LineChart data={data?.revenueTrend ?? []} margin={{ top: 5, right: 8, left: -12, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
               <XAxis
                 dataKey="date" fontSize={11} stroke={axisColor} tickLine={false} axisLine={{ stroke: gridColor }}
-                tickFormatter={(d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                tickFormatter={(d: string) => new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}
               />
               <YAxis fontSize={11} stroke={axisColor} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
               <Tooltip
-                formatter={(v: number) => fcfa(v)} labelFormatter={(d) => new Date(d).toLocaleDateString('fr-FR')}
+                formatter={(v: number) => fcfa(v)} labelFormatter={(d) => new Date(d).toLocaleDateString('en-US')}
                 contentStyle={tooltipStyle} labelStyle={{ color: isDark ? '#E8ECF7' : '#111' }}
               />
               <Line type="monotone" dataKey="revenue" stroke={diane.indigo} strokeWidth={3} dot={{ r: 4, fill: diane.indigo, strokeWidth: 0 }} activeDot={{ r: 6 }} />
@@ -139,7 +141,7 @@ export default function DashboardPage() {
         </Paper>
 
         <Paper sx={{ p: 3, flex: 1 }}>
-          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>Répartition des ventes par produit</Typography>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>Sales Breakdown by Product</Typography>
           {data && data.salesByProduct.length > 0 ? (
             <>
               <Box sx={{ position: 'relative', height: 170 }}>
@@ -174,29 +176,29 @@ export default function DashboardPage() {
               </Stack>
             </>
           ) : (
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>Pas encore de ventes cette semaine.</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>No sales yet this week.</Typography>
           )}
           <Typography
             variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}
             onClick={() => navigate('/rapports')}
           >
-            Voir le rapport complet →
+            View full report →
           </Typography>
         </Paper>
 
         <Paper sx={{ p: 3, flex: 1 }}>
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-            <Typography variant="subtitle1" fontWeight={700}>Alertes et notifications</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Alerts & Notifications</Typography>
             <Typography
               variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}
               onClick={() => navigate('/notifications')}
             >
-              Tout voir
+              See all
             </Typography>
           </Stack>
           <List dense disablePadding>
             {(data?.alerts.length ?? 0) === 0 && (
-              <Typography variant="body2" color="text.secondary">Tout va bien, aucune alerte.</Typography>
+              <Typography variant="body2" color="text.secondary">All good, no alerts.</Typography>
             )}
             {data?.alerts.map((a, i) => {
               const s = alertStyle[a.type] ?? alertStyle.info;
@@ -224,7 +226,7 @@ export default function DashboardPage() {
       {/* Ligne 3 — Activité récente / Top produits / Stock par catégorie */}
       <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2.5} sx={{ mb: 2.5 }}>
         <Paper sx={{ p: 3, flex: 1 }}>
-          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Activité récente</Typography>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Recent Activity</Typography>
           <List dense disablePadding>
             {data?.recentActivity.map((a, i) => (
               <ListItem key={i} disableGutters sx={{ py: 0.75 }}>
@@ -249,13 +251,13 @@ export default function DashboardPage() {
               </ListItem>
             ))}
             {(data?.recentActivity.length ?? 0) === 0 && (
-              <Typography variant="body2" color="text.secondary">Aucune activité récente.</Typography>
+              <Typography variant="body2" color="text.secondary">No recent activity.</Typography>
             )}
           </List>
         </Paper>
 
         <Paper sx={{ p: 3, flex: 1 }}>
-          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Top produits par marge</Typography>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Top Products by Margin</Typography>
           <Stack spacing={1.5} sx={{ mb: 1.5 }}>
             {data?.topProductsByMargin.map((p) => (
               <Box key={p.productName}>
@@ -273,25 +275,25 @@ export default function DashboardPage() {
               </Box>
             ))}
             {(data?.topProductsByMargin.length ?? 0) === 0 && (
-              <Typography variant="body2" color="text.secondary">Pas encore de ventes.</Typography>
+              <Typography variant="body2" color="text.secondary">No sales yet.</Typography>
             )}
           </Stack>
           <Typography
             variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}
             onClick={() => navigate('/rapports')}
           >
-            Voir tous les produits →
+            View all products →
           </Typography>
         </Paper>
 
         <Paper sx={{ p: 3, flex: 1 }}>
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1.5 }}>
-            <Typography variant="subtitle1" fontWeight={700}>Stock par catégorie</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Stock by Category</Typography>
             <Typography
               variant="body2" fontWeight={700} sx={{ color: diane.indigo, cursor: 'pointer' }}
               onClick={() => navigate('/stock')}
             >
-              Voir tout
+              View all
             </Typography>
           </Stack>
           <Stack spacing={1.75}>
@@ -308,13 +310,13 @@ export default function DashboardPage() {
               </Box>
             ))}
             {(data?.stockByCategory.length ?? 0) === 0 && (
-              <Typography variant="body2" color="text.secondary">Aucun produit en stock.</Typography>
+              <Typography variant="body2" color="text.secondary">No products in stock.</Typography>
             )}
           </Stack>
         </Paper>
       </Stack>
 
-      {/* Bandeau footer — Résumé financier du mois */}
+      {/* Bandeau footer — Monthly Financial Summary */}
       <Paper
         sx={{
           p: 3, borderRadius: 3, color: '#fff',
@@ -323,15 +325,15 @@ export default function DashboardPage() {
       >
         <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" spacing={3}>
           <Box>
-            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Résumé financier du mois</Typography>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Monthly Financial Summary</Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4}>
-              <Stat label="Chiffre d'affaires" value={data ? fcfa(data.monthlySummary.revenue) : '…'} />
-              <Stat label="Total des dépenses" value={data ? fcfa(data.monthlySummary.expenses) : '…'} />
-              <Stat label="Bénéfice net" value={data ? fcfa(data.monthlySummary.netProfit) : '…'} color={diane.green} />
-              <Stat label="Marge moyenne" value={data ? `${data.monthlySummary.avgMarginPercent.toFixed(0)}%` : '…'} />
+              <Stat label="Revenue" value={data ? fcfa(data.monthlySummary.revenue) : '…'} />
+              <Stat label="Total Expenses" value={data ? fcfa(data.monthlySummary.expenses) : '…'} />
+              <Stat label="Net Profit" value={data ? fcfa(data.monthlySummary.netProfit) : '…'} color={diane.green} />
+              <Stat label="Average Margin" value={data ? `${data.monthlySummary.avgMarginPercent.toFixed(0)}%` : '…'} />
               <Stat
-                label="Objectif mensuel"
-                value={data ? (data.monthlySummary.monthlyTarget != null ? fcfa(data.monthlySummary.monthlyTarget) : 'Non défini') : '…'}
+                label="Monthly Target"
+                value={data ? (data.monthlySummary.monthlyTarget != null ? fcfa(data.monthlySummary.monthlyTarget) : 'Not set') : '…'}
               />
             </Stack>
           </Box>
@@ -356,7 +358,7 @@ export default function DashboardPage() {
               onClick={() => navigate('/finances')}
               sx={{ bgcolor: '#fff', color: diane.navy, '&:hover': { bgcolor: '#EEE' } }}
             >
-              Voir le rapport détaillé
+              View detailed report
             </Button>
           </Stack>
         </Stack>
@@ -392,7 +394,7 @@ function KpiCard({ icon, iconBg, label, sublabel, value, footer, change }: {
             <TrendingDownIcon sx={{ fontSize: 14, color: diane.red }} />
           )}
           <Typography variant="caption" sx={{ color: change >= 0 ? diane.green : diane.red, fontWeight: 700 }}>
-            {change >= 0 ? '+' : ''}{change.toFixed(1)}% vs hier
+            {change >= 0 ? '+' : ''}{change.toFixed(1)}% vs yesterday
           </Typography>
         </Stack>
       )}

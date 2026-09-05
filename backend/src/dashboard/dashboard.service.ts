@@ -38,12 +38,12 @@ export class DashboardService {
   private timeAgo(date: Date): string {
     const diffMs = Date.now() - date.getTime();
     const mins = Math.floor(diffMs / 60000);
-    if (mins < 1) return "à l'instant";
-    if (mins < 60) return `il y a ${mins} min`;
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins} min ago`;
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `il y a ${hours} h`;
+    if (hours < 24) return `${hours}h ago`;
     const days = Math.floor(hours / 24);
-    return `il y a ${days} j`;
+    return `${days}d ago`;
   }
 
   /**
@@ -134,42 +134,42 @@ export class DashboardService {
     const alertItems = stockOverview.items.filter((i) => i.status !== 'OK');
     if (alertItems.length > 0) {
       alerts.push({
-        type: 'warning', title: 'Stock faible',
-        detail: `${alertItems.length} produit(s) sont en stock faible`, timeAgo: '', link: '/stock',
+        type: 'warning', title: 'Low Stock',
+        detail: `${alertItems.length} product(s) are low in stock`, timeAgo: '', link: '/stock',
       });
     }
     const ruptures = stockOverview.items.filter((i) => i.status === 'RUPTURE');
     if (ruptures.length > 0) {
       alerts.push({
-        type: 'error', title: 'Rupture de stock',
-        detail: `${ruptures.length} produit(s) en rupture de stock`, timeAgo: '', link: '/stock',
+        type: 'error', title: 'Out of Stock',
+        detail: `${ruptures.length} product(s) are out of stock`, timeAgo: '', link: '/stock',
       });
     }
     if (receivablesCount > 0) {
       alerts.push({
-        type: 'error', title: 'Paiement en retard',
-        detail: `${receivablesCount} facture(s) ont un solde impayé`, timeAgo: '', link: '/ventes?impayees=1',
+        type: 'error', title: 'Overdue Payment',
+        detail: `${receivablesCount} invoice(s) have an outstanding balance`, timeAgo: '', link: '/ventes?impayees=1',
       });
     }
     if (depositsCartons > 0) {
       alerts.push({
-        type: 'info', title: 'Dépôt à retirer',
-        detail: `${deposits.filter((d) => d.movements.length > 0).length} client(s) ont des dépôts à retirer`, timeAgo: '', link: '/depots',
+        type: 'info', title: 'Deposit to Collect',
+        detail: `${deposits.filter((d) => d.movements.length > 0).length} customer(s) have deposits to collect`, timeAgo: '', link: '/depots',
       });
     }
 
     // Activité récente (factures + entrées de stock + charges, fusionnées et triées)
     const activity: { type: string; label: string; sublabel: string; amount: number; date: Date }[] = [
       ...recentInvoices.map((inv) => ({
-        type: 'sale', label: `Vente #${inv.invoiceNumber}`, sublabel: inv.customer.name,
+        type: 'sale', label: `Sale #${inv.invoiceNumber}`, sublabel: inv.customer.name,
         amount: Number(inv.total), date: inv.createdAt,
       })),
       ...recentStockMovements.map((m) => ({
-        type: 'stock', label: `Entrée de stock`, sublabel: `${m.product.name} — ${m.quantity} cartons`,
+        type: 'stock', label: `Stock Entry`, sublabel: `${m.product.name} — ${m.quantity} boxes`,
         amount: m.unitCost ? Number(m.unitCost) * m.quantity : 0, date: m.createdAt,
       })),
       ...recentExpenses.map((e) => ({
-        type: 'expense', label: `Dépense`, sublabel: e.category.name,
+        type: 'expense', label: `Expense`, sublabel: e.category.name,
         amount: Number(e.amount), date: e.date,
       })),
     ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 5)
