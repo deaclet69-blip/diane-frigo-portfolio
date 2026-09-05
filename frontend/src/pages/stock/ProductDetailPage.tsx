@@ -11,14 +11,16 @@ import type { ProductDetail, StockMovement } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
 import { diane } from '../../theme';
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${value.toLocaleString('fr-FR')} FCFA`;
+  return usd(value);
 }
 
 const movementLabels: Record<string, { label: string; color: string }> = {
-  ENTRY: { label: 'Entrée', color: diane.green },
-  EXIT: { label: 'Sortie', color: diane.red },
-  INVENTORY_ADJUSTMENT: { label: 'Ajustement inventaire', color: diane.blue },
+  ENTRY: { label: 'Entry', color: diane.green },
+  EXIT: { label: 'Exit', color: diane.red },
+  INVENTORY_ADJUSTMENT: { label: 'Inventory Adjustment', color: diane.blue },
 };
 
 export default function ProductDetailPage() {
@@ -48,7 +50,7 @@ export default function ProductDetailPage() {
       setEditing(null);
       reload();
     } catch (err: any) {
-      setEditError(err?.response?.data?.message ?? 'Correction impossible.');
+      setEditError(err?.response?.data?.message ?? 'Correction failed.');
     }
   }
 
@@ -70,26 +72,26 @@ export default function ProductDetailPage() {
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Stock actuel</Typography>
+          <Typography variant="caption" color="text.secondary">Current Stock</Typography>
           <Typography variant="h5" fontWeight={700}>
-            {data.currentStock.toLocaleString('fr-FR')} {data.product.unit}
+            {data.currentStock.toLocaleString('en-US')} {data.product.unit}
             {data.currentStock !== 1 ? 's' : ''}
           </Typography>
         </Paper>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Valeur du stock</Typography>
+          <Typography variant="caption" color="text.secondary">Stock Value</Typography>
           <Typography variant="h5" fontWeight={700}>{formatFcfa(data.value)}</Typography>
         </Paper>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Prix d'achat réf. / vente réf.</Typography>
+          <Typography variant="caption" color="text.secondary">Ref. Purchase / Sale Price</Typography>
           <Typography variant="h5" fontWeight={700}>
             {formatFcfa(data.product.referencePurchasePrice)} / {formatFcfa(data.product.referenceSalePrice)}
           </Typography>
         </Paper>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Seuil d'alerte</Typography>
+          <Typography variant="caption" color="text.secondary">Alert Threshold</Typography>
           <Typography variant="h5" fontWeight={700}>
-            {data.product.alertThreshold.toLocaleString('fr-FR')} {data.product.unit}s
+            {data.product.alertThreshold.toLocaleString('en-US')} {data.product.unit}s
           </Typography>
         </Paper>
       </Stack>
@@ -102,9 +104,9 @@ export default function ProductDetailPage() {
 
       <Paper>
         <Box sx={{ p: 2.5, pb: 0 }}>
-          <Typography variant="subtitle1" fontWeight={700}>Historique des mouvements</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>Movement History</Typography>
           <Typography variant="caption" color="text.secondary">
-            Une erreur de saisie ? Clique sur le crayon pour corriger la quantité.
+            Made a mistake? Click the pencil icon to correct the quantity.
           </Typography>
         </Box>
         <TableContainer>
@@ -113,17 +115,17 @@ export default function ProductDetailPage() {
             <TableRow>
               <TableCell>Date</TableCell>
               <TableCell>Type</TableCell>
-              <TableCell align="right">Quantité</TableCell>
-              <TableCell>Fournisseur</TableCell>
+              <TableCell align="right">Quantity</TableCell>
+              <TableCell>Supplier</TableCell>
               <TableCell>Note</TableCell>
-              <TableCell>Saisi par</TableCell>
+              <TableCell>Entered By</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.movements.map((m) => (
               <TableRow key={m.id}>
-                <TableCell>{new Date(m.date).toLocaleDateString('fr-FR')}</TableCell>
+                <TableCell>{new Date(m.date).toLocaleDateString('en-US')}</TableCell>
                 <TableCell>
                   <Chip
                     label={movementLabels[m.movementType].label}
@@ -149,7 +151,7 @@ export default function ProductDetailPage() {
             {data.movements.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  Aucun mouvement enregistré pour ce produit.
+                  No movements recorded for this product.
                 </TableCell>
               </TableRow>
             )}
@@ -159,15 +161,15 @@ export default function ProductDetailPage() {
       </Paper>
 
       <Dialog open={!!editing} onClose={() => setEditing(null)} fullWidth maxWidth="xs">
-        <DialogTitle>Corriger la quantité</DialogTitle>
+        <DialogTitle>Correct the Quantity</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Typography variant="body2" color="text.secondary">
               {editing && movementLabels[editing.movementType].label} du{' '}
-              {editing && new Date(editing.date).toLocaleDateString('fr-FR')}
+              {editing && new Date(editing.date).toLocaleDateString('en-US')}
             </Typography>
             <TextField
-              label="Quantité correcte (cartons)"
+              label="Correct Quantity (boxes)"
               type="number"
               value={editQuantity}
               onChange={(e) => setEditQuantity(e.target.value)}
@@ -178,8 +180,8 @@ export default function ProductDetailPage() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEditing(null)}>Annuler</Button>
-          <Button variant="contained" onClick={handleSaveEdit}>Corriger</Button>
+          <Button onClick={() => setEditing(null)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveEdit}>Correct</Button>
         </DialogActions>
       </Dialog>
     </Box>

@@ -12,9 +12,9 @@ import type { Product, Supplier } from '../../types';
 type Mode = 'ENTRY' | 'INVENTORY_ADJUSTMENT' | 'EXIT';
 
 const modeLabels: Record<Mode, string> = {
-  ENTRY: 'Entrée de stock (réapprovisionnement)',
-  INVENTORY_ADJUSTMENT: 'Ajustement inventaire (trouvé en trop)',
-  EXIT: 'Sortie manuelle (perte / casse)',
+  ENTRY: 'Stock Entry (restocking)',
+  INVENTORY_ADJUSTMENT: 'Inventory Adjustment (found extra)',
+  EXIT: 'Manual Exit (loss / breakage)',
 };
 
 export default function StockEntryPage() {
@@ -70,7 +70,7 @@ export default function StockEntryPage() {
       setNote('');
       setTimeout(() => navigate(`/stock/${productId}`), 900);
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Une erreur est survenue.');
+      setError(err?.response?.data?.message ?? 'An error occurred.');
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export default function StockEntryPage() {
 
   return (
     <Box maxWidth={560}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Mouvement de stock</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Stock Movement</Typography>
 
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
@@ -97,7 +97,7 @@ export default function StockEntryPage() {
 
             <TextField
               select
-              label="Produit"
+              label="Product"
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
               required
@@ -109,7 +109,7 @@ export default function StockEntryPage() {
             </TextField>
 
             <TextField
-              label="Quantité (cartons)"
+              label="Quantity (boxes)"
               type="number"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
@@ -121,12 +121,12 @@ export default function StockEntryPage() {
             {mode === 'ENTRY' && (
               <>
                 <TextField
-                  label="Prix d'achat unitaire (FCFA, optionnel)"
+                  label="Unit Purchase Price (USD, optional)"
                   type="number"
                   value={unitCost}
                   onChange={(e) => setUnitCost(e.target.value)}
                   fullWidth
-                  helperText="Sert au calcul du coût de revient dans Finances > Tarification. Laisse vide pour utiliser le prix de référence du produit."
+                  helperText="Used to calculate cost basis in Finances > Profitability. Leave empty to use the product's reference price."
                   inputProps={{ min: 0 }}
                 />
                 <Autocomplete
@@ -139,7 +139,7 @@ export default function StockEntryPage() {
                     if (reason === 'input') setSupplier(value);
                   }}
                   renderInput={(params) => (
-                    <TextField {...params} label="Fournisseur (optionnel)" placeholder="Rechercher ou créer un fournisseur…" />
+                    <TextField {...params} label="Supplier (optional)" placeholder="Search or create a supplier…" />
                   )}
                 />
               </>
@@ -156,7 +156,7 @@ export default function StockEntryPage() {
             />
 
             <TextField
-              label="Note (optionnel)"
+              label="Note (optional)"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               fullWidth
@@ -165,10 +165,10 @@ export default function StockEntryPage() {
             />
 
             {error && <Alert severity="error">{error}</Alert>}
-            {success && <Alert severity="success">Mouvement enregistré.</Alert>}
+            {success && <Alert severity="success">Movement recorded.</Alert>}
 
             <Button type="submit" variant="contained" size="large" disabled={loading}>
-              {loading ? 'Enregistrement…' : 'Enregistrer le mouvement'}
+              {loading ? 'Saving…' : 'Save Movement'}
             </Button>
           </Stack>
         </form>

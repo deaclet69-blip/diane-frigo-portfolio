@@ -8,21 +8,21 @@ export interface PermissionSection {
 }
 
 export const PERMISSION_SECTIONS: PermissionSection[] = [
-  { key: 'dashboard', label: 'Tableau de bord' },
-  { key: 'ventes', label: 'Ventes' },
+  { key: 'dashboard', label: 'Dashboard' },
+  { key: 'ventes', label: 'Sales' },
   { key: 'stock', label: 'Stock' },
-  { key: 'produits', label: 'Produits' },
-  { key: 'clients', label: 'Clients' },
-  { key: 'depots', label: 'Dépôts clients' },
-  { key: 'achats', label: 'Achats' },
-  { key: 'charges', label: 'Dépenses / Charges' },
-  { key: 'pertes', label: 'Pertes' },
-  { key: 'rentabilite', label: 'Rentabilité' },
-  { key: 'rapports', label: 'Rapports' },
-  { key: 'investissement', label: 'Investissement' },
-  { key: 'assistant', label: 'Assistant IA' },
-  { key: 'utilisateurs', label: 'Utilisateurs' },
-  { key: 'parametres', label: 'Paramètres' },
+  { key: 'produits', label: 'Products' },
+  { key: 'clients', label: 'Customers' },
+  { key: 'depots', label: 'Customer Deposits' },
+  { key: 'achats', label: 'Purchases' },
+  { key: 'charges', label: 'Expenses' },
+  { key: 'pertes', label: 'Losses' },
+  { key: 'rentabilite', label: 'Profitability' },
+  { key: 'rapports', label: 'Reports' },
+  { key: 'investissement', label: 'Investment' },
+  { key: 'assistant', label: 'AI Assistant' },
+  { key: 'utilisateurs', label: 'Users' },
+  { key: 'parametres', label: 'Settings' },
 ];
 
 export const PERMISSION_KEYS = PERMISSION_SECTIONS.map((s) => s.key);

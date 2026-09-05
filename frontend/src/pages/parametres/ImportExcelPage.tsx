@@ -26,7 +26,7 @@ export default function ImportExcelPage() {
       const { report } = await previewImport(f);
       setPreview(report);
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? "Impossible d'analyser ce fichier.");
+      setError(err?.response?.data?.message ?? "Could not analyze this file.");
     } finally {
       setLoading(false);
     }
@@ -39,7 +39,7 @@ export default function ImportExcelPage() {
       const { report } = await confirmImport(file);
       setFinalReport(report);
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? "Échec de l'import.");
+      setError(err?.response?.data?.message ?? "Import failed.");
     } finally {
       setLoading(false);
     }
@@ -48,14 +48,14 @@ export default function ImportExcelPage() {
   return (
     <Box maxWidth={720}>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Importe ton fichier Excel "Gestion Stock Chambre Froide" (feuille "Stock"). Rien n'est
-        écrit tant que tu n'as pas confirmé l'aperçu — et les données déjà présentes ne sont
-        jamais supprimées (§21 du cahier des charges).
+        Import your "Cold Storage Stock Management" Excel file (the "Stock" sheet). Nothing is
+        written until you confirm the preview — and existing data is
+        never deleted.
       </Typography>
 
       <Paper sx={{ p: 3, mb: 3, textAlign: 'center', border: '2px dashed #ccc' }}>
         <Button component="label" variant="outlined" startIcon={<UploadFileIcon />}>
-          Choisir un fichier .xlsx
+          Choose a .xlsx file
           <input
             type="file"
             accept=".xlsx,.xls"
@@ -71,35 +71,35 @@ export default function ImportExcelPage() {
 
       {preview && !finalReport && (
         <Paper sx={{ p: 3, mb: 3 }}>
-          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>Aperçu avant import</Typography>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>Preview Before Import</Typography>
           <Stack direction="row" spacing={3} sx={{ mb: 2 }}>
             <Box>
-              <Typography variant="caption" color="text.secondary">Lignes lues</Typography>
+              <Typography variant="caption" color="text.secondary">Rows Read</Typography>
               <Typography variant="h6" fontWeight={700}>{preview.totalRows}</Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary">Entrées de stock</Typography>
+              <Typography variant="caption" color="text.secondary">Stock Entries</Typography>
               <Typography variant="h6" fontWeight={700} sx={{ color: diane.green }}>{preview.stockEntriesFound}</Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary">Factures détectées</Typography>
+              <Typography variant="caption" color="text.secondary">Invoices Detected</Typography>
               <Typography variant="h6" fontWeight={700} sx={{ color: diane.blue }}>{preview.invoicesFound}</Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary">Doublons ignorés</Typography>
+              <Typography variant="caption" color="text.secondary">Duplicates Skipped</Typography>
               <Typography variant="h6" fontWeight={700} sx={{ color: diane.orange }}>{preview.duplicates.length}</Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary">Erreurs</Typography>
+              <Typography variant="caption" color="text.secondary">Errors</Typography>
               <Typography variant="h6" fontWeight={700} sx={{ color: diane.red }}>{preview.errors.length}</Typography>
             </Box>
           </Stack>
 
           {(preview.newProducts?.length ?? 0) > 0 && (
             <Alert severity="info" sx={{ mb: 2 }}>
-              <strong>{preview.newProducts?.length ?? 0} nouveau(x) produit(s)</strong> seront créés automatiquement
-              (avec le prix trouvé à leur première apparition dans le fichier) : {(preview.newProducts ?? []).join(', ')}.
-              Tu pourras ajuster leurs prix ou leur catégorie ensuite dans Paramètres &gt; Produits.
+              <strong>{preview.newProducts?.length ?? 0} new product(s)</strong> will be created automatically
+              (using the price found at their first appearance in the file): {(preview.newProducts ?? []).join(', ')}.
+              You can adjust their price or category afterward in Settings &gt; Products.
             </Alert>
           )}
 
@@ -107,7 +107,7 @@ export default function ImportExcelPage() {
             <TableContainer>
 <Table size="small" sx={{ mb: 2 }}>
               <TableHead>
-                <TableRow><TableCell>Ligne</TableCell><TableCell>Problème</TableCell></TableRow>
+                <TableRow><TableCell>Row</TableCell><TableCell>Issue</TableCell></TableRow>
               </TableHead>
               <TableBody>
                 {[...preview.errors, ...preview.duplicates].slice(0, 30).map((e, i) => (
@@ -122,18 +122,18 @@ export default function ImportExcelPage() {
           )}
 
           <Button variant="contained" onClick={handleConfirm} disabled={loading}>
-            Confirmer l'import
+            Confirm Import
           </Button>
         </Paper>
       )}
 
       {finalReport && (
         <Alert severity="success">
-          <Typography fontWeight={700}>Import terminé</Typography>
+          <Typography fontWeight={700}>Import Complete</Typography>
           <Typography variant="body2">
-            {finalReport.importedInvoices} facture(s) et {finalReport.importedEntries} entrée(s) de stock importées.
-            {finalReport.duplicates.length > 0 && ` ${finalReport.duplicates.length} doublon(s) ignoré(s).`}
-            {finalReport.errors.length > 0 && ` ${finalReport.errors.length} ligne(s) en erreur.`}
+            {finalReport.importedInvoices} invoice(s) and {finalReport.importedEntries} stock entry(ies) imported.
+            {finalReport.duplicates.length > 0 && ` ${finalReport.duplicates.length} duplicate(s) skipped.`}
+            {finalReport.errors.length > 0 && ` ${finalReport.errors.length} row(s) had errors.`}
           </Typography>
         </Alert>
       )}

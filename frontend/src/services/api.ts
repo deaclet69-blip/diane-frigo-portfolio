@@ -57,7 +57,7 @@ api.interceptors.response.use(
     if (error.response?.status === 403) {
       notifyApiError("Accès refusé : vous n'avez pas la permission de voir ces données. Contactez un administrateur si vous pensez que c'est une erreur.");
     } else if (error.response && error.response.status >= 500) {
-      notifyApiError('Une erreur est survenue côté serveur. Réessayez dans un instant.');
+      notifyApiError('A server error occurred. Please try again in a moment.');
     } else if (!error.response) {
       notifyApiError('Impossible de contacter le serveur. Vérifiez votre connexion internet.', 'warning');
     }

@@ -239,7 +239,7 @@ export default function Sidebar() {
       {/* Poignée de bascule : petit bouton rond à cheval sur le bord de la
           barre (moitié dedans, moitié dans le contenu) — ne bouge jamais
           avec le logo ni le texte, toujours au même endroit vertical. */}
-      <Tooltip title={collapsed ? 'Ouvrir le menu' : 'Réduire le menu'} placement="right">
+      <Tooltip title={collapsed ? 'Expand menu' : 'Collapse menu'} placement="right">
         <IconButton
           onClick={toggleSidebar}
           size="small"

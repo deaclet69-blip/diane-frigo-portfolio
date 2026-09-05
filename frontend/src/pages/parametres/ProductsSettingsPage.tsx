@@ -13,8 +13,10 @@ import { getCategories, createCategory, ProductCategory } from '../../services/c
 import { resizeImageToDataUrl } from '../../utils/image';
 import type { Product } from '../../types';
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${value.toLocaleString('fr-FR')} FCFA`;
+  return usd(value);
 }
 
 const NEW_CATEGORY = '__new__';
@@ -66,7 +68,7 @@ export default function ProductsSettingsPage() {
     e.target.value = ''; // permet de re-choisir le même fichier ensuite
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setImageError('Le fichier choisi n\'est pas une image.');
+      setImageError('The selected file is not an image.');
       return;
     }
     try {
@@ -74,7 +76,7 @@ export default function ProductsSettingsPage() {
       setForm((f) => ({ ...f, imageUrl: dataUrl }));
       setImageError('');
     } catch {
-      setImageError('Impossible de lire cette image, réessaie avec une autre.');
+      setImageError('Could not read this image, try another one.');
     }
   }
 
@@ -104,9 +106,9 @@ export default function ProductsSettingsPage() {
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="subtitle1" fontWeight={700}>Produits</Typography>
+        <Typography variant="subtitle1" fontWeight={700}>Products</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
-          Nouveau produit
+          New Product
         </Button>
       </Stack>
 
@@ -116,11 +118,11 @@ export default function ProductsSettingsPage() {
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
-              <TableCell>Nom</TableCell>
-              <TableCell>Catégorie</TableCell>
-              <TableCell align="right">Prix d'achat réf.</TableCell>
-              <TableCell align="right">Prix de vente réf.</TableCell>
-              <TableCell align="right">Seuil d'alerte</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell align="right">Ref. Purchase Price</TableCell>
+              <TableCell align="right">Ref. Sale Price</TableCell>
+              <TableCell align="right">Alert Threshold</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
@@ -150,7 +152,7 @@ export default function ProductsSettingsPage() {
       </Paper>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>{editing ? 'Modifier le produit' : 'Nouveau produit'}</DialogTitle>
+        <DialogTitle>{editing ? 'Edit Product' : 'New Product'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Stack direction="row" spacing={2} alignItems="center">
@@ -159,7 +161,7 @@ export default function ProductsSettingsPage() {
               </Avatar>
               <Stack spacing={0.5}>
                 <Button component="label" size="small" variant="outlined">
-                  {form.imageUrl ? 'Changer la photo' : 'Ajouter une photo'}
+                  {form.imageUrl ? 'Change Photo' : 'Add Photo'}
                   <input type="file" accept="image/*" hidden onChange={handleImagePick} />
                 </Button>
                 {form.imageUrl && (
@@ -169,7 +171,7 @@ export default function ProductsSettingsPage() {
                     startIcon={<DeleteOutlineIcon fontSize="small" />}
                     onClick={() => setForm((f) => ({ ...f, imageUrl: '' }))}
                   >
-                    Retirer la photo
+                    Remove Photo
                   </Button>
                 )}
               </Stack>
@@ -177,28 +179,28 @@ export default function ProductsSettingsPage() {
             {imageError && <Alert severity="warning">{imageError}</Alert>}
 
             <TextField
-              label="Nom du produit"
+              label="Product Name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               fullWidth
             />
             <TextField
               select
-              label="Catégorie (optionnel)"
+              label="Category (optional)"
               value={form.categoryId}
               onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
               fullWidth
-              helperText="Utilisée pour 'Stock par catégorie' sur le tableau de bord"
+              helperText="Used for 'Stock by Category' on the dashboard"
             >
-              <MenuItem value="">Aucune</MenuItem>
+              <MenuItem value="">None</MenuItem>
               {categories.map((c) => (
                 <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
               ))}
-              <MenuItem value={NEW_CATEGORY}>+ Créer une nouvelle catégorie…</MenuItem>
+              <MenuItem value={NEW_CATEGORY}>+ Create a new category…</MenuItem>
             </TextField>
             {form.categoryId === NEW_CATEGORY && (
               <TextField
-                label="Nom de la nouvelle catégorie"
+                label="New Category Name"
                 value={form.newCategoryName}
                 onChange={(e) => setForm({ ...form, newCategoryName: e.target.value })}
                 fullWidth
@@ -206,22 +208,22 @@ export default function ProductsSettingsPage() {
               />
             )}
             <TextField
-              label="Prix d'achat de référence (FCFA)"
+              label="Reference Purchase Price (USD)"
               type="number"
               value={form.referencePurchasePrice}
               onChange={(e) => setForm({ ...form, referencePurchasePrice: e.target.value })}
               fullWidth
             />
             <TextField
-              label="Prix de vente de référence (FCFA)"
+              label="Reference Sale Price (USD)"
               type="number"
               value={form.referenceSalePrice}
               onChange={(e) => setForm({ ...form, referenceSalePrice: e.target.value })}
               fullWidth
-              helperText="Modifiable ligne par ligne à la vente (négociation conservée)"
+              helperText="Editable per line at sale time (negotiation preserved)"
             />
             <TextField
-              label="Seuil d'alerte (cartons)"
+              label="Alert Threshold (boxes)"
               type="number"
               value={form.alertThreshold}
               onChange={(e) => setForm({ ...form, alertThreshold: e.target.value })}
@@ -230,8 +232,8 @@ export default function ProductsSettingsPage() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Annuler</Button>
-          <Button variant="contained" onClick={handleSave}>Enregistrer</Button>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSave}>Save</Button>
         </DialogActions>
       </Dialog>
     </Box>

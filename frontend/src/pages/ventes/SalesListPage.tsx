@@ -6,14 +6,16 @@ import { getInvoices } from '../../services/sales';
 import type { Invoice } from '../../types';
 import { diane } from '../../theme';
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${value.toLocaleString('fr-FR')} FCFA`;
+  return usd(value);
 }
 
 const statusConfig: Record<Invoice['status'], { label: string; color: string; bg: string }> = {
-  PAID: { label: 'Payé', color: diane.green, bg: '#E7F7EE' },
-  PARTIAL: { label: 'Partiel', color: diane.orange, bg: '#FEF3E6' },
-  CREDIT: { label: 'Crédit', color: diane.red, bg: '#FCEAEA' },
+  PAID: { label: 'Paid', color: diane.green, bg: '#E7F7EE' },
+  PARTIAL: { label: 'Partial', color: diane.orange, bg: '#FEF3E6' },
+  CREDIT: { label: 'Credit', color: diane.red, bg: '#FCEAEA' },
 };
 
 export default function SalesListPage() {
@@ -33,16 +35,16 @@ export default function SalesListPage() {
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-        <Typography variant="h5" fontWeight={700}>Ventes</Typography>
+        <Typography variant="h5" fontWeight={700}>Sales</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/ventes/nouvelle')}>
-          Nouvelle vente
+          New Sale
         </Button>
       </Stack>
 
       {onlyUnpaid && (
         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
           <Chip
-            label="Factures avec solde impayé uniquement"
+            label="Unpaid invoices only"
             size="small"
             onDelete={() => navigate('/ventes')}
             sx={{ bgcolor: diane.redLight, color: diane.red, fontWeight: 700 }}
@@ -55,13 +57,13 @@ export default function SalesListPage() {
 <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Facture</TableCell>
-              <TableCell>Client</TableCell>
+              <TableCell>Invoice</TableCell>
+              <TableCell>Customer</TableCell>
               <TableCell>Type</TableCell>
-              <TableCell>Produits</TableCell>
+              <TableCell>Products</TableCell>
               <TableCell align="right">Total</TableCell>
-              <TableCell align="right">Solde dû</TableCell>
-              <TableCell>Statut</TableCell>
+              <TableCell align="right">Balance Due</TableCell>
+              <TableCell>Status</TableCell>
               <TableCell>Date</TableCell>
             </TableRow>
           </TableHead>
@@ -72,12 +74,12 @@ export default function SalesListPage() {
                 <TableRow key={inv.id} hover sx={{ cursor: 'pointer' }} onClick={() => navigate(`/ventes/${inv.id}`)}>
                   <TableCell sx={{ fontWeight: 600 }}>
                     {inv.invoiceNumber}
-                    {inv.voidedAt && <Chip label="Annulée" size="small" sx={{ ml: 1 }} />}
+                    {inv.voidedAt && <Chip label="Voided" size="small" sx={{ ml: 1 }} />}
                   </TableCell>
                   <TableCell>{inv.customer?.name}</TableCell>
                   <TableCell>
                     <Chip
-                      label={inv.saleType === 'GROS' ? 'Gros' : 'Détail'}
+                      label={inv.saleType === 'GROS' ? 'Wholesale' : 'Retail'}
                       size="small"
                       sx={{ bgcolor: inv.saleType === 'GROS' ? diane.purpleLight : diane.blueLight, color: inv.saleType === 'GROS' ? diane.purple : diane.blue, fontWeight: 700 }}
                     />
@@ -90,14 +92,14 @@ export default function SalesListPage() {
                   <TableCell>
                     <Chip label={s.label} size="small" sx={{ bgcolor: s.bg, color: s.color, fontWeight: 700 }} />
                   </TableCell>
-                  <TableCell>{new Date(inv.date).toLocaleDateString('fr-FR')}</TableCell>
+                  <TableCell>{new Date(inv.date).toLocaleDateString('en-US')}</TableCell>
                 </TableRow>
               );
             })}
             {displayedInvoices.length === 0 && (
               <TableRow>
                 <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  {onlyUnpaid ? 'Aucune facture impayée.' : 'Aucune vente enregistrée pour le moment.'}
+                  {onlyUnpaid ? 'No unpaid invoices.' : 'No sales recorded yet.'}
                 </TableCell>
               </TableRow>
             )}

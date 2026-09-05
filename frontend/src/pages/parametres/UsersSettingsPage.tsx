@@ -51,7 +51,7 @@ export default function UsersSettingsPage() {
   return (
     <Box>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
-        <Button variant="contained" onClick={() => setOpen(true)}>Nouvel utilisateur</Button>
+        <Button variant="contained" onClick={() => setOpen(true)}>New User</Button>
       </Stack>
 
       <Paper>
@@ -59,11 +59,11 @@ export default function UsersSettingsPage() {
 <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Nom</TableCell>
+              <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Rôle</TableCell>
-              <TableCell>Pages autorisées</TableCell>
-              <TableCell>Actif</TableCell>
+              <TableCell>Role</TableCell>
+              <TableCell>Allowed Pages</TableCell>
+              <TableCell>Active</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -84,11 +84,11 @@ export default function UsersSettingsPage() {
                 </TableCell>
                 <TableCell sx={{ maxWidth: 320 }}>
                   {u.role.name === 'ADMIN' ? (
-                    <Chip size="small" label="Accès total (admin)" color="primary" variant="outlined" />
+                    <Chip size="small" label="Full access (admin)" color="primary" variant="outlined" />
                   ) : (
                     <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
                       {(u.permissions ?? []).length === 0 && (
-                        <Typography variant="caption" color="text.secondary">Aucune page</Typography>
+                        <Typography variant="caption" color="text.secondary">No pages</Typography>
                       )}
                       {(u.permissions ?? []).map((key) => (
                         <Chip
@@ -100,7 +100,7 @@ export default function UsersSettingsPage() {
                     </Stack>
                   )}
                   <Button size="small" onClick={() => openPermDialog(u)} disabled={u.role.name === 'ADMIN'}>
-                    Modifier les accès
+                    Edit Access
                   </Button>
                 </TableCell>
                 <TableCell>
@@ -115,22 +115,22 @@ export default function UsersSettingsPage() {
 
       {/* Création d'un nouvel utilisateur */}
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Nouvel utilisateur</DialogTitle>
+        <DialogTitle>New User</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField label="Nom" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} fullWidth />
+            <TextField label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} fullWidth />
             <TextField label="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} fullWidth />
-            <TextField label="Mot de passe provisoire" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} fullWidth />
-            <TextField select label="Rôle" value={form.roleName} onChange={(e) => setForm({ ...form, roleName: e.target.value })} fullWidth>
+            <TextField label="Temporary Password" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} fullWidth />
+            <TextField select label="Role" value={form.roleName} onChange={(e) => setForm({ ...form, roleName: e.target.value })} fullWidth>
               {roles.map((r) => <MenuItem key={r} value={r}>{r}</MenuItem>)}
             </TextField>
 
             {form.roleName === 'ADMIN' ? (
-              <Alert severity="info">Un administrateur a toujours accès à toutes les pages.</Alert>
+              <Alert severity="info">An administrator always has access to every page.</Alert>
             ) : (
               <Box>
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Pages accessibles à cet utilisateur
+                  Pages accessible to this user
                 </Typography>
                 <FormGroup sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 1 }}>
                   {PERMISSION_SECTIONS.map((s) => (
@@ -152,14 +152,14 @@ export default function UsersSettingsPage() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Annuler</Button>
-          <Button variant="contained" onClick={handleCreate}>Créer</Button>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreate}>Create</Button>
         </DialogActions>
       </Dialog>
 
       {/* Modification des accès d'un utilisateur existant */}
       <Dialog open={!!permUser} onClose={() => setPermUser(null)} fullWidth maxWidth="sm">
-        <DialogTitle>Pages accessibles — {permUser?.name}</DialogTitle>
+        <DialogTitle>Accessible Pages — {permUser?.name}</DialogTitle>
         <DialogContent>
           <FormGroup sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 1, mt: 1 }}>
             {PERMISSION_SECTIONS.map((s) => (
@@ -178,8 +178,8 @@ export default function UsersSettingsPage() {
           </FormGroup>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setPermUser(null)}>Annuler</Button>
-          <Button variant="contained" onClick={handleSavePermissions}>Enregistrer</Button>
+          <Button onClick={() => setPermUser(null)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSavePermissions}>Save</Button>
         </DialogActions>
       </Dialog>
     </Box>

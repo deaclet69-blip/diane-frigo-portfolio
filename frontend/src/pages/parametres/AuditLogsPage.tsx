@@ -26,16 +26,16 @@ export default function AuditLogsPage() {
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
-              <TableCell>Utilisateur</TableCell>
+              <TableCell>User</TableCell>
               <TableCell>Action</TableCell>
               <TableCell>Type</TableCell>
-              <TableCell>Élément</TableCell>
+              <TableCell>Item</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {logs.map((l) => (
               <TableRow key={l.id}>
-                <TableCell>{new Date(l.createdAt).toLocaleString('fr-FR')}</TableCell>
+                <TableCell>{new Date(l.createdAt).toLocaleString('en-US')}</TableCell>
                 <TableCell>{l.user?.name ?? '—'}</TableCell>
                 <TableCell>
                   <Chip label={l.action} size="small" sx={{ bgcolor: 'transparent', color: actionColors[l.action] ?? diane.navy, fontWeight: 700 }} />
@@ -47,7 +47,7 @@ export default function AuditLogsPage() {
             {logs.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  Aucune entrée d'audit pour le moment.
+                  No audit entries yet.
                 </TableCell>
               </TableRow>
             )}

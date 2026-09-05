@@ -1,19 +1,19 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { BusinessSnapshotService } from './business-snapshot.service';
 
-const SYSTEM_PROMPT = `Tu es l'assistant IA intégré à DIANE FRIGO, un logiciel de gestion pour une
-activité de chambre froide (vente de viande/poisson congelé en gros et au détail) à Pointe-Noire,
-République du Congo. On te fournit un instantané JSON des données réelles de l'activité (stock,
-ventes, finances, clients).
+const SYSTEM_PROMPT = `You are the AI assistant built into DIANE FRIGO, management software for a
+cold storage business (wholesale and retail sale of frozen meat/fish) based in a demo environment
+showcasing the product. You are given a JSON snapshot of the business's real data (stock,
+sales, finances, customers).
 
-Ton rôle : donner une analyse claire et des suggestions concrètes et actionnables, en français,
-adaptées à une entrepreneure qui gère son activité au quotidien — pas de jargon technique ou
-financier compliqué. Sois direct, chiffré quand c'est utile, et priorise ce qui compte vraiment
-(ruptures de stock imminentes, baisses de ventes anormales, clients qui décrochent, dettes qui
-traînent, résultat net qui se dégrade).
+Your role: give clear analysis and concrete, actionable suggestions, in English,
+suited to a business owner managing their operations day to day — no complicated technical or
+financial jargon. Be direct, use numbers when useful, and prioritize what actually matters
+(imminent stockouts, abnormal sales drops, customers falling off, lingering debts,
+a deteriorating net result).
 
-Ne jamais inventer de chiffres qui ne sont pas dans les données fournies. Si les données sont
-insuffisantes pour répondre à quelque chose, dis-le simplement plutôt que de deviner.`;
+Never invent numbers that aren't in the provided data. If the data is
+insufficient to answer something, say so plainly rather than guessing.`;
 
 @Injectable()
 export class AiAdvisorService {
@@ -66,10 +66,10 @@ export class AiAdvisorService {
   /** Résumé automatique pour le bloc du tableau de bord. */
   async getSummary() {
     const snapshot = await this.snapshotService.getSnapshot();
-    const prompt = `Voici l'instantané actuel de l'activité :\n\n${JSON.stringify(snapshot, null, 2)}\n\n
-Donne un résumé court (5-8 lignes maximum) de l'état de santé général de l'activité, suivi de
-2 à 4 suggestions concrètes classées par priorité. Format : d'abord le résumé en prose, puis une
-liste à puces pour les suggestions.`;
+    const prompt = `Here is the current snapshot of the business:\n\n${JSON.stringify(snapshot, null, 2)}\n\n
+Give a short summary (5-8 lines max) of the overall health of the business, followed by
+2 to 4 concrete suggestions ranked by priority. Format: prose summary first, then a
+bulleted list for the suggestions.`;
 
     const text = await this.callGemini([{ role: 'user', content: prompt }]);
     return { text, generatedAt: snapshot.generatedAt };
@@ -78,12 +78,12 @@ liste à puces pour les suggestions.`;
   /** Chat libre : la personne pose une question, on répond avec le contexte des données réelles. */
   async chat(question: string, history: { role: 'user' | 'assistant'; content: string }[] = []) {
     const snapshot = await this.snapshotService.getSnapshot();
-    const contextMessage = `Instantané actuel des données de l'activité (pour référence dans toute
-la conversation) :\n\n${JSON.stringify(snapshot, null, 2)}`;
+    const contextMessage = `Current snapshot of the business data (for reference throughout
+the conversation):\n\n${JSON.stringify(snapshot, null, 2)}`;
 
     const messages: { role: 'user' | 'assistant'; content: string }[] = [
       { role: 'user', content: contextMessage },
-      { role: 'assistant', content: "Compris, j'ai bien les données actuelles de l'activité sous les yeux. Pose-moi ta question." },
+      { role: 'assistant', content: "Understood, I have the current business data in front of me. Ask me your question." },
       ...history,
       { role: 'user', content: question },
     ];

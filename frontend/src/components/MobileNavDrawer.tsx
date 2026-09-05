@@ -22,21 +22,21 @@ import { useColorMode } from '../colorMode';
 import { getCurrentUser } from '../services/auth';
 
 const navItems = [
-  { label: 'Tableau de bord', icon: <SpaceDashboardIcon />, to: '/' },
-  { label: 'Ventes', icon: <ShoppingCartIcon />, to: '/ventes' },
+  { label: 'Dashboard', icon: <SpaceDashboardIcon />, to: '/' },
+  { label: 'Sales', icon: <ShoppingCartIcon />, to: '/ventes' },
   { label: 'Stock', icon: <Inventory2Icon />, to: '/stock' },
-  { label: 'Produits', icon: <CategoryIcon />, to: '/parametres/produits' },
-  { label: 'Clients', icon: <PeopleIcon />, to: '/clients' },
-  { label: 'Dépôts clients', icon: <AccountBalanceWalletIcon />, to: '/depots' },
-  { label: 'Achats', icon: <LocalShippingIcon />, to: '/stock/entree' },
-  { label: 'Dépenses / Charges', icon: <ReceiptLongIcon />, to: '/charges' },
-  { label: 'Pertes', icon: <TrendingDownIcon />, to: '/finances/pertes' },
-  { label: 'Rentabilité', icon: <InsightsIcon />, to: '/finances/tarification' },
-  { label: 'Rapports', icon: <BarChartIcon />, to: '/rapports' },
-  { label: 'Investissement', icon: <SavingsIcon />, to: '/finances/investissement' },
-  { label: 'Assistant IA', icon: <AutoAwesomeIcon />, to: '/assistant' },
-  { label: 'Utilisateurs', icon: <PersonOutlineIcon />, to: '/parametres/utilisateurs' },
-  { label: 'Paramètres', icon: <SettingsIcon />, to: '/parametres/produits' },
+  { label: 'Products', icon: <CategoryIcon />, to: '/parametres/produits' },
+  { label: 'Customers', icon: <PeopleIcon />, to: '/clients' },
+  { label: 'Customer Deposits', icon: <AccountBalanceWalletIcon />, to: '/depots' },
+  { label: 'Purchases', icon: <LocalShippingIcon />, to: '/stock/entree' },
+  { label: 'Expenses', icon: <ReceiptLongIcon />, to: '/charges' },
+  { label: 'Losses', icon: <TrendingDownIcon />, to: '/finances/pertes' },
+  { label: 'Profitability', icon: <InsightsIcon />, to: '/finances/tarification' },
+  { label: 'Reports', icon: <BarChartIcon />, to: '/rapports' },
+  { label: 'Investment', icon: <SavingsIcon />, to: '/finances/investissement' },
+  { label: 'AI Assistant', icon: <AutoAwesomeIcon />, to: '/assistant' },
+  { label: 'Users', icon: <PersonOutlineIcon />, to: '/parametres/utilisateurs' },
+  { label: 'Settings', icon: <SettingsIcon />, to: '/parametres/produits' },
 ];
 
 export default function MobileNavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -82,7 +82,7 @@ export default function MobileNavDrawer({ open, onClose }: { open: boolean; onCl
             {user?.email ?? ''}
           </Typography>
         </Box>
-        <Tooltip title={mode === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}>
+        <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
           <IconButton size="small" onClick={toggle} sx={{ color: 'rgba(255,255,255,0.75)' }}>
             {mode === 'dark' ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
           </IconButton>

@@ -19,8 +19,10 @@ interface Line {
   unitSalePrice: string;
 }
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${value.toLocaleString('fr-FR')} FCFA`;
+  return usd(value);
 }
 
 export default function NewSalePage() {
@@ -97,14 +99,14 @@ export default function NewSalePage() {
     setError(null);
     const validLines = lines.filter((l) => l.productId && l.quantity);
     if (validLines.length === 0) {
-      setError('Ajoute au moins un produit.');
+      setError('Add at least one product.');
       return;
     }
 
     const resolvedId = await resolveCustomerId();
     if (dedupPrompt) return; // la boîte de dialogue va gérer la suite
     if (!resolvedId) {
-      setError('Sélectionne ou crée un client.');
+      setError('Select or create a customer.');
       return;
     }
 
@@ -132,7 +134,7 @@ export default function NewSalePage() {
       });
       setResult({ invoiceNumber: invoice.invoiceNumber, total: Number(invoice.total), profit: totalProfit });
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Une erreur est survenue.');
+      setError(err?.response?.data?.message ?? 'An error occurred.');
     } finally {
       setLoading(false);
     }
@@ -163,19 +165,19 @@ export default function NewSalePage() {
       <Box maxWidth={480}>
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           <Typography variant="h5" sx={{ color: diane.green, fontWeight: 700, mb: 1 }}>
-            ✓ Vente enregistrée
+            ✓ Sale recorded
           </Typography>
           <Stack spacing={1} sx={{ mt: 3, textAlign: 'left' }}>
             <Stack direction="row" justifyContent="space-between">
-              <Typography color="text.secondary">N° facture</Typography>
+              <Typography color="text.secondary">Invoice No.</Typography>
               <Typography fontWeight={700}>{result.invoiceNumber}</Typography>
             </Stack>
             <Stack direction="row" justifyContent="space-between">
-              <Typography color="text.secondary">Montant</Typography>
+              <Typography color="text.secondary">Amount</Typography>
               <Typography fontWeight={700}>{formatFcfa(result.total)}</Typography>
             </Stack>
             <Stack direction="row" justifyContent="space-between">
-              <Typography color="text.secondary">Bénéfice</Typography>
+              <Typography color="text.secondary">Profit</Typography>
               <Typography fontWeight={700} sx={{ color: diane.green }}>{formatFcfa(result.profit)}</Typography>
             </Stack>
           </Stack>
@@ -185,10 +187,10 @@ export default function NewSalePage() {
               setInvoiceNumber(''); setCustomerId(null); setNewCustomerName('');
               setNewCustomerPhone('');
             }}>
-              Nouvelle vente
+              New Sale
             </Button>
             <Button fullWidth variant="contained" onClick={() => navigate('/ventes')}>
-              Voir les ventes
+              View Sales
             </Button>
           </Stack>
         </Paper>
@@ -198,10 +200,10 @@ export default function NewSalePage() {
 
   return (
     <Box maxWidth={640}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Nouvelle vente</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>New Sale</Typography>
 
       <Paper sx={{ p: 3, mb: 2 }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>CLIENT</Typography>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>CUSTOMER</Typography>
         <Autocomplete<Customer, false, false, true>
           options={customers}
           getOptionLabel={(c) => (typeof c === 'string' ? c : c.name)}
@@ -215,13 +217,13 @@ export default function NewSalePage() {
           }}
           freeSolo
           renderInput={(params) => (
-            <TextField {...params} placeholder="Rechercher ou créer un client…" fullWidth />
+            <TextField {...params} placeholder="Search or create a customer…" fullWidth />
           )}
         />
         {/* Visible uniquement quand on tape un NOUVEAU nom (pas une sélection existante) */}
         {!customerId && newCustomerName && (
           <TextField
-            label="Téléphone (optionnel)" size="small" fullWidth sx={{ mt: 1.5 }}
+            label="Phone (optional)" size="small" fullWidth sx={{ mt: 1.5 }}
             value={newCustomerPhone} onChange={(e) => setNewCustomerPhone(e.target.value)}
           />
         )}
@@ -230,32 +232,32 @@ export default function NewSalePage() {
       <Paper sx={{ p: 3, mb: 2 }}>
         <Stack direction="row" spacing={1.5} sx={{ mb: 1.5 }}>
           <TextField
-            label="Date de la vente" type="date" value={date}
+            label="Sale Date" type="date" value={date}
             onChange={(e) => setDate(e.target.value)} fullWidth
             InputLabelProps={{ shrink: true }}
           />
           <TextField
-            label="N° facture (optionnel)" placeholder="Auto si vide" value={invoiceNumber}
+            label="Invoice No. (optional)" placeholder="Auto if empty" value={invoiceNumber}
             onChange={(e) => setInvoiceNumber(e.target.value)} fullWidth
           />
         </Stack>
         <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-          Type de prix appliqué à cette vente
+          Price type applied to this sale
         </Typography>
         <ToggleButtonGroup value={saleType} exclusive onChange={(_, v) => v && setSaleType(v)} size="small" fullWidth>
-          <ToggleButton value="DETAIL">Détail</ToggleButton>
-          <ToggleButton value="GROS">Gros</ToggleButton>
+          <ToggleButton value="DETAIL">Retail</ToggleButton>
+          <ToggleButton value="GROS">Wholesale</ToggleButton>
         </ToggleButtonGroup>
       </Paper>
 
       <Paper sx={{ p: 3, mb: 2 }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>PRODUITS</Typography>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>PRODUCTS</Typography>
         <Stack spacing={2}>
           {lines.map((line, i) => (
             <Stack key={i} direction="row" spacing={1.5} alignItems="center">
               <TextField
                 select
-                label="Produit"
+                label="Product"
                 value={line.productId}
                 onChange={(e) => updateLine(i, {
                   productId: e.target.value,
@@ -269,7 +271,7 @@ export default function NewSalePage() {
                 ))}
               </TextField>
               <TextField
-                label="Qté"
+                label="Qty"
                 type="number"
                 value={line.quantity}
                 onChange={(e) => updateLine(i, { quantity: e.target.value })}
@@ -278,13 +280,13 @@ export default function NewSalePage() {
                 inputProps={{ min: 1 }}
               />
               <TextField
-                label="Prix unit."
+                label="Unit Price"
                 type="number"
                 value={line.unitSalePrice}
                 onChange={(e) => updateLine(i, { unitSalePrice: e.target.value })}
                 sx={{ flex: 1 }}
                 size="small"
-                helperText="Modifiable (négociation)"
+                helperText="Editable (negotiation)"
               />
               <IconButton onClick={() => removeLine(i)} disabled={lines.length === 1}>
                 <DeleteOutlineIcon fontSize="small" />
@@ -293,18 +295,18 @@ export default function NewSalePage() {
           ))}
         </Stack>
         <Button startIcon={<AddIcon />} onClick={addLine} sx={{ mt: 2 }}>
-          Ajouter un produit
+          Add a product
         </Button>
 
         <Divider sx={{ my: 2 }} />
 
         <Stack spacing={1}>
           <Stack direction="row" justifyContent="space-between">
-            <Typography color="text.secondary">Sous-total</Typography>
+            <Typography color="text.secondary">Subtotal</Typography>
             <Typography>{formatFcfa(subtotal)}</Typography>
           </Stack>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography color="text.secondary">Remise</Typography>
+            <Typography color="text.secondary">Discount</Typography>
             <TextField
               type="number"
               value={discount}
@@ -322,16 +324,16 @@ export default function NewSalePage() {
       </Paper>
 
       <Paper sx={{ p: 3, mb: 2 }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>PAIEMENT</Typography>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>PAYMENT</Typography>
         <ToggleButtonGroup value={paymentStatus} exclusive onChange={(_, v) => v && setPaymentStatus(v)} size="small" fullWidth>
-          <ToggleButton value="paid">Payé</ToggleButton>
-          <ToggleButton value="partial">Partiel</ToggleButton>
-          <ToggleButton value="credit">Crédit</ToggleButton>
+          <ToggleButton value="paid">Paid</ToggleButton>
+          <ToggleButton value="partial">Partial</ToggleButton>
+          <ToggleButton value="credit">Credit</ToggleButton>
         </ToggleButtonGroup>
 
         {paymentStatus === 'partial' && (
           <TextField
-            label="Montant versé maintenant"
+            label="Amount Paid Now"
             type="number"
             value={amountPaid}
             onChange={(e) => setAmountPaid(e.target.value)}
@@ -343,26 +345,26 @@ export default function NewSalePage() {
         <FormControlLabel
           sx={{ mt: 1 }}
           control={<Checkbox checked={leaveInDeposit} onChange={(e) => setLeaveInDeposit(e.target.checked)} />}
-          label="Laisser les produits en dépôt"
+          label="Leave products on deposit"
         />
       </Paper>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       <Button variant="contained" size="large" fullWidth onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Enregistrement…' : 'ENREGISTRER LA VENTE'}
+        {loading ? 'Saving…' : 'RECORD SALE'}
       </Button>
 
       <Dialog open={!!dedupPrompt} onClose={() => setDedupPrompt(null)} maxWidth="xs" fullWidth>
-        <DialogTitle>Client déjà existant</DialogTitle>
+        <DialogTitle>Customer already exists</DialogTitle>
         <DialogContent>
           <Typography variant="body2">
-            Un client nommé <strong>{dedupPrompt?.matchName}</strong> existe déjà. Est-ce la même personne ?
+            A customer named <strong>{dedupPrompt?.matchName}</strong> already exists. Is this the same person?
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={confirmDifferentPerson}>Non, personne différente</Button>
-          <Button variant="contained" onClick={confirmSamePerson}>Oui, même personne</Button>
+          <Button onClick={confirmDifferentPerson}>No, different person</Button>
+          <Button variant="contained" onClick={confirmSamePerson}>Yes, same person</Button>
         </DialogActions>
       </Dialog>
     </Box>

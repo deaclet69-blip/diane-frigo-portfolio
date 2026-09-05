@@ -25,9 +25,9 @@ export default function NotificationsPage() {
 
   return (
     <Box maxWidth={720}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>Alertes et notifications</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>Alerts &amp; Notifications</Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Toutes les alertes actuelles de ton activité — clique sur une alerte pour voir le détail.
+        All current alerts for your business — click an alert to see details.
       </Typography>
 
       <Paper sx={{ p: 2 }}>
@@ -57,7 +57,7 @@ export default function NotificationsPage() {
           })}
           {(data?.alerts.length ?? 0) === 0 && (
             <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
-              Tout va bien, aucune alerte pour le moment. 🎉
+              All good, no alerts right now. 🎉
             </Typography>
           )}
         </List>

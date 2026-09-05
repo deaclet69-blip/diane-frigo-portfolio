@@ -12,12 +12,14 @@ import {
 import type { StockEntryReportRow, TraceabilityGranularity, TraceabilityReport } from '../../types';
 import { diane } from '../../theme';
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${Math.round(value).toLocaleString('fr-FR')} FCFA`;
+  return usd(Math.round(value));
 }
 
 const granularityLabels: Record<TraceabilityGranularity, string> = {
-  day: 'Jour', week: 'Semaine', month: 'Mois', year: 'Année',
+  day: 'Day', week: 'Week', month: 'Month', year: 'Year',
 };
 
 function TraceabilitySection() {
@@ -85,7 +87,7 @@ function TraceabilitySection() {
 
   function exportCsv() {
     if (!data) return;
-    const headers = ['Période', 'Recettes (FCFA)', "Chiffre d'affaires (FCFA)", 'Coût marchandises (FCFA)', 'Marge brute (FCFA)', 'Charges (FCFA)', 'Résultat net (FCFA)'];
+    const headers = ['Period', 'Revenue Collected (USD)', "Total Sales (USD)", 'Cost of Goods (USD)', 'Gross Margin (USD)', 'Expenses (USD)', 'Net Result (USD)'];
     const lines = data.rows.map((r) => [
       r.label, Math.round(r.recettes), Math.round(r.chiffreAffaires), Math.round(r.coutMarchandises),
       Math.round(r.margeBrute), Math.round(r.charges), Math.round(r.resultatNet),
@@ -98,15 +100,15 @@ function TraceabilitySection() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `tracabilite-${granularity}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `traceability-${granularity}-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
   const displayRows = data ? [...data.rows].reverse() : [];
   const searchLabel: Record<TraceabilityGranularity, string> = {
-    day: 'Rechercher un jour précis', week: 'Rechercher une semaine (choisis un jour de cette semaine)',
-    month: 'Rechercher un mois précis', year: 'Rechercher une année précise',
+    day: 'Search a specific day', week: 'Search a week (pick any day in that week)',
+    month: 'Search a specific month', year: 'Search a specific year',
   };
 
   return (
@@ -114,16 +116,16 @@ function TraceabilitySection() {
       <Box sx={{ p: 2.5, pb: 0 }}>
         <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={1.5}>
           <Box>
-            <Typography variant="subtitle1" fontWeight={700}>Traçabilité de l'argent</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Financial Traceability</Typography>
             <Typography variant="caption" color="text.secondary">
-              Recettes encaissées, chiffre d'affaires et bénéfice par jour, semaine, mois ou année — pour analyser l'historique.
+              Revenue collected, total sales, and profit by day, week, month, or year — for analyzing history.
             </Typography>
           </Box>
           <Button
             size="small" variant="outlined" startIcon={<DownloadIcon fontSize="small" />}
             onClick={exportCsv} disabled={!data || data.rows.length === 0}
           >
-            Exporter CSV
+            Export CSV
           </Button>
         </Stack>
 
@@ -159,7 +161,7 @@ function TraceabilitySection() {
 
           {searchValue && (
             <Button size="small" onClick={() => applySearch('')}>
-              Réinitialiser
+              Reset
             </Button>
           )}
         </Stack>
@@ -173,13 +175,13 @@ function TraceabilitySection() {
 <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Période</TableCell>
-                <TableCell align="right">Recettes</TableCell>
-                <TableCell align="right">CA</TableCell>
-                <TableCell align="right">Coût march.</TableCell>
-                <TableCell align="right">Marge brute</TableCell>
-                <TableCell align="right">Charges</TableCell>
-                <TableCell align="right">Résultat net</TableCell>
+                <TableCell>Period</TableCell>
+                <TableCell align="right">Revenue</TableCell>
+                <TableCell align="right">Sales</TableCell>
+                <TableCell align="right">Cost of Goods</TableCell>
+                <TableCell align="right">Gross Margin</TableCell>
+                <TableCell align="right">Expenses</TableCell>
+                <TableCell align="right">Net Result</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -197,7 +199,7 @@ function TraceabilitySection() {
                 </TableRow>
               ))}
               {displayRows.length === 0 && (
-                <TableRow><TableCell colSpan={7} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune donnée pour cette période.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} align="center" sx={{ py: 3, color: 'text.secondary' }}>No data for this period.</TableCell></TableRow>
               )}
             </TableBody>
             {data && data.rows.length > 0 && (
@@ -226,12 +228,12 @@ function TraceabilitySection() {
 type ReportSection = 'tracabilite' | 'entrees' | 'ventes' | 'vitesse' | 'clients' | 'charges';
 
 const sectionLabels: Record<ReportSection, string> = {
-  tracabilite: "Traçabilité de l'argent",
-  entrees: 'Entrées de stock',
-  ventes: 'Ventes par produit',
-  vitesse: "Vitesse d'écoulement",
-  clients: 'Top clients',
-  charges: 'Charges par catégorie',
+  tracabilite: "Financial Traceability",
+  entrees: 'Stock Entries',
+  ventes: 'Sales by Product',
+  vitesse: "Sell-Through Rate",
+  clients: 'Top Customers',
+  charges: 'Expenses by Category',
 };
 
 export default function ReportsPage() {
@@ -253,12 +255,12 @@ export default function ReportsPage() {
   return (
     <Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={1.5} sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={700}>Rapports</Typography>
+        <Typography variant="h5" fontWeight={700}>Reports</Typography>
         <FormControl size="small" sx={{ minWidth: 260 }}>
-          <InputLabel id="report-section-label">Choisir un rapport</InputLabel>
+          <InputLabel id="report-section-label">Choose a Report</InputLabel>
           <Select
             labelId="report-section-label"
-            label="Choisir un rapport"
+            label="Choose a Report"
             value={section}
             onChange={(e) => setSection(e.target.value as ReportSection)}
           >
@@ -274,25 +276,25 @@ export default function ReportsPage() {
       {section === 'entrees' && (
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
-            <Typography variant="subtitle1" fontWeight={700}>Entrées de stock</Typography>
-            <Typography variant="caption" color="text.secondary">Date, fournisseur et prix d'achat de chaque réapprovisionnement</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Stock Entries</Typography>
+            <Typography variant="caption" color="text.secondary">Date, supplier, and purchase price for each restocking</Typography>
           </Box>
           <TableContainer>
 <Table sx={{ mt: 1 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Date</TableCell>
-                <TableCell>Produit</TableCell>
-                <TableCell align="right">Quantité</TableCell>
-                <TableCell>Fournisseur</TableCell>
-                <TableCell align="right">Prix d'achat</TableCell>
-                <TableCell align="right">Coût total</TableCell>
+                <TableCell>Product</TableCell>
+                <TableCell align="right">Quantity</TableCell>
+                <TableCell>Supplier</TableCell>
+                <TableCell align="right">Purchase Price</TableCell>
+                <TableCell align="right">Total Cost</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {stockEntries.map((e, i) => (
                 <TableRow key={i}>
-                  <TableCell>{new Date(e.date).toLocaleDateString('fr-FR')}</TableCell>
+                  <TableCell>{new Date(e.date).toLocaleDateString('en-US')}</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>{e.productName}</TableCell>
                   <TableCell align="right">{e.quantity}</TableCell>
                   <TableCell>{e.supplierName ?? '—'}</TableCell>
@@ -301,7 +303,7 @@ export default function ReportsPage() {
                 </TableRow>
               ))}
               {stockEntries.length === 0 && (
-                <TableRow><TableCell colSpan={6} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune entrée de stock.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} align="center" sx={{ py: 3, color: 'text.secondary' }}>No stock entries.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -312,16 +314,16 @@ export default function ReportsPage() {
       {section === 'ventes' && (
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
-            <Typography variant="subtitle1" fontWeight={700}>Ventes par produit</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Sales by Product</Typography>
           </Box>
           <TableContainer>
 <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Produit</TableCell>
-                <TableCell align="right">Quantité vendue</TableCell>
-                <TableCell align="right">CA généré</TableCell>
-                <TableCell align="right">Bénéfice</TableCell>
+                <TableCell>Product</TableCell>
+                <TableCell align="right">Quantity Sold</TableCell>
+                <TableCell align="right">Revenue Generated</TableCell>
+                <TableCell align="right">Profit</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -334,7 +336,7 @@ export default function ReportsPage() {
                 </TableRow>
               ))}
               {products.length === 0 && (
-                <TableRow><TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune donnée.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>No data.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -345,21 +347,21 @@ export default function ReportsPage() {
       {section === 'vitesse' && (
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
-            <Typography variant="subtitle1" fontWeight={700}>Vitesse d'écoulement des produits</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Product Sell-Through Rate</Typography>
             <Typography variant="caption" color="text.secondary">
-              Classement du produit qui part le plus vite au moins vite (30 derniers jours) — pour savoir quoi racheter en priorité.
+              Ranking of products from fastest to slowest moving (last 30 days) — to know what to restock first.
             </Typography>
           </Box>
           <TableContainer>
 <Table sx={{ mt: 1 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Rang</TableCell>
-                <TableCell>Produit</TableCell>
-                <TableCell align="right">Vendu (30j)</TableCell>
-                <TableCell align="right">Rythme / jour</TableCell>
-                <TableCell align="right">Stock actuel</TableCell>
-                <TableCell align="right">Jours de stock restants</TableCell>
+                <TableCell>Rank</TableCell>
+                <TableCell>Product</TableCell>
+                <TableCell align="right">Sold (30d)</TableCell>
+                <TableCell align="right">Pace / Day</TableCell>
+                <TableCell align="right">Current Stock</TableCell>
+                <TableCell align="right">Days of Stock Left</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -368,7 +370,7 @@ export default function ReportsPage() {
                   <TableCell sx={{ fontWeight: 700 }}>#{v.rank}</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>{v.productName}</TableCell>
                   <TableCell align="right">{v.quantitySoldWindow}</TableCell>
-                  <TableCell align="right">{v.avgDailyQuantity.toFixed(1)} cartons/j</TableCell>
+                  <TableCell align="right">{v.avgDailyQuantity.toFixed(1)} boxes/day</TableCell>
                   <TableCell align="right">{v.currentStock}</TableCell>
                   <TableCell
                     align="right"
@@ -379,12 +381,12 @@ export default function ReportsPage() {
                         : diane.green,
                     }}
                   >
-                    {v.daysOfStockRemaining !== null ? `~${Math.round(v.daysOfStockRemaining)} j` : '—'}
+                    {v.daysOfStockRemaining !== null ? `~${Math.round(v.daysOfStockRemaining)} d` : '—'}
                   </TableCell>
                 </TableRow>
               ))}
               {velocity.length === 0 && (
-                <TableRow><TableCell colSpan={6} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune donnée.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} align="center" sx={{ py: 3, color: 'text.secondary' }}>No data.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -395,16 +397,16 @@ export default function ReportsPage() {
       {section === 'clients' && (
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
-            <Typography variant="subtitle1" fontWeight={700}>Top clients</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Top Customers</Typography>
           </Box>
           <TableContainer>
 <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Client</TableCell>
-                <TableCell align="right">Commandes</TableCell>
-                <TableCell align="right">Quantité</TableCell>
-                <TableCell align="right">CA généré</TableCell>
+                <TableCell>Customer</TableCell>
+                <TableCell align="right">Orders</TableCell>
+                <TableCell align="right">Quantity</TableCell>
+                <TableCell align="right">Revenue Generated</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -417,7 +419,7 @@ export default function ReportsPage() {
                 </TableRow>
               ))}
               {customers.length === 0 && (
-                <TableRow><TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune donnée.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>No data.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -428,13 +430,13 @@ export default function ReportsPage() {
       {section === 'charges' && (
         <Paper>
           <Box sx={{ p: 2.5, pb: 0 }}>
-            <Typography variant="subtitle1" fontWeight={700}>Charges par catégorie</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>Expenses by Category</Typography>
           </Box>
           <TableContainer>
 <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Catégorie</TableCell>
+                <TableCell>Category</TableCell>
                 <TableCell align="right">Total</TableCell>
               </TableRow>
             </TableHead>
@@ -446,7 +448,7 @@ export default function ReportsPage() {
                 </TableRow>
               ))}
               {expenses.length === 0 && (
-                <TableRow><TableCell colSpan={2} align="center" sx={{ py: 3, color: 'text.secondary' }}>Aucune donnée.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={2} align="center" sx={{ py: 3, color: 'text.secondary' }}>No data.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

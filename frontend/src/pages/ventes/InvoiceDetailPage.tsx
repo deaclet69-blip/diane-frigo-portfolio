@@ -9,8 +9,10 @@ import { getInvoiceDetail, addPayment, voidInvoice } from '../../services/sales'
 import type { Invoice } from '../../types';
 import { diane } from '../../theme';
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${value.toLocaleString('fr-FR')} FCFA`;
+  return usd(value);
 }
 
 export default function InvoiceDetailPage() {
@@ -48,19 +50,19 @@ export default function InvoiceDetailPage() {
     <Box maxWidth={640}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
         <IconButton onClick={() => navigate('/ventes')} size="small"><ArrowBackIcon /></IconButton>
-        <Typography variant="h5" fontWeight={700}>Facture {invoice.invoiceNumber}</Typography>
-        {invoice.voidedAt && <Chip label="Annulée" color="default" />}
+        <Typography variant="h5" fontWeight={700}>Invoice {invoice.invoiceNumber}</Typography>
+        {invoice.voidedAt && <Chip label="Voided" color="default" />}
       </Stack>
 
       <Paper sx={{ p: 3, mb: 2 }}>
         <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
           <Box>
-            <Typography variant="caption" color="text.secondary">Client</Typography>
+            <Typography variant="caption" color="text.secondary">Customer</Typography>
             <Typography fontWeight={600}>{invoice.customer?.name}</Typography>
           </Box>
           <Box textAlign="right">
             <Typography variant="caption" color="text.secondary">Date</Typography>
-            <Typography fontWeight={600}>{new Date(invoice.date).toLocaleDateString('fr-FR')}</Typography>
+            <Typography fontWeight={600}>{new Date(invoice.date).toLocaleDateString('en-US')}</Typography>
           </Box>
         </Stack>
 
@@ -68,9 +70,9 @@ export default function InvoiceDetailPage() {
 <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Produit</TableCell>
-              <TableCell align="right">Qté</TableCell>
-              <TableCell align="right">Prix unit.</TableCell>
+              <TableCell>Product</TableCell>
+              <TableCell align="right">Qty</TableCell>
+              <TableCell align="right">Unit Price</TableCell>
               <TableCell align="right">Total</TableCell>
             </TableRow>
           </TableHead>
@@ -88,12 +90,12 @@ export default function InvoiceDetailPage() {
 </TableContainer>
 
         <Stack spacing={0.5} sx={{ mt: 2, alignItems: 'flex-end' }}>
-          <Typography variant="body2">Sous-total : {formatFcfa(invoice.subtotal)}</Typography>
-          {invoice.discount > 0 && <Typography variant="body2">Remise : -{formatFcfa(invoice.discount)}</Typography>}
-          <Typography fontWeight={700}>Total : {formatFcfa(invoice.total)}</Typography>
-          <Typography variant="body2" sx={{ color: diane.green }}>Payé : {formatFcfa(invoice.amountPaid)}</Typography>
+          <Typography variant="body2">Subtotal: {formatFcfa(invoice.subtotal)}</Typography>
+          {invoice.discount > 0 && <Typography variant="body2">Discount: -{formatFcfa(invoice.discount)}</Typography>}
+          <Typography fontWeight={700}>Total: {formatFcfa(invoice.total)}</Typography>
+          <Typography variant="body2" sx={{ color: diane.green }}>Paid: {formatFcfa(invoice.amountPaid)}</Typography>
           {invoice.balanceDue > 0 && (
-            <Typography variant="body2" sx={{ color: diane.red }}>Solde dû : {formatFcfa(invoice.balanceDue)}</Typography>
+            <Typography variant="body2" sx={{ color: diane.red }}>Balance Due: {formatFcfa(invoice.balanceDue)}</Typography>
           )}
         </Stack>
 
@@ -108,39 +110,39 @@ export default function InvoiceDetailPage() {
       {!invoice.voidedAt && (
         <Stack direction="row" spacing={2}>
           {invoice.balanceDue > 0 && (
-            <Button variant="contained" onClick={() => setPayOpen(true)}>Enregistrer un paiement</Button>
+            <Button variant="contained" onClick={() => setPayOpen(true)}>Record Payment</Button>
           )}
-          <Button variant="outlined" color="error" onClick={() => setVoidOpen(true)}>Annuler la facture</Button>
+          <Button variant="outlined" color="error" onClick={() => setVoidOpen(true)}>Void Invoice</Button>
         </Stack>
       )}
 
       <Dialog open={payOpen} onClose={() => setPayOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Enregistrer un paiement</DialogTitle>
+        <DialogTitle>Record a Payment</DialogTitle>
         <DialogContent>
           <TextField
-            label="Montant (FCFA)"
+            label="Amount (USD)"
             type="number"
             value={payAmount}
             onChange={(e) => setPayAmount(e.target.value)}
             fullWidth
             sx={{ mt: 1 }}
-            helperText={`Solde dû actuel : ${formatFcfa(invoice.balanceDue)}`}
+            helperText={`Current balance due: ${formatFcfa(invoice.balanceDue)}`}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setPayOpen(false)}>Annuler</Button>
-          <Button variant="contained" onClick={handlePay}>Valider</Button>
+          <Button onClick={() => setPayOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handlePay}>Confirm</Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={voidOpen} onClose={() => setVoidOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Annuler cette facture ?</DialogTitle>
+        <DialogTitle>Void this invoice?</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Le stock sera automatiquement recrédité. Cette action est tracée et irréversible.
+            Stock will be automatically credited back. This action is logged and irreversible.
           </Typography>
           <TextField
-            label="Motif de l'annulation"
+            label="Reason for voiding"
             value={voidReason}
             onChange={(e) => setVoidReason(e.target.value)}
             fullWidth
@@ -149,8 +151,8 @@ export default function InvoiceDetailPage() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setVoidOpen(false)}>Retour</Button>
-          <Button variant="contained" color="error" onClick={handleVoid}>Confirmer l'annulation</Button>
+          <Button onClick={() => setVoidOpen(false)}>Back</Button>
+          <Button variant="contained" color="error" onClick={handleVoid}>Confirm Void</Button>
         </DialogActions>
       </Dialog>
     </Box>

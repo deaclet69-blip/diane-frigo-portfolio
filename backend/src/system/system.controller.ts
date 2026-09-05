@@ -1,6 +1,7 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Post, Query, UseGuards } from '@nestjs/common';
 import { IsString, MinLength } from 'class-validator';
 import { SystemService } from './system.service';
+import { DemoSeedService } from './demo-seed.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -17,11 +18,35 @@ class ResetDataDto {
 export class SystemController {
   constructor(private systemService: SystemService) {}
 
-  // Réservé à ADMIN — vérifié deux fois : par le rôle (RolesGuard) et par le
-  // mot de passe de la personne connectée (voir SystemService.resetAllData).
+  // Désactivé dans cette version démo (voir DangerZonePage) — le mot de
+  // passe de démo étant public, cette route resterait autrement exploitable
+  // directement même sans passer par l'interface.
   @Roles('ADMIN')
   @Post('reset-data')
-  resetData(@Body() dto: ResetDataDto, @CurrentUser() user: { id: string }) {
-    return this.systemService.resetAllData(user.id, dto.password);
+  resetData() {
+    throw new ForbiddenException(
+      'This action is disabled in the public demo version.',
+    );
+  }
+}
+
+// Endpoint SÉPARÉ, volontairement SANS JwtAuthGuard — pensé pour être
+// appelé automatiquement par un service de cron externe (pas de connexion
+// possible pour un tel service), protégé uniquement par une clé secrète
+// (DEMO_RESEED_KEY, jamais partagée publiquement, contrairement au mot de
+// passe démo). Régénère les données démo, ancrées sur la date réelle du
+// moment de l'appel, pour que "Aujourd'hui" / "Ce mois-ci" restent toujours
+// remplis (voir demo-seed.service.ts).
+@Controller('system')
+export class DemoReseedController {
+  constructor(private demoSeedService: DemoSeedService) {}
+
+  @Post('reseed-demo')
+  async reseedDemo(@Query('key') key: string) {
+    const expected = process.env.DEMO_RESEED_KEY;
+    if (!expected || key !== expected) {
+      throw new ForbiddenException('Invalid or missing key.');
+    }
+    return this.demoSeedService.reseed();
   }
 }

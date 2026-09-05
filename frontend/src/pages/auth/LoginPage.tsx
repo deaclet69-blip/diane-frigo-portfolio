@@ -20,7 +20,7 @@ export default function LoginPage() {
       await login(email, password);
       navigate('/');
     } catch {
-      setError('Email ou mot de passe incorrect.');
+      setError('Incorrect email or password.');
     } finally {
       setLoading(false);
     }
@@ -41,7 +41,7 @@ export default function LoginPage() {
           <AcUnitIcon sx={{ color: diane.navy, fontSize: 36 }} />
           <Typography variant="h6" fontWeight={800}>DIANE FRIGO</Typography>
           <Typography variant="body2" color="text.secondary">
-            Connexion à votre espace de gestion
+            Sign in to your management workspace
           </Typography>
         </Stack>
 
@@ -58,7 +58,7 @@ export default function LoginPage() {
               fullWidth
             />
             <TextField
-              label="Mot de passe"
+              label="Password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -66,7 +66,7 @@ export default function LoginPage() {
               fullWidth
             />
             <Button type="submit" variant="contained" size="large" disabled={loading}>
-              {loading ? 'Connexion…' : 'Se connecter'}
+              {loading ? 'Signing in…' : 'Sign in'}
             </Button>
           </Stack>
         </form>

@@ -9,11 +9,13 @@ import { getFinanceSummary, getRecovery, setMonthlyGoal } from '../../services/f
 import type { FinanceSummary, RecoveryStatus } from '../../types';
 import { diane } from '../../theme';
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${Math.round(value).toLocaleString('fr-FR')} FCFA`;
+  return usd(Math.round(value));
 }
 
-const monthLabel = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+const monthLabel = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
 export default function FinancesPage() {
   const [summary, setSummary] = useState<FinanceSummary | null>(null);
@@ -49,21 +51,21 @@ export default function FinancesPage() {
     <Box>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">CA du mois</Typography>
+          <Typography variant="caption" color="text.secondary">Revenue this Month</Typography>
           <Typography variant="h5" fontWeight={700}>{summary ? formatFcfa(summary.revenue) : '…'}</Typography>
         </Paper>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Coût des marchandises</Typography>
+          <Typography variant="caption" color="text.secondary">Cost of Goods</Typography>
           <Typography variant="h5" fontWeight={700}>{summary ? formatFcfa(summary.costOfGoods) : '…'}</Typography>
         </Paper>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Marge brute</Typography>
+          <Typography variant="caption" color="text.secondary">Gross Margin</Typography>
           <Typography variant="h5" fontWeight={700} sx={{ color: diane.green }}>
             {summary ? formatFcfa(summary.grossProfit) : '…'}
           </Typography>
         </Paper>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Résultat net (mois)</Typography>
+          <Typography variant="caption" color="text.secondary">Net Result (Month)</Typography>
           <Typography variant="h5" fontWeight={700} sx={{ color: summary && summary.netResult >= 0 ? diane.green : diane.red }}>
             {summary ? formatFcfa(summary.netResult) : '…'}
           </Typography>
@@ -73,10 +75,10 @@ export default function FinancesPage() {
       <Paper sx={{ p: 3, mb: 3 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
           <Typography variant="subtitle1" fontWeight={700} sx={{ textTransform: 'capitalize' }}>
-            Objectif de {monthLabel}
+            Target for {monthLabel}
           </Typography>
           <Button size="small" startIcon={<EditIcon fontSize="small" />} onClick={openGoalDialog}>
-            {recovery?.goal != null ? 'Modifier' : 'Fixer un objectif'}
+            {recovery?.goal != null ? 'Edit' : 'Set a Target'}
           </Button>
         </Stack>
 
@@ -84,10 +86,10 @@ export default function FinancesPage() {
           <>
             <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
               <Typography variant="body2" color="text.secondary">
-                Résultat net du mois : {summary ? formatFcfa(summary.netResult) : '…'}
+                Net result this month: {summary ? formatFcfa(summary.netResult) : '…'}
               </Typography>
               <Typography variant="body2" fontWeight={700}>
-                Objectif : {formatFcfa(recovery.goal)}
+                Target: {formatFcfa(recovery.goal)}
               </Typography>
             </Stack>
             <LinearProgress
@@ -99,12 +101,12 @@ export default function FinancesPage() {
               }}
             />
             <Typography variant="caption" color="text.secondary">
-              {goalProgress.toFixed(1)}% de l'objectif atteint ce mois-ci
+              {goalProgress.toFixed(1)}% of target reached this month
             </Typography>
           </>
         ) : (
           <Typography variant="body2" color="text.secondary">
-            Aucun objectif fixé pour ce mois — clique sur "Fixer un objectif" pour te donner un chiffre à atteindre.
+            No target set for this month — click "Set a Target" to give yourself a goal to reach.
           </Typography>
         )}
       </Paper>
@@ -112,11 +114,11 @@ export default function FinancesPage() {
       {summary && (
         <Paper sx={{ p: 2.5, mb: 3 }}>
           <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>
-            Charges du mois par type — les 3 réduisent le résultat net (détail dans "Charges")
+            Expenses this month by type — all 3 reduce net profit (details in "Expenses")
           </Typography>
           <Stack direction="row" spacing={4}>
             <Box>
-              <Typography variant="caption" sx={{ color: diane.blue, fontWeight: 700 }}>FIXE</Typography>
+              <Typography variant="caption" sx={{ color: diane.blue, fontWeight: 700 }}>FIXED</Typography>
               <Typography variant="h6" fontWeight={700}>{formatFcfa(summary.chargesFixe)}</Typography>
             </Box>
             <Box>
@@ -124,7 +126,7 @@ export default function FinancesPage() {
               <Typography variant="h6" fontWeight={700}>{formatFcfa(summary.chargesVariable)}</Typography>
             </Box>
             <Box>
-              <Typography variant="caption" sx={{ color: diane.red, fontWeight: 700 }}>EXCEPTIONNEL</Typography>
+              <Typography variant="caption" sx={{ color: diane.red, fontWeight: 700 }}>ONE-TIME</Typography>
               <Typography variant="h6" fontWeight={700}>{formatFcfa(summary.chargesExceptionnel)}</Typography>
             </Box>
           </Stack>
@@ -136,40 +138,40 @@ export default function FinancesPage() {
           sx={{ p: 2.5, flex: 1, cursor: 'pointer', '&:hover': { bgcolor: diane.blueLight } }}
           onClick={() => navigate('/finances/tarification')}
         >
-          <Typography variant="subtitle2" fontWeight={700}>💰 Tarification</Typography>
-          <Typography variant="body2" color="text.secondary">Coût de revient et prix suggérés par produit</Typography>
+          <Typography variant="subtitle2" fontWeight={700}>💰 Profitability</Typography>
+          <Typography variant="body2" color="text.secondary">Cost basis and suggested prices per product</Typography>
         </Paper>
         <Paper
           sx={{ p: 2.5, flex: 1, cursor: 'pointer', '&:hover': { bgcolor: diane.blueLight } }}
           onClick={() => navigate('/finances/pertes')}
         >
-          <Typography variant="subtitle2" fontWeight={700}>📉 Pertes</Typography>
-          <Typography variant="body2" color="text.secondary">Suivi des pertes et taux de perte du mois</Typography>
+          <Typography variant="subtitle2" fontWeight={700}>📉 Losses</Typography>
+          <Typography variant="body2" color="text.secondary">Loss tracking and this month's loss rate</Typography>
         </Paper>
         <Paper
           sx={{ p: 2.5, flex: 1, cursor: 'pointer', '&:hover': { bgcolor: diane.blueLight } }}
           onClick={() => navigate('/finances/investissement')}
         >
-          <Typography variant="subtitle2" fontWeight={700}>🏦 Investissement</Typography>
-          <Typography variant="body2" color="text.secondary">Suivi du remboursement de prêt</Typography>
+          <Typography variant="subtitle2" fontWeight={700}>🏦 Investment</Typography>
+          <Typography variant="body2" color="text.secondary">Loan repayment tracking</Typography>
         </Paper>
       </Stack>
 
       {recovery && (
         <Paper sx={{ p: 3, mb: 3 }}>
           <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
-            Objectif de récupération <Typography component="span" variant="caption" color="text.secondary">(cumulé depuis le début)</Typography>
+            Recovery Target <Typography component="span" variant="caption" color="text.secondary">(cumulative since the start)</Typography>
           </Typography>
 
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
             <Box>
-              <Typography variant="caption" color="text.secondary">Résultat actuel</Typography>
+              <Typography variant="caption" color="text.secondary">Current Result</Typography>
               <Typography variant="h6" fontWeight={700} sx={{ color: recovery.isPositive ? diane.green : diane.red }}>
                 {formatFcfa(recovery.netResult)}
               </Typography>
             </Box>
             <Box textAlign="right">
-              <Typography variant="caption" color="text.secondary">Montant restant</Typography>
+              <Typography variant="caption" color="text.secondary">Amount Remaining</Typography>
               <Typography variant="h6" fontWeight={700}>{formatFcfa(recovery.amountRemaining)}</Typography>
             </Box>
           </Stack>
@@ -184,7 +186,7 @@ export default function FinancesPage() {
             }}
           />
           <Typography variant="caption" color="text.secondary">
-            {recovery.progressPercent.toFixed(1)}% — Objectif : atteindre un bénéfice net positif
+            {recovery.progressPercent.toFixed(1)}% — Target: reach a positive net profit
           </Typography>
 
           {!recovery.isPositive && recovery.perProduct.length > 0 && (
@@ -192,10 +194,10 @@ export default function FinancesPage() {
 <Table size="small" sx={{ mt: 2 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Produit</TableCell>
-                  <TableCell align="right">Cartons à vendre pour combler l'écart</TableCell>
-                  <TableCell align="right">Stock actuel</TableCell>
-                  <TableCell>Stock suffisant ?</TableCell>
+                  <TableCell>Product</TableCell>
+                  <TableCell align="right">Boxes to sell to close the gap</TableCell>
+                  <TableCell align="right">Current Stock</TableCell>
+                  <TableCell>Stock Sufficient?</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -207,7 +209,7 @@ export default function FinancesPage() {
                     <TableCell>
                       {p.stockSufficient !== null && (
                         <Chip
-                          label={p.stockSufficient ? 'Oui' : 'Non'}
+                          label={p.stockSufficient ? 'Yes' : 'No'}
                           size="small"
                           sx={{
                             bgcolor: p.stockSufficient ? '#E7F7EE' : '#FCEAEA',
@@ -227,10 +229,10 @@ export default function FinancesPage() {
       )}
 
       <Dialog open={goalDialogOpen} onClose={() => setGoalDialogOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle sx={{ textTransform: 'capitalize' }}>Objectif de {monthLabel}</DialogTitle>
+        <DialogTitle sx={{ textTransform: 'capitalize' }}>Target for {monthLabel}</DialogTitle>
         <DialogContent>
           <TextField
-            label="Résultat net à atteindre (FCFA)"
+            label="Net Result Target (USD)"
             type="number"
             value={goalInput}
             onChange={(e) => setGoalInput(e.target.value)}
@@ -240,8 +242,8 @@ export default function FinancesPage() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setGoalDialogOpen(false)}>Annuler</Button>
-          <Button variant="contained" onClick={handleSaveGoal}>Enregistrer</Button>
+          <Button onClick={() => setGoalDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSaveGoal}>Save</Button>
         </DialogActions>
       </Dialog>
     </Box>

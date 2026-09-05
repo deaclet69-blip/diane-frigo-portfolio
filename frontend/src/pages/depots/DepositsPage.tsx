@@ -37,24 +37,24 @@ export default function DepositsPage() {
       setOpen(false);
       reload();
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Erreur lors du retrait.');
+      setError(err?.response?.data?.message ?? 'Error during withdrawal.');
     }
   }
 
   return (
     <Box>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Dépôts clients</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Customer Deposits</Typography>
 
       <Paper>
         <TableContainer>
 <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Client</TableCell>
-              <TableCell>Produit</TableCell>
-              <TableCell align="right">Déposé</TableCell>
-              <TableCell align="right">Retiré</TableCell>
-              <TableCell align="right">Solde disponible</TableCell>
+              <TableCell>Customer</TableCell>
+              <TableCell>Product</TableCell>
+              <TableCell align="right">Deposited</TableCell>
+              <TableCell align="right">Withdrawn</TableCell>
+              <TableCell align="right">Available Balance</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
@@ -68,7 +68,7 @@ export default function DepositsPage() {
                 <TableCell align="right" sx={{ fontWeight: 700 }}>{b.balance}</TableCell>
                 <TableCell align="right">
                   <Button size="small" disabled={b.balance <= 0} onClick={() => openWithdraw(b)}>
-                    Retrait
+                    Withdraw
                   </Button>
                 </TableCell>
               </TableRow>
@@ -76,7 +76,7 @@ export default function DepositsPage() {
             {balances.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  Aucun dépôt en cours.
+                  No active deposits.
                 </TableCell>
               </TableRow>
             )}
@@ -86,14 +86,14 @@ export default function DepositsPage() {
       </Paper>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Retrait — {selected?.customer.name}</DialogTitle>
+        <DialogTitle>Withdrawal — {selected?.customer.name}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Typography variant="body2" color="text.secondary">
-              {selected?.product.name} — {selected?.balance} cartons disponibles
+              {selected?.product.name} — {selected?.balance} boxes available
             </Typography>
             <TextField
-              label="Quantité à retirer"
+              label="Quantity to Withdraw"
               type="number"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
@@ -104,8 +104,8 @@ export default function DepositsPage() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Annuler</Button>
-          <Button variant="contained" onClick={handleWithdraw}>Confirmer le retrait</Button>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleWithdraw}>Confirm Withdrawal</Button>
         </DialogActions>
       </Dialog>
     </Box>

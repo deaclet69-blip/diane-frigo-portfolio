@@ -17,7 +17,7 @@ export default function AiSummaryCard() {
     setError(null);
     getAiSummary()
       .then((r) => setText(r.text))
-      .catch((err) => setError(err?.response?.data?.message ?? "L'assistant IA n'est pas encore configuré."))
+      .catch((err) => setError(err?.response?.data?.message ?? "The AI assistant is not configured yet."))
       .finally(() => setLoading(false));
   }
 
@@ -28,7 +28,7 @@ export default function AiSummaryCard() {
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
         <Stack direction="row" spacing={1} alignItems="center">
           <AutoAwesomeIcon sx={{ color: diane.blue }} fontSize="small" />
-          <Typography variant="subtitle1" fontWeight={700}>Analyse de l'assistant IA</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>AI Assistant Analysis</Typography>
         </Stack>
         <IconButton size="small" onClick={load} disabled={loading}>
           <RefreshIcon fontSize="small" />
@@ -43,8 +43,8 @@ export default function AiSummaryCard() {
 
       {!loading && error && (
         <Alert severity="info">
-          {error} Configure ta clé API dans le fichier <code>.env</code> du backend
-          (<code>ANTHROPIC_API_KEY</code>), disponible sur console.anthropic.com.
+          {error} Configure your API key in the backend's <code>.env</code> file
+          (<code>GEMINI_API_KEY</code>), available for free at aistudio.google.com/apikey.
         </Alert>
       )}
 
@@ -58,7 +58,7 @@ export default function AiSummaryCard() {
           sx={{ mt: 2, color: diane.blue, cursor: 'pointer', fontWeight: 600 }}
           onClick={() => navigate('/assistant')}
         >
-          Poser une question à l'assistant →
+          Ask the assistant a question →
         </Typography>
       )}
     </Paper>

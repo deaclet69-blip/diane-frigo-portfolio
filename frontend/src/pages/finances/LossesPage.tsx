@@ -8,17 +8,19 @@ import { getProducts } from '../../services/products';
 import type { Loss, MonthlyLossRate, Product, LossReason } from '../../types';
 import { diane } from '../../theme';
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${Math.round(value).toLocaleString('fr-FR')} FCFA`;
+  return usd(Math.round(value));
 }
 
 const reasonLabels: Record<LossReason, string> = {
-  RUPTURE_CHAINE_FROID: 'Rupture chaîne de froid',
-  EXPIRATION: 'Expiration / Péremption',
-  CASSE: 'Casse',
-  VOL: 'Vol',
-  ERREUR_MANUTENTION: 'Erreur de manutention',
-  AUTRE: 'Autre',
+  RUPTURE_CHAINE_FROID: 'Cold Chain Break',
+  EXPIRATION: 'Expired',
+  CASSE: 'Breakage',
+  VOL: 'Theft',
+  ERREUR_MANUTENTION: 'Handling Error',
+  AUTRE: 'Other',
 };
 
 export default function LossesPage() {
@@ -57,26 +59,26 @@ export default function LossesPage() {
       setForm({ ...form, quantity: '', note: '' });
       reload();
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Erreur lors de l\'enregistrement.');
+      setError(err?.response?.data?.message ?? 'Error while saving.');
     }
   }
 
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={700}>Pertes</Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>Déclarer une perte</Button>
+        <Typography variant="h5" fontWeight={700}>Losses</Typography>
+        <Button variant="contained" onClick={() => setOpen(true)}>Report a Loss</Button>
       </Stack>
 
       {rate && (
         <Paper sx={{ p: 3, mb: 3 }}>
-          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>Taux de perte du mois</Typography>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>This Month's Loss Rate</Typography>
           <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
             <Typography variant="h5" fontWeight={700} sx={{ color: rate.isAboveAcceptable ? diane.red : diane.green }}>
               {(rate.rate * 100).toFixed(2)}%
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Seuil acceptable : {(rate.acceptableRate * 100).toFixed(1)}%
+              Acceptable threshold: {(rate.acceptableRate * 100).toFixed(1)}%
             </Typography>
           </Stack>
           <LinearProgress
@@ -89,7 +91,7 @@ export default function LossesPage() {
             }}
           />
           <Typography variant="caption" color="text.secondary">
-            {formatFcfa(rate.lossValue)} de pertes ce mois, pour {formatFcfa(rate.revenue)} de CA
+            {formatFcfa(rate.lossValue)} in losses this month, out of {formatFcfa(rate.revenue)} in revenue
           </Typography>
         </Paper>
       )}
@@ -100,17 +102,17 @@ export default function LossesPage() {
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
-              <TableCell>Produit</TableCell>
-              <TableCell align="right">Quantité</TableCell>
-              <TableCell>Motif</TableCell>
-              <TableCell align="right">Valeur</TableCell>
+              <TableCell>Product</TableCell>
+              <TableCell align="right">Quantity</TableCell>
+              <TableCell>Reason</TableCell>
+              <TableCell align="right">Value</TableCell>
               <TableCell>Note</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {losses.map((l) => (
               <TableRow key={l.id}>
-                <TableCell>{new Date(l.date).toLocaleDateString('fr-FR')}</TableCell>
+                <TableCell>{new Date(l.date).toLocaleDateString('en-US')}</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>{l.product.name}</TableCell>
                 <TableCell align="right">{l.quantity}</TableCell>
                 <TableCell>{reasonLabels[l.reason]}</TableCell>
@@ -121,7 +123,7 @@ export default function LossesPage() {
             {losses.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  Aucune perte enregistrée.
+                  No losses recorded.
                 </TableCell>
               </TableRow>
             )}
@@ -131,21 +133,21 @@ export default function LossesPage() {
       </Paper>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Déclarer une perte</DialogTitle>
+        <DialogTitle>Report a Loss</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
-              select label="Produit" value={form.productId}
+              select label="Product" value={form.productId}
               onChange={(e) => setForm({ ...form, productId: e.target.value })} fullWidth
             >
               {products.map((p) => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
             </TextField>
             <TextField
-              label="Quantité (cartons)" type="number" value={form.quantity}
+              label="Quantity (boxes)" type="number" value={form.quantity}
               onChange={(e) => setForm({ ...form, quantity: e.target.value })} fullWidth
             />
             <TextField
-              select label="Motif" value={form.reason}
+              select label="Reason" value={form.reason}
               onChange={(e) => setForm({ ...form, reason: e.target.value as LossReason })} fullWidth
             >
               {(Object.keys(reasonLabels) as LossReason[]).map((r) => (
@@ -158,15 +160,15 @@ export default function LossesPage() {
               InputLabelProps={{ shrink: true }}
             />
             <TextField
-              label="Note (optionnel)" value={form.note}
+              label="Note (optional)" value={form.note}
               onChange={(e) => setForm({ ...form, note: e.target.value })} fullWidth multiline minRows={2}
             />
             {error && <Alert severity="error">{error}</Alert>}
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Annuler</Button>
-          <Button variant="contained" onClick={handleCreate}>Enregistrer</Button>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreate}>Save</Button>
         </DialogActions>
       </Dialog>
     </Box>

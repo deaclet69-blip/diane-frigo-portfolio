@@ -66,21 +66,21 @@ export default function ClientsListPage() {
       setDeleteTarget(null);
       reload();
     } catch (err: any) {
-      setDeleteError(err?.response?.data?.message ?? 'Suppression impossible.');
+      setDeleteError(err?.response?.data?.message ?? 'Deletion failed.');
     }
   }
 
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={700}>Clients</Typography>
+        <Typography variant="h5" fontWeight={700}>Customers</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
-          Nouveau client
+          New Customer
         </Button>
       </Stack>
 
       <TextField
-        placeholder="Rechercher un client…"
+        placeholder="Search a customer…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         size="small"
@@ -93,8 +93,8 @@ export default function ClientsListPage() {
 <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Nom</TableCell>
-              <TableCell>Téléphone</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Phone</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
@@ -119,7 +119,7 @@ export default function ClientsListPage() {
             {customers.length === 0 && (
               <TableRow>
                 <TableCell colSpan={3} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  Aucun client trouvé.
+                  No customers found.
                 </TableCell>
               </TableRow>
             )}
@@ -129,30 +129,30 @@ export default function ClientsListPage() {
       </Paper>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>{editing ? 'Modifier le client' : 'Nouveau client'}</DialogTitle>
+        <DialogTitle>{editing ? 'Edit Customer' : 'New Customer'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField label="Nom" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} fullWidth />
-            <TextField label="Téléphone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} fullWidth />
+            <TextField label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} fullWidth />
+            <TextField label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} fullWidth />
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Annuler</Button>
-          <Button variant="contained" onClick={handleSave}>Enregistrer</Button>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleSave}>Save</Button>
         </DialogActions>
       </Dialog>
 
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} fullWidth maxWidth="xs">
-        <DialogTitle>Supprimer {deleteTarget?.name} ?</DialogTitle>
+        <DialogTitle>Delete {deleteTarget?.name}?</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary">
-            Possible uniquement si ce client n'a aucune vente ni dépôt enregistré.
+            Only possible if this customer has no recorded sales or deposits.
           </Typography>
           {deleteError && <Alert severity="error" sx={{ mt: 2 }}>{deleteError}</Alert>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteTarget(null)}>Annuler</Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>Supprimer</Button>
+          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>

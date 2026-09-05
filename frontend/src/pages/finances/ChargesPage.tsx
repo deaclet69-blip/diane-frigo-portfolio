@@ -8,22 +8,24 @@ import { getExpenses, getExpenseCategories, createExpense, reclassifyExpense, cr
 import type { Expense, ExpenseCategory, ChargeType } from '../../types';
 import { diane } from '../../theme';
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${value.toLocaleString('fr-FR')} FCFA`;
+  return usd(value);
 }
 
 const typeConfig: Record<ChargeType, { label: string; color: string; bg: string; help: string }> = {
   FIXE: {
-    label: 'Fixe', color: diane.blue, bg: diane.blueLight,
-    help: 'Récurrente et prévisible (loyer, salaires…) — entre dans le calcul du coût de revient par carton.',
+    label: 'Fixed', color: diane.blue, bg: diane.blueLight,
+    help: 'Recurring and predictable (rent, salaries…) — factored into the cost per box.',
   },
   VARIABLE: {
     label: 'Variable', color: diane.orange, bg: '#FEF3E6',
-    help: "Dépend de l'activité (transport, emballage…) — réduit le résultat net mais pas le coût de revient.",
+    help: "Depends on business activity (transport, packaging…) — reduces net profit but not the cost basis.",
   },
   EXCEPTIONNEL: {
-    label: 'Exceptionnel', color: diane.red, bg: '#FCEAEA',
-    help: "Ponctuelle et hors exploitation courante — réduit quand même le résultat net, mais jamais le coût de revient.",
+    label: 'One-time', color: diane.red, bg: '#FCEAEA',
+    help: "One-off and outside regular operations — still reduces net profit, but never the cost basis.",
   },
 };
 
@@ -80,19 +82,19 @@ export default function ChargesPage() {
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-        <Typography variant="h5" fontWeight={700}>Charges</Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>Nouvelle charge</Button>
+        <Typography variant="h5" fontWeight={700}>Expenses</Typography>
+        <Button variant="contained" onClick={() => setOpen(true)}>New Expense</Button>
       </Stack>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Les 3 types réduisent tous le résultat net — seul le type <strong>Fixe</strong> est réparti
-        dans le coût de revient par carton (voir Finances &gt; Tarification).
+        All 3 types reduce net profit — only the <strong>Fixed</strong> type is factored
+        into the cost per box (see Finances &gt; Profitability).
       </Typography>
 
       <ToggleButtonGroup size="small" value={filter} exclusive onChange={(_, v) => v && setFilter(v)} sx={{ mb: 2 }}>
-        <ToggleButton value="ALL">Toutes</ToggleButton>
-        <ToggleButton value="FIXE">Fixe</ToggleButton>
+        <ToggleButton value="ALL">All</ToggleButton>
+        <ToggleButton value="FIXE">Fixed</ToggleButton>
         <ToggleButton value="VARIABLE">Variable</ToggleButton>
-        <ToggleButton value="EXCEPTIONNEL">Exceptionnel</ToggleButton>
+        <ToggleButton value="EXCEPTIONNEL">One-time</ToggleButton>
       </ToggleButtonGroup>
 
       <Paper>
@@ -101,9 +103,9 @@ export default function ChargesPage() {
           <TableHead>
             <TableRow>
               <TableCell>Date</TableCell>
-              <TableCell>Catégorie</TableCell>
+              <TableCell>Category</TableCell>
               <TableCell>Description</TableCell>
-              <TableCell align="right">Montant</TableCell>
+              <TableCell align="right">Amount</TableCell>
               <TableCell>Type</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
@@ -111,7 +113,7 @@ export default function ChargesPage() {
           <TableBody>
             {expenses.map((e) => (
               <TableRow key={e.id} hover>
-                <TableCell>{new Date(e.date).toLocaleDateString('fr-FR')}</TableCell>
+                <TableCell>{new Date(e.date).toLocaleDateString('en-US')}</TableCell>
                 <TableCell>{e.category.name}</TableCell>
                 <TableCell>{e.description ?? '—'}</TableCell>
                 <TableCell align="right">{formatFcfa(e.amount)}</TableCell>
@@ -140,7 +142,7 @@ export default function ChargesPage() {
             {expenses.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  Aucune charge enregistrée.
+                  No expenses recorded.
                 </TableCell>
               </TableRow>
             )}
@@ -150,7 +152,7 @@ export default function ChargesPage() {
       </Paper>
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Nouvelle charge</DialogTitle>
+        <DialogTitle>New Expense</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <ToggleButtonGroup
@@ -169,7 +171,7 @@ export default function ChargesPage() {
             </Typography>
             <TextField
               select
-              label="Catégorie"
+              label="Category"
               value={form.categoryId}
               onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
               fullWidth
@@ -177,11 +179,11 @@ export default function ChargesPage() {
               {categories.map((c) => (
                 <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
               ))}
-              <MenuItem value={NEW_CATEGORY}>+ Créer une nouvelle catégorie…</MenuItem>
+              <MenuItem value={NEW_CATEGORY}>+ Create a new category…</MenuItem>
             </TextField>
             {form.categoryId === NEW_CATEGORY && (
               <TextField
-                label="Nom de la nouvelle catégorie"
+                label="New Category Name"
                 value={form.newCategoryName}
                 onChange={(e) => setForm({ ...form, newCategoryName: e.target.value })}
                 fullWidth
@@ -189,7 +191,7 @@ export default function ChargesPage() {
               />
             )}
             <TextField
-              label="Montant (FCFA)"
+              label="Amount (USD)"
               type="number"
               value={form.amount}
               onChange={(e) => setForm({ ...form, amount: e.target.value })}
@@ -204,7 +206,7 @@ export default function ChargesPage() {
               InputLabelProps={{ shrink: true }}
             />
             <TextField
-              label="Description (optionnel)"
+              label="Description (optional)"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               fullWidth
@@ -214,8 +216,8 @@ export default function ChargesPage() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Annuler</Button>
-          <Button variant="contained" onClick={handleCreate}>Enregistrer</Button>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreate}>Save</Button>
         </DialogActions>
       </Dialog>
     </Box>

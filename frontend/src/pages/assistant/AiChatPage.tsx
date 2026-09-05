@@ -8,10 +8,10 @@ import { getCurrentUser } from '../../services/auth';
 import { diane } from '../../theme';
 
 const SUGGESTIONS = [
-  'Quels produits devrais-je réapprovisionner en priorité ?',
-  'Comment se comparent mes ventes à la semaine dernière ?',
-  'Quels clients devrais-je relancer ?',
-  'Ma situation financière est-elle saine ce mois-ci ?',
+  'Which products should I restock first?',
+  'How do my sales compare to last week?',
+  'Which customers should I follow up with?',
+  'Is my financial situation healthy this month?',
 ];
 
 export default function AiChatPage() {
@@ -37,7 +37,7 @@ export default function AiChatPage() {
     } catch (err: any) {
       setMessages([...newMessages, {
         role: 'assistant',
-        content: err?.response?.data?.message ?? "Erreur : l'assistant IA n'est pas configuré (clé API manquante).",
+        content: err?.response?.data?.message ?? "Error: the AI assistant is not configured (missing API key).",
       }]);
     } finally {
       setLoading(false);
@@ -46,14 +46,14 @@ export default function AiChatPage() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 140px)' }}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>Assistant IA</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>AI Assistant</Typography>
 
       <Paper sx={{ flexGrow: 1, p: 3, mb: 2, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
         {messages.length === 0 && (
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
             <AutoAwesomeIcon sx={{ fontSize: 40, color: diane.blue, mb: 1 }} />
             <Typography color="text.secondary" sx={{ mb: 3 }}>
-              Pose une question sur ton activité — l'assistant a accès à tes vraies données (stock, ventes, finances, clients).
+              Ask a question about your business — the assistant has access to your real data (stock, sales, finances, customers).
             </Typography>
             <Stack spacing={1} sx={{ width: '100%', maxWidth: 420 }}>
               {SUGGESTIONS.map((s) => (
@@ -111,7 +111,7 @@ export default function AiChatPage() {
       <Stack direction="row" spacing={1}>
         <TextField
           fullWidth
-          placeholder="Écris ta question…"
+          placeholder="Type your question…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') send(input); }}

@@ -11,8 +11,10 @@ import { getStockOverview } from '../../services/stock';
 import type { StockOverview, StockStatus } from '../../types';
 import StatusBadge from '../../components/StatusBadge';
 
+import { usd } from '../../utils/currency';
+
 function formatFcfa(value: number) {
-  return `${value.toLocaleString('fr-FR')} FCFA`;
+  return usd(value);
 }
 
 export default function StockListPage() {
@@ -40,17 +42,17 @@ export default function StockListPage() {
         <Box>
           <Typography variant="h5" fontWeight={700}>Stock</Typography>
           <Typography variant="body2" color="text.secondary">
-            {data ? `${data.totals.totalStock.toLocaleString('fr-FR')} cartons · ${formatFcfa(data.totals.totalValue)}` : '…'}
+            {data ? `${data.totals.totalStock.toLocaleString('en-US')} boxes · ${formatFcfa(data.totals.totalValue)}` : '…'}
           </Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/stock/entree')}>
-          Entrée stock
+          Add Stock
         </Button>
       </Stack>
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2 }}>
         <TextField
-          placeholder="Rechercher un produit…"
+          placeholder="Search a product…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           size="small"
@@ -58,10 +60,10 @@ export default function StockListPage() {
           InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> }}
         />
         <ToggleButtonGroup size="small" value={statusFilter} exclusive onChange={(_, v) => v && setStatusFilter(v)}>
-          <ToggleButton value="ALL">Tous</ToggleButton>
-          <ToggleButton value="OK">En stock</ToggleButton>
-          <ToggleButton value="ALERTE">Stock faible</ToggleButton>
-          <ToggleButton value="RUPTURE">Rupture</ToggleButton>
+          <ToggleButton value="ALL">All</ToggleButton>
+          <ToggleButton value="OK">In Stock</ToggleButton>
+          <ToggleButton value="ALERTE">Low Stock</ToggleButton>
+          <ToggleButton value="RUPTURE">Out of Stock</ToggleButton>
         </ToggleButtonGroup>
       </Stack>
 
@@ -71,12 +73,12 @@ export default function StockListPage() {
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
-              <TableCell>Produit</TableCell>
-              <TableCell>Catégorie</TableCell>
-              <TableCell align="right">Stock restant</TableCell>
-              <TableCell align="right">Valeur</TableCell>
-              <TableCell align="right">Prix vente réf.</TableCell>
-              <TableCell>Statut</TableCell>
+              <TableCell>Product</TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell align="right">Stock Left</TableCell>
+              <TableCell align="right">Value</TableCell>
+              <TableCell align="right">Ref. Sale Price</TableCell>
+              <TableCell>Status</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -95,7 +97,7 @@ export default function StockListPage() {
                 <TableCell sx={{ fontWeight: 600 }}>{item.name}</TableCell>
                 <TableCell>{item.category ?? '—'}</TableCell>
                 <TableCell align="right">
-                  {item.currentStock.toLocaleString('fr-FR')} {item.unit}
+                  {item.currentStock.toLocaleString('en-US')} {item.unit}
                   {item.currentStock !== 1 ? 's' : ''}
                 </TableCell>
                 <TableCell align="right">{formatFcfa(item.value)}</TableCell>
@@ -106,7 +108,7 @@ export default function StockListPage() {
             {data && filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  Aucun produit ne correspond à la recherche.
+                  No products match your search.
                 </TableCell>
               </TableRow>
             )}

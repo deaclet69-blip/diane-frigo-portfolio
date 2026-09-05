@@ -10,11 +10,11 @@ import { diane } from '../theme';
 // Le module "Nouvelle vente" doit être particulièrement optimisé pour
 // smartphone (§17) : accès direct en 1 tap depuis la nav basse.
 const items = [
-  { label: 'Accueil', icon: <DashboardIcon />, to: '/' },
-  { label: 'Ventes', icon: <ShoppingCartIcon />, to: '/ventes' },
-  { label: 'Vendre', icon: <AddCircleIcon sx={{ fontSize: 32 }} />, to: '/ventes/nouvelle' },
+  { label: 'Home', icon: <DashboardIcon />, to: '/' },
+  { label: 'Sales', icon: <ShoppingCartIcon />, to: '/ventes' },
+  { label: 'Sell', icon: <AddCircleIcon sx={{ fontSize: 32 }} />, to: '/ventes/nouvelle' },
   { label: 'Stock', icon: <InventoryIcon />, to: '/stock' },
-  { label: 'Clients', icon: <PeopleIcon />, to: '/clients' },
+  { label: 'Customers', icon: <PeopleIcon />, to: '/clients' },
 ];
 
 export default function MobileBottomNav() {

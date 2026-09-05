@@ -157,12 +157,12 @@ export class PricingService {
     const marginPercent = proposedPrice > 0 ? marginFcfa / proposedPrice : 0;
 
     let verdict: string;
-    if (proposedPrice < row.costOfGoods) verdict = '🔴 PERTE — vous perdez de l\'argent';
-    else if (proposedPrice < row.suggestedPrices.floor) verdict = '🟠 SOUS LE PRIX PLANCHER';
-    else if (proposedPrice < row.suggestedPrices.wholesaleBulk) verdict = '🟡 Zone plancher / gros volume';
-    else if (proposedPrice < row.suggestedPrices.wholesale) verdict = '🟡 Zone gros volume / gros';
-    else if (proposedPrice < row.suggestedPrices.retail) verdict = '🟢 Zone gros / détail';
-    else verdict = '🟢 Prix détail ou plus';
+    if (proposedPrice < row.costOfGoods) verdict = '🔴 LOSS — you are losing money';
+    else if (proposedPrice < row.suggestedPrices.floor) verdict = '🟠 BELOW FLOOR PRICE';
+    else if (proposedPrice < row.suggestedPrices.wholesaleBulk) verdict = '🟡 Floor / bulk wholesale zone';
+    else if (proposedPrice < row.suggestedPrices.wholesale) verdict = '🟡 Bulk wholesale / wholesale zone';
+    else if (proposedPrice < row.suggestedPrices.retail) verdict = '🟢 Wholesale / retail zone';
+    else verdict = '🟢 Retail price or higher';
 
     return { ...row, proposedPrice, marginFcfa, marginPercent, verdict };
   }

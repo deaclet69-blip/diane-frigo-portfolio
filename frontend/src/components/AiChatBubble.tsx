@@ -36,7 +36,7 @@ export default function AiChatBubble() {
     } catch (err: any) {
       setMessages([...newMessages, {
         role: 'assistant',
-        content: err?.response?.data?.message ?? "Assistant IA non configuré (clé API manquante).",
+        content: err?.response?.data?.message ?? "AI assistant not configured (missing API key).",
       }]);
     } finally {
       setLoading(false);
@@ -77,7 +77,7 @@ export default function AiChatBubble() {
             direction="row" alignItems="center" spacing={1} sx={{ p: 1.5, bgcolor: diane.indigo, color: '#fff' }}
           >
             <AutoAwesomeIcon fontSize="small" />
-            <Typography variant="subtitle2" fontWeight={700} sx={{ flexGrow: 1 }}>Assistant IA</Typography>
+            <Typography variant="subtitle2" fontWeight={700} sx={{ flexGrow: 1 }}>AI Assistant</Typography>
             <IconButton size="small" sx={{ color: '#fff' }} onClick={() => navigate('/assistant')}>
               <OpenInFullIcon sx={{ fontSize: 16 }} />
             </IconButton>
@@ -89,7 +89,7 @@ export default function AiChatBubble() {
           <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 1.5, bgcolor: 'background.default' }}>
             {messages.length === 0 && (
               <Typography variant="caption" color="text.secondary">
-                Pose une question sur ton activité — stock, ventes, finances, clients.
+                Ask a question about your business — stock, sales, finances, customers.
               </Typography>
             )}
             <Stack spacing={1.25}>
@@ -119,7 +119,7 @@ export default function AiChatBubble() {
 
           <Stack direction="row" spacing={1} sx={{ p: 1.25, borderTop: '1px solid rgba(128,128,128,0.15)' }}>
             <TextField
-              size="small" fullWidth placeholder="Écris ta question…" value={input}
+              size="small" fullWidth placeholder="Type your question…" value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
               disabled={loading}
