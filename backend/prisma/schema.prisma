@@ -6,8 +6,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Adresse "directe" (sans -pooler) — utilisée uniquement par Prisma CLI
+  // pour les migrations. La connexion groupée de Neon échoue de façon
+  // intermittente sur le verrou technique que les migrations doivent
+  // acquérir (erreur P1002), ce qui bloquait les déploiements.
+  directUrl = env("DIRECT_URL")
 }
 
 enum RoleName {
