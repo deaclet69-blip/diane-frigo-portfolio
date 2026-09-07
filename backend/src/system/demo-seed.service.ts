@@ -81,7 +81,7 @@ export class DemoSeedService {
         const product = await this.prisma.product.create({
           data: {
             name: pname, referencePurchasePrice: purchasePrice, referenceSalePrice: salePrice,
-            alertThreshold: 300, categoryId: category.id,
+            alertThreshold: 300, categoryId: category.id, unit: 'box',
           },
         });
         products.push({ id: product.id, name: pname, purchasePrice, salePrice });
