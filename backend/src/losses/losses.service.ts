@@ -43,7 +43,7 @@ export class LossesService {
       const currentStock = get('ENTRY') + get('INVENTORY_ADJUSTMENT') - get('EXIT');
       if (dto.quantity > currentStock) {
         throw new BadRequestException(
-          `Stock insuffisant : ${currentStock} carton(s) disponible(s), ${dto.quantity} déclaré(s) en perte.`,
+          `Insufficient stock: ${currentStock} box(es) available, ${dto.quantity} reported as loss.`,
         );
       }
 

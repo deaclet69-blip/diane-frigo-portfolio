@@ -55,7 +55,7 @@ export class AiAdvisorService {
 
     if (!response.ok) {
       const text = await response.text();
-      throw new InternalServerErrorException(`Erreur API Gemini (${response.status}) : ${text}`);
+      throw new InternalServerErrorException(`Gemini API error (${response.status}): ${text}`);
     }
 
     const data = await response.json();

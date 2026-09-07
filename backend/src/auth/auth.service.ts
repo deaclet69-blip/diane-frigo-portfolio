@@ -17,12 +17,12 @@ export class AuthService {
     });
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Identifiants invalides');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const passwordOk = await bcrypt.compare(password, user.passwordHash);
     if (!passwordOk) {
-      throw new UnauthorizedException('Identifiants invalides');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     return user;
@@ -39,7 +39,7 @@ export class AuthService {
     // si l'admin les a changés pendant que l'utilisateur était connecté.
     const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { role: true } });
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Compte introuvable ou désactivé');
+      throw new UnauthorizedException('Account not found or disabled');
     }
     return this.issueTokens(user.id, user.email, user.role.name, user.permissions);
   }

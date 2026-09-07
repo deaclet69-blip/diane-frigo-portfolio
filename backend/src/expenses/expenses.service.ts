@@ -45,7 +45,7 @@ export class ExpensesService {
    */
   async reclassify(id: string, chargeType: ChargeType, userId: string) {
     const before = await this.prisma.expense.findUnique({ where: { id } });
-    if (!before) throw new NotFoundException('Charge introuvable');
+    if (!before) throw new NotFoundException('Expense not found');
     const expense = await this.prisma.expense.update({ where: { id }, data: { chargeType } });
     await this.audit.log({
       userId, action: 'update', entityType: 'expense', entityId: id,

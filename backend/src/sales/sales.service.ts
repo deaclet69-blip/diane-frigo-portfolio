@@ -33,7 +33,7 @@ export class SalesService {
    */
   async createSale(dto: CreateSaleDto, userId: string, userRole: string) {
     if (dto.allowOverstock && userRole !== 'ADMIN') {
-      throw new ForbiddenException("Seul l'administrateur peut valider une vente au-delà du stock disponible.");
+      throw new ForbiddenException("Only an administrator can confirm a sale beyond available stock.");
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -49,7 +49,7 @@ export class SalesService {
           if (item.quantity > currentStock) {
             const product = productMap.get(item.productId);
             throw new BadRequestException(
-              `Stock insuffisant pour "${product?.name ?? item.productId}" : ${currentStock} disponible(s), ${item.quantity} demandé(s).`,
+              `Insufficient stock for "${product?.name ?? item.productId}": ${currentStock} available, ${item.quantity} requested.`,
             );
           }
         }
@@ -58,7 +58,7 @@ export class SalesService {
       // 2. Calcul des montants (marge = prix vente saisi − prix d'achat de référence)
       const lineData = dto.items.map((item) => {
         const product = productMap.get(item.productId);
-        if (!product) throw new BadRequestException(`Produit ${item.productId} introuvable`);
+        if (!product) throw new BadRequestException(`Product ${item.productId} not found`);
         const unitPurchasePrice = Number(product.referencePurchasePrice);
         const lineTotal = item.quantity * item.unitSalePrice;
         const unitMargin = item.unitSalePrice - unitPurchasePrice;
@@ -78,7 +78,7 @@ export class SalesService {
       if (invoiceNumber) {
         const existing = await tx.invoice.findUnique({ where: { invoiceNumber } });
         if (existing) {
-          throw new BadRequestException(`Le numéro de facture "${invoiceNumber}" est déjà utilisé.`);
+          throw new BadRequestException(`Invoice number "${invoiceNumber}" is already in use.`);
         }
       } else {
         invoiceNumber = await this.generateInvoiceNumber(tx);

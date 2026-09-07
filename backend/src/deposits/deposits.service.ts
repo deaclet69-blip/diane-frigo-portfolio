@@ -64,7 +64,7 @@ export class DepositsService {
 
     if (!deposit || dto.quantity > balance) {
       throw new BadRequestException(
-        `Solde insuffisant : ${balance} carton(s) disponible(s) en dépôt, ${dto.quantity} demandé(s).`,
+        `Insufficient balance: ${balance} box(es) available on deposit, ${dto.quantity} requested.`,
       );
     }
 

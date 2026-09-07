@@ -24,7 +24,7 @@ export class ProductsService {
       where: { id },
       include: { category: true },
     });
-    if (!product) throw new NotFoundException('Produit introuvable');
+    if (!product) throw new NotFoundException('Product not found');
     return product;
   }
 

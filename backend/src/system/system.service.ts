@@ -13,11 +13,11 @@ export class SystemService {
   async resetAllData(actorId: string, password: string) {
     const actor = await this.prisma.user.findUnique({ where: { id: actorId } });
     if (!actor) {
-      throw new UnauthorizedException('Utilisateur introuvable');
+      throw new UnauthorizedException('User not found');
     }
     const passwordOk = await bcrypt.compare(password, actor.passwordHash);
     if (!passwordOk) {
-      throw new UnauthorizedException('Mot de passe incorrect');
+      throw new UnauthorizedException('Incorrect password');
     }
 
     // Ordre pensé pour respecter les contraintes de clé étrangère.

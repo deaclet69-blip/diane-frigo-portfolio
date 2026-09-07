@@ -301,7 +301,7 @@ export default function DashboardPage() {
               <Box key={c.category}>
                 <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
                   <Typography variant="body2" fontWeight={600}>{c.category}</Typography>
-                  <Typography variant="caption" color="text.secondary">{c.cartons} cartons</Typography>
+                  <Typography variant="caption" color="text.secondary">{c.cartons} boxes</Typography>
                 </Stack>
                 <LinearProgress
                   variant="determinate" value={c.percent}

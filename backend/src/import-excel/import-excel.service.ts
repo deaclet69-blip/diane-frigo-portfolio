@@ -60,7 +60,7 @@ export class ImportExcelService {
     const workbook = XLSX.read(buffer, { type: 'buffer', cellDates: true });
     const sheetName = workbook.SheetNames.find((n) => normalizeHeader(n) === 'stock') ?? workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
-    if (!sheet) throw new BadRequestException('Aucune feuille "Stock" trouvée dans le fichier.');
+    if (!sheet) throw new BadRequestException('No "Stock" sheet found in the file.');
 
     const rows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: null });
     if (rows.length < 2) return [];
@@ -70,7 +70,7 @@ export class ImportExcelService {
       r.some((cell) => typeof cell === 'string' && normalizeHeader(cell) === 'produit'),
     );
     if (headerRowIndex === -1) {
-      throw new BadRequestException('Impossible de trouver la ligne d\'en-tête (colonne "Produit" introuvable).');
+      throw new BadRequestException('Could not find the header row (column "Product" not found).');
     }
 
     const headerRow = rows[headerRowIndex].map((h) => (typeof h === 'string' ? normalizeHeader(h) : ''));
@@ -80,7 +80,7 @@ export class ImportExcelService {
       if (idx !== -1) colIndex[field] = idx;
     }
     if (colIndex.productName === undefined) {
-      throw new BadRequestException('Colonne "Produit" introuvable dans l\'en-tête.');
+      throw new BadRequestException('Column "Product" not found in the header.');
     }
 
     const parsed: ParsedRow[] = [];

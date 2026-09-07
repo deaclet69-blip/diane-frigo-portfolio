@@ -35,7 +35,7 @@ export class CustomersService {
         deposits: { include: { movements: true, product: true } },
       },
     });
-    if (!customer) throw new NotFoundException('Client introuvable');
+    if (!customer) throw new NotFoundException('Customer not found');
 
     const orderCount = customer.invoices.length;
     const totalRevenue = customer.invoices.reduce((acc, inv) => acc + Number(inv.total), 0);
@@ -116,7 +116,7 @@ export class CustomersService {
       where: { id },
       include: { invoices: true, deposits: true },
     });
-    if (!customer) throw new NotFoundException('Client introuvable');
+    if (!customer) throw new NotFoundException('Customer not found');
     if (customer.invoices.length > 0 || customer.deposits.length > 0) {
       throw new BadRequestException(
         "Ce client a un historique (ventes ou dépôts) — impossible de le supprimer. Tu peux le fusionner avec un autre client si c'est un doublon.",
@@ -142,13 +142,13 @@ export class CustomersService {
    */
   async merge(sourceId: string, targetId: string, userId: string) {
     if (sourceId === targetId) {
-      throw new BadRequestException('Impossible de fusionner un client avec lui-même.');
+      throw new BadRequestException('Cannot merge a customer with itself.');
     }
     const [source, target] = await Promise.all([
       this.prisma.customer.findUnique({ where: { id: sourceId } }),
       this.prisma.customer.findUnique({ where: { id: targetId } }),
     ]);
-    if (!source || !target) throw new NotFoundException('Client introuvable');
+    if (!source || !target) throw new NotFoundException('Customer not found');
 
     await this.prisma.$transaction([
       this.prisma.invoice.updateMany({ where: { customerId: sourceId }, data: { customerId: targetId } }),

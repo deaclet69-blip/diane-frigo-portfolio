@@ -17,7 +17,7 @@ export class ImportExcelController {
   @Post('preview')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 20 * 1024 * 1024 } }))
   async preview(@UploadedFile() file: Express.Multer.File, @CurrentUser() user: { id: string }) {
-    if (!file) throw new BadRequestException('Aucun fichier reçu.');
+    if (!file) throw new BadRequestException('No file received.');
     try {
       return await this.importExcelService.preview(file.buffer, user.id);
     } catch (err: any) {
@@ -31,7 +31,7 @@ export class ImportExcelController {
   @Post('confirm')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 20 * 1024 * 1024 } }))
   async confirm(@UploadedFile() file: Express.Multer.File, @CurrentUser() user: { id: string }) {
-    if (!file) throw new BadRequestException('Aucun fichier reçu.');
+    if (!file) throw new BadRequestException('No file received.');
     try {
       return await this.importExcelService.confirm(file.buffer, user.id);
     } catch (err: any) {

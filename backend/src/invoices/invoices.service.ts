@@ -43,18 +43,18 @@ export class InvoicesService {
         depositMovements: { include: { deposit: { include: { product: true } } } },
       },
     });
-    if (!invoice) throw new NotFoundException('Facture introuvable');
+    if (!invoice) throw new NotFoundException('Invoice not found');
     return invoice;
   }
 
   async addPayment(invoiceId: string, dto: AddPaymentDto, userId: string) {
     const invoice = await this.prisma.invoice.findUnique({ where: { id: invoiceId } });
-    if (!invoice) throw new NotFoundException('Facture introuvable');
-    if (invoice.voidedAt) throw new BadRequestException('Cette facture est annulée.');
+    if (!invoice) throw new NotFoundException('Invoice not found');
+    if (invoice.voidedAt) throw new BadRequestException('This invoice has been voided.');
 
     const newAmountPaid = Number(invoice.amountPaid) + dto.amount;
     if (newAmountPaid > Number(invoice.total)) {
-      throw new BadRequestException('Le montant payé dépasserait le total de la facture.');
+      throw new BadRequestException('The payment amount would exceed the invoice total.');
     }
     const newBalance = Number(invoice.total) - newAmountPaid;
     const newStatus = newBalance <= 0 ? 'PAID' : 'PARTIAL';
@@ -87,8 +87,8 @@ export class InvoicesService {
       where: { id },
       include: { items: true, depositMovements: true },
     });
-    if (!invoice) throw new NotFoundException('Facture introuvable');
-    if (invoice.voidedAt) throw new BadRequestException('Cette facture est déjà annulée.');
+    if (!invoice) throw new NotFoundException('Invoice not found');
+    if (invoice.voidedAt) throw new BadRequestException('This invoice has already been voided.');
 
     await this.prisma.$transaction([
       this.prisma.invoice.update({

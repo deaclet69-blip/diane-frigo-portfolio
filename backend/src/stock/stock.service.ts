@@ -85,7 +85,7 @@ export class StockService {
       where: { id: productId },
       include: { category: true },
     });
-    if (!product) throw new NotFoundException('Produit introuvable');
+    if (!product) throw new NotFoundException('Product not found');
 
     const currentStock = await this.computeCurrentStock(productId);
     const movements = await this.prisma.stockMovement.findMany({
@@ -135,7 +135,7 @@ export class StockService {
       const currentStock = await this.computeCurrentStock(dto.productId);
       if (dto.quantity > currentStock) {
         throw new BadRequestException(
-          `Stock insuffisant : ${currentStock} carton(s) disponible(s), ${dto.quantity} demandé(s).`,
+          `Insufficient stock: ${currentStock} box(es) available, ${dto.quantity} requested.`,
         );
       }
     }
@@ -172,7 +172,7 @@ export class StockService {
    */
   async updateMovement(id: string, dto: UpdateStockMovementDto, userId: string) {
     const before = await this.prisma.stockMovement.findUnique({ where: { id } });
-    if (!before) throw new NotFoundException('Mouvement introuvable');
+    if (!before) throw new NotFoundException('Movement not found');
     if (before.referenceType === 'invoice' || before.referenceType === 'excel_import') {
       throw new ForbiddenException(
         "Ce mouvement est lié à une facture ou à un import — corrige plutôt la facture, ou annule-la pour recréditer le stock.",
@@ -184,7 +184,7 @@ export class StockService {
       const stockWithoutThisMovement = currentStock + before.quantity;
       if (dto.quantity > stockWithoutThisMovement) {
         throw new BadRequestException(
-          `Stock insuffisant pour cette correction : ${stockWithoutThisMovement} carton(s) disponible(s) au maximum.`,
+          `Insufficient stock for this correction: ${stockWithoutThisMovement} box(es) available at most.`,
         );
       }
     }

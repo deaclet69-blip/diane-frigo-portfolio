@@ -151,7 +151,7 @@ export class PricingService {
   async checkPrice(productId: string, proposedPrice: number) {
     const analysis = await this.getProfitabilityAnalysis();
     const row = analysis.rows.find((r) => r.productId === productId);
-    if (!row) throw new NotFoundException('Produit introuvable');
+    if (!row) throw new NotFoundException('Product not found');
 
     const marginFcfa = proposedPrice - row.costOfGoods;
     const marginPercent = proposedPrice > 0 ? marginFcfa / proposedPrice : 0;
