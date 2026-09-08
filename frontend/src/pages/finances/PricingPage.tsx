@@ -98,47 +98,19 @@ export default function PricingPage() {
                 : "Method: your starting estimate (below) — not enough real history yet (2 months of recorded fixed expenses needed)"}
             </Alert>
           </Box>
-          {isMobile ? (
-            <Stack spacing={1.5} sx={{ p: 2, pt: 1 }}>
-              {analysis.rows.map((r) => (
-                <Paper key={r.productId} variant="outlined" sx={{ p: 2 }}>
-                  <Typography fontWeight={700} sx={{ mb: 1 }}>{r.productName}</Typography>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary" display="block">Avg Purchase</Typography>
-                      <Typography fontWeight={600}>{formatFcfa(r.avgPurchasePrice)}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary" display="block">Cost Basis</Typography>
-                      <Typography fontWeight={700}>{formatFcfa(r.costOfGoods)}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary" display="block">Floor</Typography>
-                      <Typography fontWeight={600}>{formatFcfa(r.suggestedPrices.floor)}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary" display="block">Bulk Wholesale</Typography>
-                      <Typography fontWeight={600}>{formatFcfa(r.suggestedPrices.wholesaleBulk)}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary" display="block">Wholesale</Typography>
-                      <Typography fontWeight={600}>{formatFcfa(r.suggestedPrices.wholesale)}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="caption" color="text.secondary" display="block">Retail</Typography>
-                      <Typography fontWeight={700} sx={{ color: diane.green }}>{formatFcfa(r.suggestedPrices.retail)}</Typography>
-                    </Box>
-                  </Box>
-                </Paper>
-              ))}
-            </Stack>
-          ) : (
+          {isMobile && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 2, pt: 1 }}>
+              Swipe to compare prices →
+            </Typography>
+          )}
           <TableContainer>
 <Table sx={{ mt: 1 }}>
             <TableHead>
               <TableRow>
-                <TableCell>Product</TableCell>
-                <TableCell align="right">Avg. Purchase Price</TableCell>
+                <TableCell sx={isMobile ? { position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1 } : undefined}>
+                  Product
+                </TableCell>
+                {!isMobile && <TableCell align="right">Avg. Purchase Price</TableCell>}
                 <TableCell align="right">Cost Basis</TableCell>
                 <TableCell align="right">Floor Price</TableCell>
                 <TableCell align="right">Bulk Wholesale</TableCell>
@@ -149,8 +121,15 @@ export default function PricingPage() {
             <TableBody>
               {analysis.rows.map((r) => (
                 <TableRow key={r.productId}>
-                  <TableCell sx={{ fontWeight: 600 }}>{r.productName}</TableCell>
-                  <TableCell align="right">{formatFcfa(r.avgPurchasePrice)}</TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 600,
+                      ...(isMobile ? { position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1 } : {}),
+                    }}
+                  >
+                    {r.productName}
+                  </TableCell>
+                  {!isMobile && <TableCell align="right">{formatFcfa(r.avgPurchasePrice)}</TableCell>}
                   <TableCell align="right" sx={{ fontWeight: 700 }}>{formatFcfa(r.costOfGoods)}</TableCell>
                   <TableCell align="right">{formatFcfa(r.suggestedPrices.floor)}</TableCell>
                   <TableCell align="right">{formatFcfa(r.suggestedPrices.wholesaleBulk)}</TableCell>
@@ -163,7 +142,6 @@ export default function PricingPage() {
             </TableBody>
           </Table>
 </TableContainer>
-          )}
         </Paper>
       )}
 

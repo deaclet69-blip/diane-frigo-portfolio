@@ -77,7 +77,7 @@ export default function StockListPage() {
       {isMobile ? (
         // Vue "cartes" mobile — le tableau à 7 colonnes n'est pas lisible
         // en dessous de 600px. Une carte par produit, photo + essentiel.
-        <Stack spacing={1.5} sx={{ pb: 15 }}>
+        <Stack spacing={1.5}>
           {filtered.map((item) => (
             <Paper
               key={item.id}

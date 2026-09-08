@@ -61,7 +61,7 @@ export default function SalesListPage() {
         // Vue "cartes" mobile — priorité demandée par l'utilisateur : le
         // tableau desktop (8 colonnes) est illisible en dessous de 600px.
         // Une carte par vente, avec l'essentiel visible d'un coup d'œil.
-        <Stack spacing={1.5} sx={{ pb: 15 }}>
+        <Stack spacing={1.5}>
           {displayedInvoices.map((inv) => {
             const s = statusConfig[inv.status];
             return (

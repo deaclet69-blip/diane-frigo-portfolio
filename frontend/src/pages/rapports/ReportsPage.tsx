@@ -177,11 +177,13 @@ function TraceabilitySection() {
               Swipe to view more →
             </Typography>
           )}
-          <TableContainer>
+          <TableContainer sx={isMobile ? { boxShadow: 'inset -8px 0 6px -6px rgba(0,0,0,0.15)' } : undefined}>
 <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Period</TableCell>
+                <TableCell sx={isMobile ? { position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 3 } : undefined}>
+                  Period
+                </TableCell>
                 <TableCell align="right">Revenue</TableCell>
                 <TableCell align="right">Sales</TableCell>
                 <TableCell align="right">Cost of Goods</TableCell>
@@ -193,7 +195,14 @@ function TraceabilitySection() {
             <TableBody>
               {displayRows.map((r) => (
                 <TableRow key={r.period} hover>
-                  <TableCell sx={{ fontWeight: 600, textTransform: 'capitalize' }}>{r.label}</TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: 600, textTransform: 'capitalize',
+                      ...(isMobile ? { position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1 } : {}),
+                    }}
+                  >
+                    {r.label}
+                  </TableCell>
                   <TableCell align="right">{formatFcfa(r.recettes)}</TableCell>
                   <TableCell align="right">{formatFcfa(r.chiffreAffaires)}</TableCell>
                   <TableCell align="right">{formatFcfa(r.coutMarchandises)}</TableCell>
@@ -211,7 +220,9 @@ function TraceabilitySection() {
             {data && data.rows.length > 0 && (
               <TableBody>
                 <TableRow sx={{ bgcolor: diane.bg, '& td': { fontWeight: 800, borderTop: `2px solid ${diane.navy}` } }}>
-                  <TableCell>TOTAL</TableCell>
+                  <TableCell sx={isMobile ? { position: 'sticky', left: 0, bgcolor: diane.bg, zIndex: 1 } : undefined}>
+                    TOTAL
+                  </TableCell>
                   <TableCell align="right">{formatFcfa(data.totals.recettes)}</TableCell>
                   <TableCell align="right">{formatFcfa(data.totals.chiffreAffaires)}</TableCell>
                   <TableCell align="right">{formatFcfa(data.totals.coutMarchandises)}</TableCell>

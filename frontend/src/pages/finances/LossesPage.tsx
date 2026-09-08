@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button, Stack,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Alert, LinearProgress,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Alert, LinearProgress, useMediaQuery,
 } from '@mui/material';
 import { getLosses, getMonthlyLossRate, createLoss } from '../../services/losses';
 import { getProducts } from '../../services/products';
@@ -24,6 +24,7 @@ const reasonLabels: Record<LossReason, string> = {
 };
 
 export default function LossesPage() {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const [losses, setLosses] = useState<Loss[]>([]);
   const [rate, setRate] = useState<MonthlyLossRate | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -96,6 +97,31 @@ export default function LossesPage() {
         </Paper>
       )}
 
+      {isMobile ? (
+        <Stack spacing={1.5}>
+          {losses.map((l) => (
+            <Paper key={l.id} variant="outlined" sx={{ p: 2 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                <Typography fontWeight={700}>{l.product.name}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {new Date(l.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </Typography>
+              </Stack>
+              <Typography variant="body2" sx={{ mt: 0.5 }}>Quantity: {l.quantity} boxes</Typography>
+              <Typography variant="body2">Reason: {reasonLabels[l.reason]}</Typography>
+              <Typography variant="body2" sx={{ color: diane.red, fontWeight: 700 }}>
+                Value: {formatFcfa(l.totalValue)}
+              </Typography>
+              {l.note && <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{l.note}</Typography>}
+            </Paper>
+          ))}
+          {losses.length === 0 && (
+            <Paper variant="outlined" sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+              No losses recorded.
+            </Paper>
+          )}
+        </Stack>
+      ) : (
       <Paper>
         <TableContainer>
 <Table>
@@ -131,6 +157,7 @@ export default function LossesPage() {
         </Table>
 </TableContainer>
       </Paper>
+      )}
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
         <DialogTitle>Report a Loss</DialogTitle>

@@ -53,7 +53,7 @@ export default function DepositsPage() {
           <Typography color="text.secondary">No active deposits.</Typography>
         </Paper>
       ) : isMobile ? (
-        <Stack spacing={1.5} sx={{ pb: 15 }}>
+        <Stack spacing={1.5}>
           {balances.map((b) => (
             <Paper key={b.id} variant="outlined" sx={{ p: 2 }}>
               <Typography fontWeight={700}>{b.customer.name}</Typography>

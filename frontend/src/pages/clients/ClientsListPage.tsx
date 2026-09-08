@@ -90,7 +90,7 @@ export default function ClientsListPage() {
       />
 
       {isMobile ? (
-        <Stack spacing={1.5} sx={{ pb: 15 }}>
+        <Stack spacing={1.5}>
           {customers.map((c) => (
             <Paper
               key={c.id} variant="outlined" sx={{ p: 2, cursor: 'pointer' }}

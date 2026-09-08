@@ -99,7 +99,7 @@ export default function ChargesPage() {
       </ToggleButtonGroup>
 
       {isMobile ? (
-        <Stack spacing={1.5} sx={{ pb: 15 }}>
+        <Stack spacing={1.5}>
           {expenses.map((e) => (
             <Paper key={e.id} variant="outlined" sx={{ p: 2 }}>
               <Stack direction="row" justifyContent="space-between" alignItems="flex-start">

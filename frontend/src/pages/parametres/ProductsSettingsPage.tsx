@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Stack, IconButton, MenuItem,
-  Avatar, Alert,
+  Avatar, Alert, useMediaQuery,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -27,6 +27,7 @@ const emptyForm = {
 };
 
 export default function ProductsSettingsPage() {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [open, setOpen] = useState(false);
@@ -112,6 +113,42 @@ export default function ProductsSettingsPage() {
         </Button>
       </Stack>
 
+      {isMobile ? (
+        <Stack spacing={1.5}>
+          {products.map((p) => (
+            <Paper key={p.id} variant="outlined" sx={{ p: 2 }}>
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                <Avatar variant="rounded" src={p.imageUrl ?? undefined} sx={{ width: 44, height: 44 }}>
+                  <ImageIcon fontSize="small" />
+                </Avatar>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                    <Typography fontWeight={700}>{p.name}</Typography>
+                    <IconButton size="small" onClick={() => openEdit(p)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                  <Typography variant="body2" color="text.secondary">{p.category?.name ?? '—'}</Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5 }}>
+                    Purchase price: {formatFcfa(p.referencePurchasePrice)}
+                  </Typography>
+                  <Typography variant="body2">
+                    Sale price: {formatFcfa(p.referenceSalePrice)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Alert threshold: {p.alertThreshold} boxes
+                  </Typography>
+                </Box>
+              </Stack>
+            </Paper>
+          ))}
+          {products.length === 0 && (
+            <Paper variant="outlined" sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+              No products yet.
+            </Paper>
+          )}
+        </Stack>
+      ) : (
       <Paper>
         <TableContainer>
 <Table>
@@ -150,6 +187,7 @@ export default function ProductsSettingsPage() {
         </Table>
 </TableContainer>
       </Paper>
+      )}
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
         <DialogTitle>{editing ? 'Edit Product' : 'New Product'}</DialogTitle>

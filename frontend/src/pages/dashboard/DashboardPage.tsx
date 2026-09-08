@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Stack, Chip, List, ListItem, ListItemIcon, ListItemText,
-  LinearProgress, CircularProgress, Button, Divider, useTheme,
+  LinearProgress, CircularProgress, Button, Divider, useTheme, useMediaQuery,
 } from '@mui/material';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
@@ -53,6 +53,7 @@ const activityIcon: Record<string, JSX.Element> = {
 const activityColor: Record<string, string> = { sale: diane.blue, stock: diane.green, expense: diane.red };
 
 export default function DashboardPage() {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const [data, setData] = useState<FullDashboard | null>(null);
   const user = getCurrentUser();
   const navigate = useNavigate();
@@ -105,7 +106,7 @@ export default function DashboardPage() {
           footer={data ? fcfa(data.kpis.stockValue) : undefined}
         />
         <KpiCard
-          icon={<PersonOutlineIcon />} iconBg={diane.orange} label="Customer Deposits" sublabel="Stock on Deposit"
+          icon={<PersonOutlineIcon />} iconBg={diane.orange} label="Customer Deposits" sublabel="On deposit"
           value={data ? `${data.kpis.depositsCartons.toLocaleString('en-US')} boxes` : '…'}
           footer={data ? fcfa(data.kpis.depositsValue) : undefined}
         />
@@ -321,17 +322,64 @@ export default function DashboardPage() {
       {/* Bandeau footer — Monthly Financial Summary */}
       <Paper
         sx={{
-          p: 3, borderRadius: 3, color: '#fff',
+          p: { xs: 2.5, sm: 3 }, borderRadius: 3, color: '#fff',
           background: `linear-gradient(120deg, ${diane.navyFooter} 0%, ${diane.indigo} 140%)`,
         }}
       >
+        <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Monthly Financial Summary</Typography>
+
+        {isMobile ? (
+          // Version compacte mobile — l'ancienne empilait tout verticalement
+          // et occupait presque un écran entier pour 5 chiffres (signalé
+          // par l'utilisateur). Grille 2x2 + barre de progression.
+          <>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: 1.5, columnGap: 2, mb: 2 }}>
+              <Stat label="Revenue" value={data ? fcfa(data.monthlySummary.revenue) : '…'} />
+              <Stat label="Expenses" value={data ? fcfa(data.monthlySummary.expenses) : '…'} />
+              <Stat
+                label="Net Profit"
+                value={data ? fcfa(data.monthlySummary.netProfit) : '…'}
+                color={data ? profitColor(data.monthlySummary.netProfit) : undefined}
+              />
+              <Stat label="Margin" value={data ? `${data.monthlySummary.avgMarginPercent.toFixed(0)}%` : '…'} />
+            </Box>
+            <Divider sx={{ borderColor: 'rgba(255,255,255,0.15)', mb: 1.5 }} />
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.75)' }}>
+                Monthly target: {data ? (data.monthlySummary.monthlyTarget != null ? fcfa(data.monthlySummary.monthlyTarget) : 'Not set') : '…'}
+              </Typography>
+              <Typography variant="caption" fontWeight={800}>
+                {data ? `${Math.round(data.monthlySummary.monthlyTargetProgressPercent)}%` : '…'}
+              </Typography>
+            </Stack>
+            <LinearProgress
+              variant="determinate"
+              value={data ? Math.min(100, data.monthlySummary.monthlyTargetProgressPercent) : 0}
+              sx={{
+                height: 6, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.15)',
+                '& .MuiLinearProgress-bar': { bgcolor: diane.green, borderRadius: 3 },
+              }}
+            />
+            <Button
+              fullWidth
+              endIcon={<ArrowForwardIcon />}
+              onClick={() => navigate('/finances')}
+              sx={{ mt: 2, color: '#fff', justifyContent: 'space-between' }}
+            >
+              View detailed report
+            </Button>
+          </>
+        ) : (
         <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" spacing={3}>
           <Box>
-            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Monthly Financial Summary</Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4}>
               <Stat label="Revenue" value={data ? fcfa(data.monthlySummary.revenue) : '…'} />
               <Stat label="Total Expenses" value={data ? fcfa(data.monthlySummary.expenses) : '…'} />
-              <Stat label="Net Profit" value={data ? fcfa(data.monthlySummary.netProfit) : '…'} color={diane.green} />
+              <Stat
+                label="Net Profit"
+                value={data ? fcfa(data.monthlySummary.netProfit) : '…'}
+                color={data ? profitColor(data.monthlySummary.netProfit) : undefined}
+              />
               <Stat label="Average Margin" value={data ? `${data.monthlySummary.avgMarginPercent.toFixed(0)}%` : '…'} />
               <Stat
                 label="Monthly Net Profit Target"
@@ -364,6 +412,7 @@ export default function DashboardPage() {
             </Button>
           </Stack>
         </Stack>
+        )}
       </Paper>
     </Box>
   );
@@ -412,4 +461,13 @@ function Stat({ label, value, color }: { label: string; value: string; color?: s
       <Typography variant="subtitle1" fontWeight={800} sx={{ color: color ?? '#fff' }}>{value}</Typography>
     </Box>
   );
+}
+
+// Bug corrigé (signalé par l'utilisateur) : "Net Profit" affichait toujours
+// du vert, même négatif — trompeur pour un logiciel financier. Positif =
+// vert, nul = neutre, négatif = rouge.
+function profitColor(netProfit: number): string {
+  if (netProfit > 0) return diane.green;
+  if (netProfit < 0) return diane.red;
+  return 'rgba(255,255,255,0.65)';
 }

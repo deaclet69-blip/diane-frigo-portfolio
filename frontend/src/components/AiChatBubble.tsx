@@ -41,25 +41,11 @@ export default function AiChatBubble() {
     return () => observer.disconnect();
   }, []);
 
-  // Masque le bouton dès qu'on approche du bas RÉEL de la page (peu importe
-  // sa longueur) — plus fiable qu'une marge fixe devinée à l'avance, qui
-  // continuait à chevaucher la dernière carte sur certaines pages/tailles
-  // d'écran (signalé plusieurs fois par l'utilisateur).
-  const [nearBottom, setNearBottom] = useState(false);
-  useEffect(() => {
-    const onScroll = () => {
-      const scrollBottom = window.innerHeight + window.scrollY;
-      const pageHeight = document.documentElement.scrollHeight;
-      setNearBottom(pageHeight - scrollBottom < 140);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    };
-  }, []);
+  // Masquage au défilement retiré : peu fiable (ne se remettait pas
+  // toujours à jour quand le contenu changeait de hauteur après le
+  // chargement des données). Remplacé par un espace statique généreux et
+  // mathématiquement suffisant (voir AppLayout.tsx : 170px, calculé pour
+  // couvrir bottom:92 + hauteur:56 du bouton avec marge).
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -89,14 +75,14 @@ export default function AiChatBubble() {
 
   return (
     <>
-      <Zoom in={!open && !menuOpenElsewhere && !nearBottom}>
+      <Zoom in={!open && !menuOpenElsewhere}>
         <Fab
           onClick={() => setOpen(true)}
           sx={{
             position: 'fixed',
             bottom: { xs: 'calc(92px + env(safe-area-inset-bottom, 0px))', sm: 28 },
             right: { xs: 16, sm: 24 }, zIndex: 1300,
-            width: 50, height: 50, minHeight: 50,
+            width: 56, height: 56, minHeight: 56,
             bgcolor: diane.indigo, color: '#fff', '&:hover': { bgcolor: diane.navy },
             animation: 'diane-ai-glow 2.4s ease-in-out infinite',
             boxShadow: `0 0 0 0 ${diane.indigo}`,
