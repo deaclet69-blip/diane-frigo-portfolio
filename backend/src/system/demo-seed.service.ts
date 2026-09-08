@@ -217,18 +217,25 @@ export class DemoSeedService {
     const monthlyElectricity = expenseCategories.find((c) => c.name === 'Electricity')!;
     const monthlyTransport = expenseCategories.find((c) => c.name === 'Transport / Fuel')!;
 
+    // Pour le mois EN COURS (m=0), un jour fixe comme "le 28" peut tomber
+    // dans le futur si on régénère tôt dans le mois (ex. le 7) — on plafonne
+    // alors au jour réel du mois, jamais au-delà d'aujourd'hui. Les mois
+    // passés (m>0) sont déjà entièrement écoulés, aucun risque pour eux.
+    const safeDay = (monthOffset: number, desiredDay: number) =>
+      monthOffset === 0 ? Math.min(desiredDay, today.getDate()) : desiredDay;
+
     for (let m = 2; m >= 0; m--) {
       await this.prisma.expense.create({
-        data: { categoryId: monthlyRent.id, description: 'Monthly warehouse rent', amount: 450000, date: monthsAgo(m, 1), chargeType: 'FIXE', createdById: demoUser.id },
+        data: { categoryId: monthlyRent.id, description: 'Monthly warehouse rent', amount: 450000, date: monthsAgo(m, safeDay(m, 1)), chargeType: 'FIXE', createdById: demoUser.id },
       });
       await this.prisma.expense.create({
-        data: { categoryId: monthlySalaries.id, description: 'Staff salaries', amount: 850000, date: monthsAgo(m, 28), chargeType: 'FIXE', createdById: demoUser.id },
+        data: { categoryId: monthlySalaries.id, description: 'Staff salaries', amount: 850000, date: monthsAgo(m, safeDay(m, 28)), chargeType: 'FIXE', createdById: demoUser.id },
       });
       await this.prisma.expense.create({
-        data: { categoryId: monthlyElectricity.id, description: 'Electricity bill', amount: randInt(120000, 180000), date: monthsAgo(m, 5), chargeType: 'FIXE', createdById: demoUser.id },
+        data: { categoryId: monthlyElectricity.id, description: 'Electricity bill', amount: randInt(120000, 180000), date: monthsAgo(m, safeDay(m, 5)), chargeType: 'FIXE', createdById: demoUser.id },
       });
       await this.prisma.expense.create({
-        data: { categoryId: monthlyTransport.id, description: 'Delivery fuel', amount: randInt(60000, 120000), date: monthsAgo(m, 15), chargeType: 'VARIABLE', createdById: demoUser.id },
+        data: { categoryId: monthlyTransport.id, description: 'Delivery fuel', amount: randInt(60000, 120000), date: monthsAgo(m, safeDay(m, 15)), chargeType: 'VARIABLE', createdById: demoUser.id },
       });
     }
 

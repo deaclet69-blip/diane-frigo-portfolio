@@ -130,7 +130,7 @@ export default function DashboardPage() {
                 dataKey="date" fontSize={11} stroke={axisColor} tickLine={false} axisLine={{ stroke: gridColor }}
                 tickFormatter={(d: string) => new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}
               />
-              <YAxis fontSize={11} stroke={axisColor} tickLine={false} axisLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+              <YAxis fontSize={11} stroke={axisColor} tickLine={false} axisLine={false} tickFormatter={(v) => `$${(v / 600 / 1000).toFixed(1)}k`} />
               <Tooltip
                 formatter={(v: number) => fcfa(v)} labelFormatter={(d) => new Date(d).toLocaleDateString('en-US')}
                 contentStyle={tooltipStyle} labelStyle={{ color: isDark ? '#E8ECF7' : '#111' }}
