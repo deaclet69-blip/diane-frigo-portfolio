@@ -9,6 +9,7 @@ import { askAi } from '../services/aiAdvisor';
 import type { ChatMessage } from '../types';
 import { getCurrentUser } from '../services/auth';
 import { diane } from '../theme';
+import MarkdownText from './MarkdownText';
 
 export default function AiChatBubble() {
   const [open, setOpen] = useState(false);
@@ -103,9 +104,9 @@ export default function AiChatBubble() {
                   <Box sx={{
                     maxWidth: '78%', bgcolor: m.role === 'user' ? diane.indigo : 'background.paper',
                     color: m.role === 'user' ? '#fff' : 'text.primary',
-                    borderRadius: 2, px: 1.5, py: 1, whiteSpace: 'pre-line', fontSize: 13,
+                    borderRadius: 2, px: 1.5, py: 1, fontSize: 13,
                   }}>
-                    {m.content}
+                    {m.role === 'assistant' ? <MarkdownText text={m.content} fontSize={13} /> : m.content}
                   </Box>
                   {m.role === 'user' && (
                     <Avatar sx={{ width: 24, height: 24, fontSize: 12 }}>{user?.email?.[0]?.toUpperCase() ?? 'U'}</Avatar>

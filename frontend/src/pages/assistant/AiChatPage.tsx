@@ -6,6 +6,7 @@ import { askAi } from '../../services/aiAdvisor';
 import type { ChatMessage } from '../../types';
 import { getCurrentUser } from '../../services/auth';
 import { diane } from '../../theme';
+import MarkdownText from '../../components/MarkdownText';
 
 const SUGGESTIONS = [
   'Which products should I restock first?',
@@ -85,11 +86,10 @@ export default function AiChatPage() {
                   color: m.role === 'user' ? '#fff' : 'text.primary',
                   borderRadius: 2,
                   px: 2, py: 1.2,
-                  whiteSpace: 'pre-line',
                   fontSize: 14,
                 }}
               >
-                {m.content}
+                {m.role === 'assistant' ? <MarkdownText text={m.content} /> : m.content}
               </Box>
               {m.role === 'user' && (
                 <Avatar sx={{ width: 32, height: 32 }}>{user?.email?.[0]?.toUpperCase() ?? 'U'}</Avatar>
