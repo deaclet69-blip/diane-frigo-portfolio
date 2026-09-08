@@ -122,7 +122,12 @@ export class PricingService {
     const rows = await Promise.all(
       products.map(async (p) => {
         const avgPurchasePrice = await this.getAvgPurchasePrice(p.id, Number(p.referencePurchasePrice));
-        const costOfGoods = avgPurchasePrice + chargesPerCarton;
+        // Arrondi au dollar entier — pour la démo, l'affichage montre déjà
+        // des dollars entiers partout ; sans cet arrondi ici, le "coût de
+        // revient" affiché (arrondi) et le "%" calculé (à partir de la
+        // vraie valeur décimale) pouvaient ne pas correspondre exactement
+        // (ex. "48%" affiché là où un client s'attend à "50%").
+        const costOfGoods = Math.round(avgPurchasePrice + chargesPerCarton);
         return {
           productId: p.id,
           productName: p.name,
