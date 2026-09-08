@@ -32,7 +32,7 @@ export default function AppLayout() {
         transition: 'width 0.2s ease',
       }}>
         <Header onMenuClick={() => setMobileNavOpen(true)} />
-        <Box sx={{ p: { xs: 2, sm: 3 }, pb: isMobile ? 3 : 3 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, pb: isMobile ? 3 : 8 }}>
           <Outlet />
           {/* Bloc vide bien réel (pas juste une marge CSS) pour garantir un
               espace libre au-dessus de la barre de navigation basse + la

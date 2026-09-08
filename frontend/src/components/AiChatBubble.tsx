@@ -48,9 +48,10 @@ export default function AiChatBubble() {
     <>
       <Zoom in={!open}>
         <Fab
+          size="medium"
           onClick={() => setOpen(true)}
           sx={{
-            position: 'fixed', bottom: { xs: 84, sm: 24 }, right: 24, zIndex: 1300,
+            position: 'fixed', bottom: { xs: 84, sm: 40 }, right: 24, zIndex: 1300,
             bgcolor: diane.indigo, color: '#fff', '&:hover': { bgcolor: diane.navy },
             animation: 'diane-ai-glow 2.4s ease-in-out infinite',
             boxShadow: `0 0 0 0 ${diane.indigo}`,
@@ -69,7 +70,7 @@ export default function AiChatBubble() {
         <Paper
           elevation={8}
           sx={{
-            position: 'fixed', bottom: { xs: 84, sm: 24 }, right: 24, zIndex: 1300,
+            position: 'fixed', bottom: { xs: 84, sm: 40 }, right: 24, zIndex: 1300,
             width: { xs: 'calc(100vw - 32px)', sm: 360 }, height: 480,
             display: 'flex', flexDirection: 'column', borderRadius: 3, overflow: 'hidden',
           }}
