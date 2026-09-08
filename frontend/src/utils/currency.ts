@@ -1,10 +1,13 @@
 // Démo anglaise uniquement — les données de démo sont désormais générées
 // DIRECTEMENT en dollars (voir demo-seed.service.ts), donc plus aucune
-// conversion n'est nécessaire ici. Ancienne version : divisait par un taux
-// FCFA->USD, mais ça cassait tous les champs MODIFIABLES (Vérificateur de
-// prix, Paramètres de tarification...) qui envoyaient la valeur telle
-// quelle au serveur — le serveur comparait alors des dollars à des FCFA.
-// Bug signalé par l'utilisateur, corrigé à la source plutôt qu'ici.
+// conversion n'est nécessaire ici.
+//
+// Point important : les montants viennent de champs "Decimal" de la base
+// de données, qui arrivent souvent côté frontend comme du TEXTE (ex.
+// "138") plutôt que comme un vrai nombre JavaScript, même si TypeScript
+// affiche `number` comme type. Sur un texte, .toLocaleString() ne fait
+// rien du tout (pas de "$", pas de virgule) — d'où le bug signalé par
+// l'utilisateur ("138" au lieu de "$138"). Number(amount) corrige ça.
 export function usd(amount: number): string {
-  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  return Number(amount).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 }
