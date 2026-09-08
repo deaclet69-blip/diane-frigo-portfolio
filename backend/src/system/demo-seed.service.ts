@@ -247,9 +247,6 @@ export class DemoSeedService {
 
     for (let m = 2; m >= 0; m--) {
       await this.prisma.expense.create({
-        data: { categoryId: monthlyRent.id, description: 'Monthly warehouse rent', amount: 450000, date: monthsAgo(m, safeDay(m, 1)), chargeType: 'FIXE', createdById: demoUser.id },
-      });
-      await this.prisma.expense.create({
         data: { categoryId: monthlyRent.id, description: 'Monthly warehouse rent', amount: 750, date: monthsAgo(m, safeDay(m, 1)), chargeType: 'FIXE', createdById: demoUser.id },
       });
       await this.prisma.expense.create({
