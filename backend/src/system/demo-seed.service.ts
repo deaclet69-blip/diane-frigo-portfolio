@@ -19,7 +19,26 @@ function pick<T>(arr: T[]): T {
 export class DemoSeedService {
   constructor(private prisma: PrismaService) {}
 
+  // Empêche deux régénérations de tourner en même temps (ex. la tâche
+  // automatique de 4h qui chevaucherait un essai manuel) — sans ce verrou,
+  // les deux exécutions se marchent dessus et mélangent anciennes et
+  // nouvelles données (bug signalé par l'utilisateur : lignes "Rent" en
+  // double, une en FCFA, une en dollars, pour le même mois).
+  private isReseeding = false;
+
   async reseed() {
+    if (this.isReseeding) {
+      throw new Error('A regeneration is already in progress — please wait a moment and try again.');
+    }
+    this.isReseeding = true;
+    try {
+      return await this.doReseed();
+    } finally {
+      this.isReseeding = false;
+    }
+  }
+
+  private async doReseed() {
     seed = 42;
 
     await this.prisma.$transaction([
