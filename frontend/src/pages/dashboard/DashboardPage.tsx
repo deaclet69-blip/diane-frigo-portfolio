@@ -109,11 +109,13 @@ export default function DashboardPage() {
           value={data ? `${data.kpis.depositsCartons.toLocaleString('en-US')} boxes` : '…'}
           footer={data ? fcfa(data.kpis.depositsValue) : undefined}
         />
-        <KpiCard
-          icon={<CreditCardIcon />} iconBg={diane.red} label="Accounts Receivable" sublabel="Amount Due"
-          value={data ? fcfa(data.kpis.receivablesTotal) : '…'}
-          footer={data ? `${data.kpis.receivablesCount} customer(s) affected` : undefined}
-        />
+        <Box sx={{ gridColumn: { xs: '1 / -1', sm: 'auto' } }}>
+          <KpiCard
+            icon={<CreditCardIcon />} iconBg={diane.red} label="Accounts Receivable" sublabel="Amount Due"
+            value={data ? fcfa(data.kpis.receivablesTotal) : '…'}
+            footer={data ? `${data.kpis.receivablesCount} customer(s) affected` : undefined}
+          />
+        </Box>
       </Box>
 
       {/* Ligne 2 — Évolution CA / Répartition ventes / Alertes */}

@@ -67,7 +67,7 @@ export default function AiChatBubble() {
           onClick={() => setOpen(true)}
           sx={{
             position: 'fixed',
-            bottom: { xs: 80, sm: 28 }, // mobile : 64px de menu du bas + ~16px de marge
+            bottom: { xs: 96, sm: 28 }, // mobile : 64px de menu du bas + ~32px de marge (remonté, signalé trop proche du contenu)
             right: 24, zIndex: 1300,
             width: 54, height: 54, minHeight: 54, // 52–56px demandé
             bgcolor: diane.indigo, color: '#fff', '&:hover': { bgcolor: diane.navy },
@@ -88,7 +88,7 @@ export default function AiChatBubble() {
         <Paper
           elevation={8}
           sx={{
-            position: 'fixed', bottom: { xs: 80, sm: 28 }, right: 24, zIndex: 1300,
+            position: 'fixed', bottom: { xs: 96, sm: 28 }, right: 24, zIndex: 1300,
             width: { xs: 'calc(100vw - 32px)', sm: 360 }, height: 480,
             display: 'flex', flexDirection: 'column', borderRadius: 3, overflow: 'hidden',
           }}
