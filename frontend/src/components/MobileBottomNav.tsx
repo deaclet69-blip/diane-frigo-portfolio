@@ -17,6 +17,11 @@ const items = [
   { label: 'Customers', icon: <PeopleIcon />, to: '/clients' },
 ];
 
+// Exportée pour que AppLayout.tsx calcule le padding-bottom du contenu à
+// partir de la VRAIE hauteur de cette barre — une seule source de vérité,
+// jamais un nombre deviné/dupliqué ailleurs dans le code.
+export const BOTTOM_NAV_HEIGHT = 64;
+
 export default function MobileBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,9 +30,14 @@ export default function MobileBottomNav() {
   return (
     <Paper
       elevation={3}
-      sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1200 }}
+      sx={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1200,
+        // Zone de sécurité réelle du téléphone (encoche/barre de geste) —
+        // la barre elle-même ne doit pas se faire recouvrir non plus.
+        pb: 'env(safe-area-inset-bottom, 0px)',
+      }}
     >
-      <BottomNavigation value={current} showLabels sx={{ height: 64 }}>
+      <BottomNavigation value={current} showLabels sx={{ height: BOTTOM_NAV_HEIGHT }}>
         {items.map((item) => (
           <BottomNavigationAction
             key={item.to}
