@@ -77,7 +77,7 @@ export default function StockListPage() {
       {isMobile ? (
         // Vue "cartes" mobile — le tableau à 7 colonnes n'est pas lisible
         // en dessous de 600px. Une carte par produit, photo + essentiel.
-        <Stack spacing={1.5}>
+        <Stack spacing={1.5} sx={{ pb: 15 }}>
           {filtered.map((item) => (
             <Paper
               key={item.id}
@@ -90,8 +90,8 @@ export default function StockListPage() {
                   <ImageIcon fontSize="small" />
                 </Avatar>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                    <Typography fontWeight={700}>{item.name}</Typography>
+                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" sx={{ rowGap: 0.5 }}>
+                    <Typography fontWeight={700} sx={{ wordBreak: 'break-word' }}>{item.name}</Typography>
                     <StatusBadge status={item.status} />
                   </Stack>
                   <Typography variant="body2" color="text.secondary">{item.category ?? '—'}</Typography>
