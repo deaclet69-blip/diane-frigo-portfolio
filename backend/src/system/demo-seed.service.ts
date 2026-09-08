@@ -65,13 +65,13 @@ export class DemoSeedService {
       { name: 'Seafood', products: ['Fish Fillets', 'Frozen Shrimp'] },
     ];
     const productPriceDefaults: Record<string, [number, number]> = {
-      'Frozen Chicken Wings': [5510, 8100],
-      'Turkey Drumsticks': [6200, 9200],
-      'Chicken Thighs': [5800, 8600],
-      'Pork Ribs': [10100, 12500],
-      'Pork Shoulder Cuts': [9200, 11800],
-      'Fish Fillets': [6920, 9000],
-      'Frozen Shrimp': [12500, 16000],
+      'Frozen Chicken Wings': [9, 14],
+      'Turkey Drumsticks': [10, 15],
+      'Chicken Thighs': [10, 14],
+      'Pork Ribs': [17, 21],
+      'Pork Shoulder Cuts': [15, 20],
+      'Fish Fillets': [12, 15],
+      'Frozen Shrimp': [21, 27],
     };
 
     const products: { id: string; name: string; purchasePrice: number; salePrice: number }[] = [];
@@ -124,7 +124,7 @@ export class DemoSeedService {
         targetMarginFloor: 0.08, targetMarginWholesaleBulk: 0.10, targetMarginWholesale: 0.15, targetMarginRetail: 0.20,
         marginAlertCritical: 0.08, marginAlertGood: 0.15, marginAlertExcellent: 0.20,
         stockRotationFastDays: 7, stockRotationDormantDays: 30, acceptableLossRate: 0.02,
-        priceRoundingFcfa: 100, estimatedMonthlyFixedCharges: 1200000, estimatedMonthlyCartonsSold: 400,
+        priceRoundingFcfa: 1, estimatedMonthlyFixedCharges: 2000, estimatedMonthlyCartonsSold: 400,
       },
     });
 
@@ -148,7 +148,7 @@ export class DemoSeedService {
         await this.prisma.stockMovement.create({
           data: {
             productId: p.id, movementType: 'ENTRY', quantity: randInt(150, 350),
-            date, unitCost: p.purchasePrice + randInt(-200, 200), supplierId: pick(suppliers).id,
+            date, unitCost: Math.max(1, p.purchasePrice + randInt(-1, 1)), supplierId: pick(suppliers).id,
             referenceType: 'manual_entry', createdById: demoUser.id,
           },
         });
@@ -177,7 +177,7 @@ export class DemoSeedService {
           usedProducts.add(product.id);
           const qty = isWholesale ? randInt(20, 60) : randInt(1, 8);
           const margin = isWholesale ? 0.12 : 0.20;
-          const unitSalePrice = Math.round((product.purchasePrice * (1 + margin)) / 100) * 100;
+          const unitSalePrice = Math.round(product.purchasePrice * (1 + margin));
           lines.push({ productId: product.id, quantity: qty, unitSalePrice, unitPurchasePrice: product.purchasePrice });
         }
         if (lines.length === 0) continue;
@@ -231,13 +231,16 @@ export class DemoSeedService {
         data: { categoryId: monthlyRent.id, description: 'Monthly warehouse rent', amount: 450000, date: monthsAgo(m, safeDay(m, 1)), chargeType: 'FIXE', createdById: demoUser.id },
       });
       await this.prisma.expense.create({
-        data: { categoryId: monthlySalaries.id, description: 'Staff salaries', amount: 850000, date: monthsAgo(m, safeDay(m, 28)), chargeType: 'FIXE', createdById: demoUser.id },
+        data: { categoryId: monthlyRent.id, description: 'Monthly warehouse rent', amount: 750, date: monthsAgo(m, safeDay(m, 1)), chargeType: 'FIXE', createdById: demoUser.id },
       });
       await this.prisma.expense.create({
-        data: { categoryId: monthlyElectricity.id, description: 'Electricity bill', amount: randInt(120000, 180000), date: monthsAgo(m, safeDay(m, 5)), chargeType: 'FIXE', createdById: demoUser.id },
+        data: { categoryId: monthlySalaries.id, description: 'Staff salaries', amount: 1400, date: monthsAgo(m, safeDay(m, 28)), chargeType: 'FIXE', createdById: demoUser.id },
       });
       await this.prisma.expense.create({
-        data: { categoryId: monthlyTransport.id, description: 'Delivery fuel', amount: randInt(60000, 120000), date: monthsAgo(m, safeDay(m, 15)), chargeType: 'VARIABLE', createdById: demoUser.id },
+        data: { categoryId: monthlyElectricity.id, description: 'Electricity bill', amount: randInt(200, 300), date: monthsAgo(m, safeDay(m, 5)), chargeType: 'FIXE', createdById: demoUser.id },
+      });
+      await this.prisma.expense.create({
+        data: { categoryId: monthlyTransport.id, description: 'Delivery fuel', amount: randInt(100, 200), date: monthsAgo(m, safeDay(m, 15)), chargeType: 'VARIABLE', createdById: demoUser.id },
       });
     }
 
@@ -255,7 +258,7 @@ export class DemoSeedService {
     });
 
     const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    await this.prisma.monthlyGoal.create({ data: { month: firstOfMonth, targetProfit: 4000000 } });
+    await this.prisma.monthlyGoal.create({ data: { month: firstOfMonth, targetProfit: 6000 } });
 
     return { invoicesCreated: invoiceCounter - 1, reseedAt: new Date().toISOString() };
   }

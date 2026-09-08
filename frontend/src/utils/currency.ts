@@ -1,9 +1,10 @@
-// Démo anglaise uniquement — convertit les montants FCFA stockés en base en
-// dollars US pour l'affichage, avec un taux approximatif fixe (assez pour
-// une démo, pas destiné à un usage financier réel).
-const FCFA_TO_USD_RATE = 600;
-
-export function usd(fcfaAmount: number): string {
-  const value = fcfaAmount / FCFA_TO_USD_RATE;
-  return value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+// Démo anglaise uniquement — les données de démo sont désormais générées
+// DIRECTEMENT en dollars (voir demo-seed.service.ts), donc plus aucune
+// conversion n'est nécessaire ici. Ancienne version : divisait par un taux
+// FCFA->USD, mais ça cassait tous les champs MODIFIABLES (Vérificateur de
+// prix, Paramètres de tarification...) qui envoyaient la valeur telle
+// quelle au serveur — le serveur comparait alors des dollars à des FCFA.
+// Bug signalé par l'utilisateur, corrigé à la source plutôt qu'ici.
+export function usd(amount: number): string {
+  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 }

@@ -13,7 +13,10 @@ financial jargon. Be direct, use numbers when useful, and prioritize what actual
 a deteriorating net result).
 
 Never invent numbers that aren't in the provided data. If the data is
-insufficient to answer something, say so plainly rather than guessing.`;
+insufficient to answer something, say so plainly rather than guessing.
+
+Vocabulary: always call the stock unit "boxes" (never "cartons" or "units") —
+match the exact wording used throughout the rest of the application.`;
 
 @Injectable()
 export class AiAdvisorService {

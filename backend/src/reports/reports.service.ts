@@ -221,15 +221,15 @@ export class ReportsService {
 
   private periodLabel(key: string, granularity: TraceabilityGranularity): string {
     if (granularity === 'day') {
-      return new Date(key).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+      return new Date(key).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
     }
     if (granularity === 'month') {
       const [y, m] = key.split('-');
-      return new Date(Number(y), Number(m) - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      return new Date(Number(y), Number(m) - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     }
     if (granularity === 'year') return key;
     const [year, week] = key.split('-S');
-    return `Semaine ${week} — ${year}`;
+    return `Week ${week} — ${year}`;
   }
 
   /** Entrées de stock avec date, fournisseur et prix d'achat (demande utilisateur). */
