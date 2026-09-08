@@ -90,17 +90,16 @@ export default function StockListPage() {
                     <StatusBadge status={item.status} />
                   </Stack>
                   <Typography variant="body2" color="text.secondary">{item.category ?? '—'}</Typography>
-                  <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ mt: 1 }}>
-                    <Typography fontWeight={600}>
-                      {item.currentStock.toLocaleString('en-US')} {item.unit}
-                      {item.currentStock !== 1 ? 's' : ''}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Value {formatFcfa(item.value)}
-                    </Typography>
-                  </Stack>
+                  {/* Chaque info sur sa propre ligne — sur un nom de produit
+                      long ("Frozen Chicken Wings"), mettre "Value $..." côte
+                      à côte avec la quantité pouvait le compresser/tronquer
+                      sur les téléphones étroits (signalé par l'utilisateur). */}
+                  <Typography fontWeight={600} sx={{ mt: 1 }}>
+                    {item.currentStock.toLocaleString('en-US')} {item.unit}
+                    {item.currentStock !== 1 ? 's' : ''}
+                  </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Sale price {formatFcfa(item.referenceSalePrice)}
+                    Sale price {formatFcfa(item.referenceSalePrice)} · Value {formatFcfa(item.value)}
                   </Typography>
                 </Box>
               </Stack>

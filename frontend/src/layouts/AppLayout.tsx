@@ -32,13 +32,16 @@ export default function AppLayout() {
         transition: 'width 0.2s ease',
       }}>
         <Header onMenuClick={() => setMobileNavOpen(true)} />
-        <Box sx={{ p: { xs: 2, sm: 3 }, pb: isMobile ? 3 : 5 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, pb: isMobile ? 16 : 5 }}>
           <Outlet />
           {/* Bloc vide bien réel (pas juste une marge CSS) pour garantir un
               espace libre au-dessus de la barre de navigation basse + la
               bulle IA sur mobile — corrige un défilement qui s'arrêtait
               trop tôt, signalé par l'utilisateur. */}
-          {isMobile && <Box sx={{ height: 140 }} aria-hidden />}
+          {/* Espace de dégagement pour la barre de navigation du bas — le
+              padding-bottom de 128px ci-dessus gère déjà l'essentiel (barre
+              + bouton IA), ce spacer réduit sert juste de marge finale. */}
+          {isMobile && <Box sx={{ height: 12 }} aria-hidden />}
         </Box>
       </Box>
       {isMobile && <MobileBottomNav />}
