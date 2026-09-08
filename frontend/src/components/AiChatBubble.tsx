@@ -67,8 +67,9 @@ export default function AiChatBubble() {
           onClick={() => setOpen(true)}
           sx={{
             position: 'fixed',
-            bottom: { xs: 92, sm: 28 }, right: { xs: 18, sm: 24 }, zIndex: 1300,
-            width: 54, height: 54, minHeight: 54, // 52–56px demandé
+            bottom: { xs: 'calc(80px + env(safe-area-inset-bottom))', sm: 28 },
+            right: { xs: 16, sm: 24 }, zIndex: 1300,
+            width: 56, height: 56, minHeight: 56,
             bgcolor: diane.indigo, color: '#fff', '&:hover': { bgcolor: diane.navy },
             animation: 'diane-ai-glow 2.4s ease-in-out infinite',
             boxShadow: `0 0 0 0 ${diane.indigo}`,
@@ -87,7 +88,9 @@ export default function AiChatBubble() {
         <Paper
           elevation={8}
           sx={{
-            position: 'fixed', bottom: { xs: 92, sm: 28 }, right: { xs: 18, sm: 24 }, zIndex: 1300,
+            position: 'fixed',
+            bottom: { xs: 'calc(80px + env(safe-area-inset-bottom))', sm: 28 },
+            right: { xs: 16, sm: 24 }, zIndex: 1300,
             width: { xs: 'calc(100vw - 32px)', sm: 360 }, height: 480,
             display: 'flex', flexDirection: 'column', borderRadius: 3, overflow: 'hidden',
           }}

@@ -61,12 +61,17 @@ export default function StockListPage() {
           sx={{ minWidth: 260 }}
           InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> }}
         />
-        <ToggleButtonGroup size="small" value={statusFilter} exclusive onChange={(_, v) => v && setStatusFilter(v)}>
-          <ToggleButton value="ALL">All</ToggleButton>
-          <ToggleButton value="OK">In Stock</ToggleButton>
-          <ToggleButton value="ALERTE">Low Stock</ToggleButton>
-          <ToggleButton value="RUPTURE">Out of Stock</ToggleButton>
-        </ToggleButtonGroup>
+        <Box sx={{ overflowX: 'auto', pb: 0.5, '&::-webkit-scrollbar': { display: 'none' } }}>
+          <ToggleButtonGroup
+            size="small" value={statusFilter} exclusive onChange={(_, v) => v && setStatusFilter(v)}
+            sx={{ flexWrap: 'nowrap', width: 'max-content' }}
+          >
+            <ToggleButton value="ALL" sx={{ whiteSpace: 'nowrap' }}>All</ToggleButton>
+            <ToggleButton value="OK" sx={{ whiteSpace: 'nowrap' }}>In Stock</ToggleButton>
+            <ToggleButton value="ALERTE" sx={{ whiteSpace: 'nowrap' }}>Low Stock</ToggleButton>
+            <ToggleButton value="RUPTURE" sx={{ whiteSpace: 'nowrap' }}>Out of Stock</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
       </Stack>
 
       {isMobile ? (
@@ -98,9 +103,18 @@ export default function StockListPage() {
                     {item.currentStock.toLocaleString('en-US')} {item.unit}
                     {item.currentStock !== 1 ? 's' : ''}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Sale price {formatFcfa(item.referenceSalePrice)} · Value {formatFcfa(item.value)}
-                  </Typography>
+                  {/* flexWrap : passe automatiquement à la ligne sur les
+                      écrans très étroits plutôt que de couper le texte au
+                      milieu d'un mot */}
+                  <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ rowGap: 0.25 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Sale price {formatFcfa(item.referenceSalePrice)}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">·</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Value {formatFcfa(item.value)}
+                    </Typography>
+                  </Stack>
                 </Box>
               </Stack>
             </Paper>

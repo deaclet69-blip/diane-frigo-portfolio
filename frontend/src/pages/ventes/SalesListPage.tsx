@@ -71,33 +71,35 @@ export default function SalesListPage() {
                 sx={{ p: 2, cursor: 'pointer' }}
                 onClick={() => navigate(`/ventes/${inv.id}`)}
               >
-                <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                  <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                    <Typography fontWeight={700}>#{inv.invoiceNumber}</Typography>
-                    <Typography color="text.secondary">·</Typography>
-                    <Typography color="text.secondary">{inv.customer?.name}</Typography>
-                  </Stack>
-                  <Chip label={s.label} size="small" sx={{ bgcolor: s.bg, color: s.color, fontWeight: 700 }} />
+                {/* En-tête : facture + client uniquement */}
+                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                  <Typography fontWeight={700}>#{inv.invoiceNumber}</Typography>
+                  <Typography color="text.secondary">·</Typography>
+                  <Typography color="text.secondary">{inv.customer?.name}</Typography>
                 </Stack>
 
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.75 }}>
+                {/* Meta : type, date et statut regroupés sur une même ligne */}
+                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" sx={{ mt: 0.75 }}>
                   <Chip
                     label={inv.saleType === 'GROS' ? 'Wholesale' : 'Retail'}
                     size="small"
                     sx={{ bgcolor: inv.saleType === 'GROS' ? diane.purpleLight : diane.blueLight, color: inv.saleType === 'GROS' ? diane.purple : diane.blue, fontWeight: 700 }}
                   />
-                  {inv.voidedAt && <Chip label="Voided" size="small" />}
                   <Typography variant="body2" color="text.secondary">
                     {new Date(inv.date).toLocaleDateString('en-US')}
                   </Typography>
+                  <Chip label={s.label} size="small" sx={{ bgcolor: s.bg, color: s.color, fontWeight: 700 }} />
+                  {inv.voidedAt && <Chip label="Voided" size="small" />}
                 </Stack>
 
                 <Divider sx={{ my: 1 }} />
 
+                {/* Corps : produits */}
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                   {inv.items.map((it) => it.product?.name).join(', ')}
                 </Typography>
 
+                {/* Pied : montant */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Typography variant="h6" fontWeight={700}>{formatFcfa(Number(inv.total))}</Typography>
                   {inv.balanceDue > 0 && (

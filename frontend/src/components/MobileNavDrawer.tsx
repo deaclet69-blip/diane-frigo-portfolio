@@ -48,7 +48,7 @@ export default function MobileNavDrawer({ open, onClose }: { open: boolean; onCl
       anchor="left"
       open={open}
       onClose={onClose}
-      sx={{ '& .MuiDrawer-paper': { width: 260, bgcolor: diane.navy, color: '#fff', display: 'flex', flexDirection: 'column' } }}
+      sx={{ '& .MuiDrawer-paper': { width: 260, height: '100dvh', bgcolor: diane.navy, color: '#fff', display: 'flex', flexDirection: 'column' } }}
     >
       <Stack direction="row" alignItems="center" spacing={1.2} sx={{ px: 2.25, py: 2 }}>
         <Box component="img" src="/favicon.svg" alt="DIANE FRIGO" sx={{ width: 30, height: 30, borderRadius: '8px' }} />
