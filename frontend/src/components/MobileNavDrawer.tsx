@@ -54,7 +54,7 @@ export default function MobileNavDrawer({ open, onClose }: { open: boolean; onCl
         <Box component="img" src="/favicon.svg" alt="DIANE FRIGO" sx={{ width: 30, height: 30, borderRadius: '8px' }} />
         <Typography variant="body2" sx={{ fontWeight: 800, fontSize: 14 }}>DIANE FRIGO</Typography>
       </Stack>
-      <List sx={{ px: 1, flexGrow: 1, overflowY: 'auto' }}>
+      <List sx={{ px: 1, flexGrow: 1, minHeight: 0, overflowY: 'auto' }}>
         {navItems.map((item) => (
           <ListItemButton
             key={item.to + item.label}

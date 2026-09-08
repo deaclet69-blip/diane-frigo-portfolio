@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, TextField,
   InputAdornment, Stack, Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  IconButton, Alert,
+  IconButton, Alert, useMediaQuery,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -15,6 +15,7 @@ import type { Customer } from '../../types';
 const emptyForm = { name: '', phone: '' };
 
 export default function ClientsListPage() {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
@@ -88,6 +89,39 @@ export default function ClientsListPage() {
         InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> }}
       />
 
+      {isMobile ? (
+        <Stack spacing={1.5} sx={{ pb: 15 }}>
+          {customers.map((c) => (
+            <Paper
+              key={c.id} variant="outlined" sx={{ p: 2, cursor: 'pointer' }}
+              onClick={() => navigate(`/clients/${c.id}`)}
+            >
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Box>
+                  <Typography fontWeight={700}>{c.name}</Typography>
+                  <Typography variant="body2" color="text.secondary">{c.phone ?? 'No phone'}</Typography>
+                </Box>
+                <Stack direction="row">
+                  <IconButton size="small" onClick={(e) => openEdit(c, e)}>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => { e.stopPropagation(); setDeleteError(null); setDeleteTarget(c); }}
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Stack>
+            </Paper>
+          ))}
+          {customers.length === 0 && (
+            <Paper variant="outlined" sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+              No customers found.
+            </Paper>
+          )}
+        </Stack>
+      ) : (
       <Paper>
         <TableContainer>
 <Table>
@@ -127,6 +161,7 @@ export default function ClientsListPage() {
         </Table>
 </TableContainer>
       </Paper>
+      )}
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
         <DialogTitle>{editing ? 'Edit Customer' : 'New Customer'}</DialogTitle>

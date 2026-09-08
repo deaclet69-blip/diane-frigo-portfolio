@@ -12,9 +12,14 @@ import type { Product, Supplier } from '../../types';
 type Mode = 'ENTRY' | 'INVENTORY_ADJUSTMENT' | 'EXIT';
 
 const modeLabels: Record<Mode, string> = {
-  ENTRY: 'Stock Entry (restocking)',
-  INVENTORY_ADJUSTMENT: 'Inventory Adjustment (found extra)',
-  EXIT: 'Manual Exit (loss / breakage)',
+  ENTRY: 'Restock',
+  INVENTORY_ADJUSTMENT: 'Adjustment',
+  EXIT: 'Manual Exit',
+};
+const modeHelp: Record<Mode, string> = {
+  ENTRY: 'Stock entry — restocking from a supplier.',
+  INVENTORY_ADJUSTMENT: 'Inventory adjustment — extra stock found during a count.',
+  EXIT: 'Manual exit — loss or breakage outside a sale.',
 };
 
 export default function StockEntryPage() {
@@ -82,18 +87,23 @@ export default function StockEntryPage() {
 
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
-          <Stack spacing={2.5}>
-            <ToggleButtonGroup
-              value={mode}
-              exclusive
-              onChange={(_, v) => v && setMode(v)}
-              fullWidth
-              size="small"
-            >
-              {(Object.keys(modeLabels) as Mode[]).map((m) => (
-                <ToggleButton key={m} value={m} sx={{ fontSize: 12 }}>{modeLabels[m]}</ToggleButton>
-              ))}
-            </ToggleButtonGroup>
+          <Stack spacing={2}>
+            <Box sx={{ overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' } }}>
+              <ToggleButtonGroup
+                value={mode}
+                exclusive
+                onChange={(_, v) => v && setMode(v)}
+                size="small"
+                sx={{ width: 'max-content' }}
+              >
+                {(Object.keys(modeLabels) as Mode[]).map((m) => (
+                  <ToggleButton key={m} value={m} sx={{ fontSize: 13, whiteSpace: 'nowrap', px: 2 }}>{modeLabels[m]}</ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: -1.5 }}>
+              {modeHelp[mode]}
+            </Typography>
 
             <TextField
               select
@@ -102,6 +112,7 @@ export default function StockEntryPage() {
               onChange={(e) => setProductId(e.target.value)}
               required
               fullWidth
+              size="small"
             >
               {products.map((p) => (
                 <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
@@ -115,6 +126,7 @@ export default function StockEntryPage() {
               onChange={(e) => setQuantity(e.target.value)}
               required
               fullWidth
+              size="small"
               inputProps={{ min: 1 }}
             />
 
@@ -126,11 +138,13 @@ export default function StockEntryPage() {
                   value={unitCost}
                   onChange={(e) => setUnitCost(e.target.value)}
                   fullWidth
+                  size="small"
                   helperText="Used to calculate cost basis in Finances > Profitability. Leave empty to use the product's reference price."
                   inputProps={{ min: 0 }}
                 />
                 <Autocomplete
                   freeSolo
+                  size="small"
                   options={suppliers}
                   getOptionLabel={(s) => (typeof s === 'string' ? s : s.name)}
                   value={supplier}
@@ -152,6 +166,7 @@ export default function StockEntryPage() {
               onChange={(e) => setDate(e.target.value)}
               required
               fullWidth
+              size="small"
               InputLabelProps={{ shrink: true }}
             />
 
@@ -160,6 +175,7 @@ export default function StockEntryPage() {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               fullWidth
+              size="small"
               multiline
               minRows={2}
             />

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Chip,
-  ToggleButtonGroup, ToggleButton,
+  ToggleButtonGroup, ToggleButton, useMediaQuery,
 } from '@mui/material';
 import { getExpenses, getExpenseCategories, createExpense, reclassifyExpense, createExpenseCategory } from '../../services/finances';
 import type { Expense, ExpenseCategory, ChargeType } from '../../types';
@@ -32,6 +32,7 @@ const typeConfig: Record<ChargeType, { label: string; color: string; bg: string;
 const NEW_CATEGORY = '__new__';
 
 export default function ChargesPage() {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<ExpenseCategory[]>([]);
   const [filter, setFilter] = useState<'ALL' | ChargeType>('ALL');
@@ -97,6 +98,53 @@ export default function ChargesPage() {
         <ToggleButton value="EXCEPTIONNEL">One-time</ToggleButton>
       </ToggleButtonGroup>
 
+      {isMobile ? (
+        <Stack spacing={1.5} sx={{ pb: 15 }}>
+          {expenses.map((e) => (
+            <Paper key={e.id} variant="outlined" sx={{ p: 2 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    {new Date(e.date).toLocaleDateString('en-US')}
+                  </Typography>
+                  <Typography fontWeight={700}>{e.category.name}</Typography>
+                </Box>
+                <Typography variant="h6" fontWeight={700}>{formatFcfa(e.amount)}</Typography>
+              </Stack>
+              {e.description && (
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  {e.description}
+                </Typography>
+              )}
+              <TextField
+                select
+                size="small"
+                value={e.chargeType}
+                onChange={(ev) => handleReclassify(e, ev.target.value as ChargeType)}
+                sx={{ mt: 1.5, minWidth: 160 }}
+                InputProps={{
+                  startAdornment: (
+                    <Chip
+                      label={typeConfig[e.chargeType].label}
+                      size="small"
+                      sx={{ bgcolor: typeConfig[e.chargeType].bg, color: typeConfig[e.chargeType].color, fontWeight: 700, mr: 0.5 }}
+                    />
+                  ),
+                }}
+              >
+                {(Object.keys(typeConfig) as ChargeType[]).map((t) => (
+                  <MenuItem key={t} value={t}>{typeConfig[t].label}</MenuItem>
+                ))}
+              </TextField>
+            </Paper>
+          ))}
+          {expenses.length === 0 && (
+            <Paper variant="outlined" sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+              No expenses recorded.
+            </Paper>
+          )}
+        </Stack>
+      ) : (
       <Paper>
         <TableContainer>
 <Table>
@@ -150,6 +198,7 @@ export default function ChargesPage() {
         </Table>
 </TableContainer>
       </Paper>
+      )}
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
         <DialogTitle>New Expense</DialogTitle>

@@ -4,7 +4,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { askAi } from '../services/aiAdvisor';
 import type { ChatMessage } from '../types';
 import { getCurrentUser } from '../services/auth';
@@ -19,6 +19,11 @@ export default function AiChatBubble() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const user = getCurrentUser();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Sur la page Assistant IA elle-même, la bulle flottante fait doublon
+  // avec le champ de saisie déjà présent et le recouvre — on ne l'affiche
+  // pas du tout sur cette page (signalé par l'utilisateur).
+  const onAssistantPage = location.pathname === '/assistant';
   // Détecte si un menu déroulant (Select, Menu, Popover — tous les
   // composants MUI de ce type) est ouvert QUELQUE PART sur la page, pour
   // masquer temporairement le bouton flottant et ne jamais le laisser
@@ -34,6 +39,26 @@ export default function AiChatBubble() {
     observer.observe(document.body, { childList: true });
     check();
     return () => observer.disconnect();
+  }, []);
+
+  // Masque le bouton dès qu'on approche du bas RÉEL de la page (peu importe
+  // sa longueur) — plus fiable qu'une marge fixe devinée à l'avance, qui
+  // continuait à chevaucher la dernière carte sur certaines pages/tailles
+  // d'écran (signalé plusieurs fois par l'utilisateur).
+  const [nearBottom, setNearBottom] = useState(false);
+  useEffect(() => {
+    const onScroll = () => {
+      const scrollBottom = window.innerHeight + window.scrollY;
+      const pageHeight = document.documentElement.scrollHeight;
+      setNearBottom(pageHeight - scrollBottom < 140);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -60,9 +85,11 @@ export default function AiChatBubble() {
     }
   }
 
+  if (onAssistantPage) return null;
+
   return (
     <>
-      <Zoom in={!open && !menuOpenElsewhere}>
+      <Zoom in={!open && !menuOpenElsewhere && !nearBottom}>
         <Fab
           onClick={() => setOpen(true)}
           sx={{

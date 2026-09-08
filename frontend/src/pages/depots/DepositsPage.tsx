@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Alert,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Alert, useMediaQuery,
 } from '@mui/material';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import { getDepositBalances, createWithdrawal } from '../../services/deposits';
 import type { DepositBalance } from '../../types';
 
 export default function DepositsPage() {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const [balances, setBalances] = useState<DepositBalance[]>([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<DepositBalance | null>(null);
@@ -45,6 +47,32 @@ export default function DepositsPage() {
     <Box>
       <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Customer Deposits</Typography>
 
+      {balances.length === 0 ? (
+        <Paper variant="outlined" sx={{ p: 5, textAlign: 'center' }}>
+          <Inventory2OutlinedIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
+          <Typography color="text.secondary">No active deposits.</Typography>
+        </Paper>
+      ) : isMobile ? (
+        <Stack spacing={1.5} sx={{ pb: 15 }}>
+          {balances.map((b) => (
+            <Paper key={b.id} variant="outlined" sx={{ p: 2 }}>
+              <Typography fontWeight={700}>{b.customer.name}</Typography>
+              <Typography variant="body2" color="text.secondary">{b.product.name}</Typography>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 1.5 }}>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    Deposited {b.deposited} · Withdrawn {b.withdrawn}
+                  </Typography>
+                  <Typography fontWeight={700}>{b.balance} boxes available</Typography>
+                </Box>
+                <Button size="small" variant="outlined" disabled={b.balance <= 0} onClick={() => openWithdraw(b)}>
+                  Withdraw
+                </Button>
+              </Stack>
+            </Paper>
+          ))}
+        </Stack>
+      ) : (
       <Paper>
         <TableContainer>
 <Table>
@@ -73,17 +101,11 @@ export default function DepositsPage() {
                 </TableCell>
               </TableRow>
             ))}
-            {balances.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  No active deposits.
-                </TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
 </TableContainer>
       </Paper>
+      )}
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
         <DialogTitle>Withdrawal — {selected?.customer.name}</DialogTitle>

@@ -383,7 +383,7 @@ function KpiCard({ icon, iconBg, label, sublabel, value, footer, change }: {
           {icon}
         </Box>
         <Box>
-          <Typography variant="body2" fontWeight={700} lineHeight={1.2}>{label}</Typography>
+          <Typography fontWeight={700} lineHeight={1.2} sx={{ fontSize: { xs: 12.5, sm: 14 } }}>{label}</Typography>
           {sublabel && <Typography variant="caption" color="text.secondary">{sublabel}</Typography>}
         </Box>
       </Stack>

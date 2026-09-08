@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Stack, TextField, MenuItem, Table, TableContainer, TableHead, TableRow, TableCell,
-  TableBody, Button, Alert, Divider,
+  TableBody, Button, Alert, Divider, useMediaQuery,
 } from '@mui/material';
 import { getPricingSettings, updatePricingSettings, getProfitabilityAnalysis, checkPrice } from '../../services/pricing';
 import { getProducts } from '../../services/products';
@@ -18,6 +18,7 @@ function pct(v: number) {
 }
 
 export default function PricingPage() {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const [settings, setSettings] = useState<PricingSettings | null>(null);
   const [analysis, setAnalysis] = useState<ProfitabilityAnalysis | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -97,6 +98,41 @@ export default function PricingPage() {
                 : "Method: your starting estimate (below) — not enough real history yet (2 months of recorded fixed expenses needed)"}
             </Alert>
           </Box>
+          {isMobile ? (
+            <Stack spacing={1.5} sx={{ p: 2, pt: 1 }}>
+              {analysis.rows.map((r) => (
+                <Paper key={r.productId} variant="outlined" sx={{ p: 2 }}>
+                  <Typography fontWeight={700} sx={{ mb: 1 }}>{r.productName}</Typography>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block">Avg Purchase</Typography>
+                      <Typography fontWeight={600}>{formatFcfa(r.avgPurchasePrice)}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block">Cost Basis</Typography>
+                      <Typography fontWeight={700}>{formatFcfa(r.costOfGoods)}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block">Floor</Typography>
+                      <Typography fontWeight={600}>{formatFcfa(r.suggestedPrices.floor)}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block">Bulk Wholesale</Typography>
+                      <Typography fontWeight={600}>{formatFcfa(r.suggestedPrices.wholesaleBulk)}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block">Wholesale</Typography>
+                      <Typography fontWeight={600}>{formatFcfa(r.suggestedPrices.wholesale)}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block">Retail</Typography>
+                      <Typography fontWeight={700} sx={{ color: diane.green }}>{formatFcfa(r.suggestedPrices.retail)}</Typography>
+                    </Box>
+                  </Box>
+                </Paper>
+              ))}
+            </Stack>
+          ) : (
           <TableContainer>
 <Table sx={{ mt: 1 }}>
             <TableHead>
@@ -127,6 +163,7 @@ export default function PricingPage() {
             </TableBody>
           </Table>
 </TableContainer>
+          )}
         </Paper>
       )}
 
@@ -170,7 +207,7 @@ export default function PricingPage() {
         <Paper sx={{ p: 3 }}>
           <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>Profitability Settings</Typography>
           <Stack spacing={2}>
-            <Stack direction="row" spacing={2}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
                 label="Floor Margin (%)" type="number" fullWidth
                 value={settings.targetMarginFloor * 100}
@@ -182,7 +219,7 @@ export default function PricingPage() {
                 onChange={(e) => setSettings({ ...settings, targetMarginWholesaleBulk: Number(e.target.value) / 100 })}
               />
             </Stack>
-            <Stack direction="row" spacing={2}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
                 label="Wholesale Margin (%)" type="number" fullWidth
                 value={settings.targetMarginWholesale * 100}
@@ -195,7 +232,7 @@ export default function PricingPage() {
               />
             </Stack>
             <Divider />
-            <Stack direction="row" spacing={2}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
                 label="Acceptable Loss Rate (%)" type="number" fullWidth
                 value={settings.acceptableLossRate * 100}
@@ -211,7 +248,7 @@ export default function PricingPage() {
             <Typography variant="body2" fontWeight={600}>
               Starting Estimate (until you have 2 full months of history)
             </Typography>
-            <Stack direction="row" spacing={2}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
                 label="Estimated Monthly Fixed Expenses (USD)" type="number" fullWidth
                 value={settings.estimatedMonthlyFixedCharges || ''}

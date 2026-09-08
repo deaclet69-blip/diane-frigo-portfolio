@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Stack,
   ToggleButtonGroup, ToggleButton, TextField, Button, CircularProgress,
-  Select, MenuItem, FormControl, InputLabel,
+  Select, MenuItem, FormControl, InputLabel, useMediaQuery,
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import {
@@ -23,6 +23,7 @@ const granularityLabels: Record<TraceabilityGranularity, string> = {
 };
 
 function TraceabilitySection() {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const [granularity, setGranularity] = useState<TraceabilityGranularity>('month');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -171,6 +172,11 @@ function TraceabilitySection() {
         <Stack alignItems="center" sx={{ py: 4 }}><CircularProgress size={24} /></Stack>
       ) : (
         <Box sx={{ maxHeight: 480, overflow: 'auto', mt: 1 }}>
+          {isMobile && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              Swipe to view more →
+            </Typography>
+          )}
           <TableContainer>
 <Table stickyHeader size="small">
             <TableHead>
@@ -237,6 +243,7 @@ const sectionLabels: Record<ReportSection, string> = {
 };
 
 export default function ReportsPage() {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const [section, setSection] = useState<ReportSection>('tracabilite');
   const [products, setProducts] = useState<any[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
@@ -279,6 +286,11 @@ export default function ReportsPage() {
             <Typography variant="subtitle1" fontWeight={700}>Stock Entries</Typography>
             <Typography variant="caption" color="text.secondary">Date, supplier, and purchase price for each restocking</Typography>
           </Box>
+          {isMobile && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              Swipe to view more →
+            </Typography>
+          )}
           <TableContainer>
 <Table sx={{ mt: 1 }}>
             <TableHead>
@@ -316,6 +328,11 @@ export default function ReportsPage() {
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Sales by Product</Typography>
           </Box>
+          {isMobile && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              Swipe to view more →
+            </Typography>
+          )}
           <TableContainer>
 <Table>
             <TableHead>
@@ -352,6 +369,11 @@ export default function ReportsPage() {
               Ranking of products from fastest to slowest moving (last 30 days) — to know what to restock first.
             </Typography>
           </Box>
+          {isMobile && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              Swipe to view more →
+            </Typography>
+          )}
           <TableContainer>
 <Table sx={{ mt: 1 }}>
             <TableHead>
@@ -399,6 +421,11 @@ export default function ReportsPage() {
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Top Customers</Typography>
           </Box>
+          {isMobile && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              Swipe to view more →
+            </Typography>
+          )}
           <TableContainer>
 <Table>
             <TableHead>
@@ -432,6 +459,11 @@ export default function ReportsPage() {
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Expenses by Category</Typography>
           </Box>
+          {isMobile && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              Swipe to view more →
+            </Typography>
+          )}
           <TableContainer>
 <Table>
             <TableHead>
