@@ -41,11 +41,39 @@ export default function AiChatBubble() {
     return () => observer.disconnect();
   }, []);
 
-  // Masquage au défilement retiré : peu fiable (ne se remettait pas
-  // toujours à jour quand le contenu changeait de hauteur après le
-  // chargement des données). Remplacé par un espace statique généreux et
-  // mathématiquement suffisant (voir AppLayout.tsx : 170px, calculé pour
-  // couvrir bottom:92 + hauteur:56 du bouton avec marge).
+  // Masque le bouton quand le contenu de la page ne dépasse pas beaucoup la
+  // hauteur de l'écran (page courte, comme Stock Movement) — dans ce cas le
+  // padding seul ne suffit pas : le bouton fixe reste visible en permanence
+  // par-dessus un élément comme "Save Movement" sans qu'aucun défilement ne
+  // se produise jamais. ResizeObserver (pas juste 'scroll'/'resize') pour
+  // recalculer correctement quand le contenu change de hauteur après le
+  // chargement des données — c'était la vraie faille de la version
+  // précédente (signalé plusieurs fois par l'utilisateur).
+  const [nearBottom, setNearBottom] = useState(false);
+  useEffect(() => {
+    const recompute = () => {
+      const viewportHeight = window.innerHeight;
+      const pageHeight = document.documentElement.scrollHeight;
+      const scrollBottom = viewportHeight + window.scrollY;
+      // Cas 1 : la page entière tient (presque) dans l'écran — un
+      // formulaire court comme "Stock Movement" ne défile jamais assez pour
+      // que le bouton s'éloigne de son bouton "Save" tout seul.
+      const barelyScrolls = pageHeight <= viewportHeight * 1.3;
+      // Cas 2 : page plus longue, mais on a scrollé près de la vraie fin.
+      const isNearBottom = pageHeight - scrollBottom < 160;
+      setNearBottom(barelyScrolls || isNearBottom);
+    };
+    recompute();
+    window.addEventListener('scroll', recompute, { passive: true });
+    window.addEventListener('resize', recompute);
+    const resizeObserver = new ResizeObserver(recompute);
+    resizeObserver.observe(document.body);
+    return () => {
+      window.removeEventListener('scroll', recompute);
+      window.removeEventListener('resize', recompute);
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -75,7 +103,7 @@ export default function AiChatBubble() {
 
   return (
     <>
-      <Zoom in={!open && !menuOpenElsewhere}>
+      <Zoom in={!open && !menuOpenElsewhere && !nearBottom}>
         <Fab
           onClick={() => setOpen(true)}
           sx={{
