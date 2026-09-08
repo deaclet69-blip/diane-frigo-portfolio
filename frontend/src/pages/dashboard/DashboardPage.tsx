@@ -332,7 +332,7 @@ export default function DashboardPage() {
               <Stat label="Net Profit" value={data ? fcfa(data.monthlySummary.netProfit) : '…'} color={diane.green} />
               <Stat label="Average Margin" value={data ? `${data.monthlySummary.avgMarginPercent.toFixed(0)}%` : '…'} />
               <Stat
-                label="Monthly Target"
+                label="Monthly Net Profit Target"
                 value={data ? (data.monthlySummary.monthlyTarget != null ? fcfa(data.monthlySummary.monthlyTarget) : 'Not set') : '…'}
               />
             </Stack>
