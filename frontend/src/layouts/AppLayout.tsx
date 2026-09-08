@@ -44,7 +44,16 @@ export default function AppLayout() {
         <Header onMenuClick={() => setMobileNavOpen(true)} />
         <Box
           sx={{
-            p: { xs: 2, sm: 3 },
+            // pt/pr/pl séparés (au lieu du raccourci "p") — mélanger "p" et
+            // "pb" dans le même sx pouvait faire gagner silencieusement le
+            // raccourci "p" sur "pb" (conflit confirmé en inspectant le CSS
+            // généré : "padding-bottom" retombait à 16px malgré la règle
+            // calc() bien présente, mais perdante). Cause racine identifiée
+            // et corrigée ici, à la source, plutôt qu'en rajoutant du
+            // padding par-dessus.
+            pt: { xs: 2, sm: 3 },
+            pr: { xs: 2, sm: 3 },
+            pl: { xs: 2, sm: 3 },
             pb: isMobile
               ? `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px) + 24px)`
               : 5,
