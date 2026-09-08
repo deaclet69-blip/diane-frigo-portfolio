@@ -19,6 +19,22 @@ export default function AiChatBubble() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const user = getCurrentUser();
   const navigate = useNavigate();
+  // Détecte si un menu déroulant (Select, Menu, Popover — tous les
+  // composants MUI de ce type) est ouvert QUELQUE PART sur la page, pour
+  // masquer temporairement le bouton flottant et ne jamais le laisser
+  // recouvrir un menu, un bouton ou une ligne de tableau en train d'être
+  // utilisé (signalé par l'utilisateur).
+  const [menuOpenElsewhere, setMenuOpenElsewhere] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      setMenuOpenElsewhere(!!document.querySelector('.MuiPopover-root, .MuiModal-root'));
+    };
+    const observer = new MutationObserver(check);
+    observer.observe(document.body, { childList: true });
+    check();
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -46,12 +62,14 @@ export default function AiChatBubble() {
 
   return (
     <>
-      <Zoom in={!open}>
+      <Zoom in={!open && !menuOpenElsewhere}>
         <Fab
-          size="medium"
           onClick={() => setOpen(true)}
           sx={{
-            position: 'fixed', bottom: { xs: 84, sm: 40 }, right: 24, zIndex: 1300,
+            position: 'fixed',
+            bottom: { xs: 80, sm: 28 }, // mobile : 64px de menu du bas + ~16px de marge
+            right: 24, zIndex: 1300,
+            width: 54, height: 54, minHeight: 54, // 52–56px demandé
             bgcolor: diane.indigo, color: '#fff', '&:hover': { bgcolor: diane.navy },
             animation: 'diane-ai-glow 2.4s ease-in-out infinite',
             boxShadow: `0 0 0 0 ${diane.indigo}`,
@@ -70,7 +88,7 @@ export default function AiChatBubble() {
         <Paper
           elevation={8}
           sx={{
-            position: 'fixed', bottom: { xs: 84, sm: 40 }, right: 24, zIndex: 1300,
+            position: 'fixed', bottom: { xs: 80, sm: 28 }, right: 24, zIndex: 1300,
             width: { xs: 'calc(100vw - 32px)', sm: 360 }, height: 480,
             display: 'flex', flexDirection: 'column', borderRadius: 3, overflow: 'hidden',
           }}
