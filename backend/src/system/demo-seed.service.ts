@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { PRODUCT_IMAGES } from './product-images';
 
 let seed = 42;
 function rand() {
@@ -82,6 +83,7 @@ export class DemoSeedService {
           data: {
             name: pname, referencePurchasePrice: purchasePrice, referenceSalePrice: salePrice,
             alertThreshold: 300, categoryId: category.id, unit: 'box',
+            imageUrl: PRODUCT_IMAGES[pname],
           },
         });
         products.push({ id: product.id, name: pname, purchasePrice, salePrice });
