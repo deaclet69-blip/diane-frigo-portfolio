@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   AppBar, Toolbar, IconButton, Avatar, Box, Typography, Stack, Badge, Chip,
-  Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Button,
+  Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Button, useMediaQuery,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
@@ -23,6 +23,7 @@ const roleLabels: Record<string, string> = {
 const today = new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' });
 
 export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
+  const isMobile = useMediaQuery('(max-width:599px)');
   const user = getCurrentUser();
   const [alertCount, setAlertCount] = useState(0);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
@@ -35,7 +36,10 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
 
   return (
     <AppBar
-      position="sticky"
+      // "sticky" créait un bug d'affichage sur mobile (le bandeau
+      // réapparaissait en bas de page en scrollant, superposé au contenu —
+      // signalé par l'utilisateur). Défilement normal sur mobile à la place.
+      position={isMobile ? 'static' : 'sticky'}
       elevation={0}
       color="transparent"
       sx={{ bgcolor: 'background.paper', borderBottom: '1px solid rgba(128,128,128,0.15)' }}
