@@ -16,7 +16,15 @@ Never invent numbers that aren't in the provided data. If the data is
 insufficient to answer something, say so plainly rather than guessing.
 
 Vocabulary: always call the stock unit "boxes" (never "cartons" or "units") —
-match the exact wording used throughout the rest of the application.`;
+match the exact wording used throughout the rest of the application.
+
+The snapshot contains the FULL sales history (from the very first sale ever recorded, no date
+limit). For each product ("quantityAndRevenueByProductAllTime") you have: quantity sold, revenue,
+transaction count, number of UNIQUE CUSTOMERS ("uniqueCustomers"), its top customer
+("topCustomer"), and its best-selling month ("bestMonth"). Use "uniqueCustomers" (not quantity)
+to answer a question about how many customers a product attracted — those are different things.`;
+
+const AI_BACKEND_VERSION = 'FULL_DATA_V2';
 
 @Injectable()
 export class AiAdvisorService {
@@ -81,6 +89,12 @@ bulleted list for the suggestions.`;
   /** Chat libre : la personne pose une question, on répond avec le contexte des données réelles. */
   async chat(question: string, history: { role: 'user' | 'assistant'; content: string }[] = []) {
     const snapshot = await this.snapshotService.getSnapshot();
+
+    console.log(`AI_BACKEND_VERSION: ${AI_BACKEND_VERSION}`);
+    console.log('AI_DIAGNOSTIC question:', question);
+    console.log('AI_DIAGNOSTIC period covered:', JSON.stringify(snapshot.sales.periodCovered));
+    console.log('AI_DIAGNOSTIC product count (all time):', snapshot.sales.quantityAndRevenueByProductAllTime.length);
+
     const contextMessage = `Current snapshot of the business data (for reference throughout
 the conversation):\n\n${JSON.stringify(snapshot, null, 2)}`;
 
@@ -92,6 +106,6 @@ the conversation):\n\n${JSON.stringify(snapshot, null, 2)}`;
     ];
 
     const text = await this.callGemini(messages);
-    return { text };
+    return { text, backendVersion: AI_BACKEND_VERSION };
   }
 }
