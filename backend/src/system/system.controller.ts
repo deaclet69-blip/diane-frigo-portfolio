@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { IsString, MinLength } from 'class-validator';
 import { SystemService } from './system.service';
 import { DemoSeedService } from './demo-seed.service';
@@ -40,6 +40,15 @@ export class SystemController {
 @Controller('system')
 export class DemoReseedController {
   constructor(private demoSeedService: DemoSeedService) {}
+
+  // Endpoint de "réveil" — sans rien vérifier, juste pour forcer Render à
+  // sortir le service gratuit de veille avant l'appel de reseed qui suit
+  // (Render met ~30-60s à se réveiller ; cron-job.org abandonne après ~30s ;
+  // ce petit appel séparé, quelques minutes avant, absorbe ce délai).
+  @Get('health')
+  health() {
+    return { status: 'ok', timestamp: new Date().toISOString() };
+  }
 
   @Post('reseed-demo')
   async reseedDemo(@Query('key') key: string) {
