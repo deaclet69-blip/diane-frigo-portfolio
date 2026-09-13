@@ -2,6 +2,7 @@ import { Body, Controller, ForbiddenException, Get, Post, Query, UseGuards } fro
 import { IsString, MinLength } from 'class-validator';
 import { SystemService } from './system.service';
 import { DemoSeedService } from './demo-seed.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -39,7 +40,10 @@ export class SystemController {
 // remplis (voir demo-seed.service.ts).
 @Controller('system')
 export class DemoReseedController {
-  constructor(private demoSeedService: DemoSeedService) {}
+  constructor(
+    private demoSeedService: DemoSeedService,
+    private prisma: PrismaService,
+  ) {}
 
   // Endpoint de "réveil" — sans rien vérifier, juste pour forcer Render à
   // sortir le service gratuit de veille avant l'appel de reseed qui suit
@@ -48,6 +52,16 @@ export class DemoReseedController {
   @Get('health')
   health() {
     return { status: 'ok', timestamp: new Date().toISOString() };
+  }
+
+  // "health" seul ne réveille QUE le serveur Render, pas forcément la base
+  // Neon (qui a son propre état de veille séparé). Celui-ci interroge
+  // réellement PostgreSQL via Prisma, pour réveiller les deux avant le
+  // reseed qui suit.
+  @Get('health-db')
+  async healthDb() {
+    await this.prisma.$queryRaw`SELECT 1`;
+    return { status: 'ok', database: 'connected', timestamp: new Date().toISOString() };
   }
 
   @Post('reseed-demo')
