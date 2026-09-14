@@ -1,0 +1,79 @@
+name: Diane Frigo Demo Reseed
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+      timezone: "Africa/Brazzaville"
+
+  workflow_dispatch:
+
+jobs:
+  reseed-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Wake up Render
+        run: |
+          echo "Réveil du backend Diane Frigo..."
+
+          for i in {1..12}; do
+            echo "Tentative $i/12"
+
+            if curl \
+              --silent \
+              --show-error \
+              --fail \
+              --max-time 90 \
+              "https://diane-frigo-demo-backend.onrender.com/api/system/health"; then
+
+              echo ""
+              echo "Backend Render réveillé."
+              break
+            fi
+
+            echo "Backend pas encore prêt."
+            sleep 15
+          done
+
+      - name: Check database
+        run: |
+          echo "Vérification de PostgreSQL / Neon..."
+
+          for i in {1..10}; do
+            echo "Tentative DB $i/10"
+
+            if curl \
+              --silent \
+              --show-error \
+              --fail \
+              --max-time 60 \
+              "https://diane-frigo-demo-backend.onrender.com/api/system/health-db"; then
+
+              echo ""
+              echo "Base de données disponible."
+              exit 0
+            fi
+
+            sleep 10
+          done
+
+          echo "Impossible de joindre la base de données."
+          exit 1
+
+      - name: Reseed Diane Frigo
+        env:
+          DEMO_RESEED_KEY: ${{ secrets.DEMO_RESEED_KEY }}
+
+        run: |
+          echo "Lancement du reseed Diane Frigo..."
+
+          curl \
+            --fail-with-body \
+            --show-error \
+            --max-time 600 \
+            -X POST \
+            "https://diane-frigo-demo-backend.onrender.com/api/system/reseed-demo?key=${DEMO_RESEED_KEY}"
+
+          echo ""
+          echo "Reseed terminé."
