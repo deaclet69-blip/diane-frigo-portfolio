@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Stack, TextField, MenuItem, Table, TableContainer, TableHead, TableRow, TableCell,
-  TableBody, Button, Alert, Divider, useMediaQuery,
+  TableBody, Button, Alert, Divider, useMediaQuery, Tooltip,
 } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { getPricingSettings, updatePricingSettings, getProfitabilityAnalysis, checkPrice } from '../../services/pricing';
 import { getProducts } from '../../services/products';
 import type { PricingSettings, ProfitabilityAnalysis, PriceCheckResult, Product } from '../../types';
@@ -27,6 +28,7 @@ export default function PricingPage() {
   const [checkResult, setCheckResult] = useState<PriceCheckResult | null>(null);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   function reload() {
     getPricingSettings().then(setSettings);
@@ -80,17 +82,32 @@ export default function PricingPage() {
 
   return (
     <Box>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>Profitability</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Cost basis = weighted average purchase price + fixed expenses allocated per box sold this month.
-      </Typography>
+      <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 3 }}>
+        <Typography variant="h5" fontWeight={700}>Profitability</Typography>
+        <Tooltip
+          arrow
+          open={helpOpen}
+          onClose={() => setHelpOpen(false)}
+          disableFocusListener
+          disableHoverListener
+          disableTouchListener
+          title="Full cost basis = weighted average purchase price (WAP) + variable expenses allocated per box sold this month + fixed expenses allocated per box sold this month. Gross margin (next column) compares only the WAP to the reference sale price, before any expenses."
+        >
+          <InfoOutlinedIcon
+            fontSize="small"
+            sx={{ color: 'text.secondary', cursor: 'help' }}
+            onClick={() => setHelpOpen((v) => !v)}
+          />
+        </Tooltip>
+      </Stack>
 
       {analysis && (
         <Paper sx={{ mb: 3 }}>
           <Box sx={{ p: 2.5, pb: 0 }}>
             <Typography variant="subtitle1" fontWeight={700}>Profitability Analysis by Product</Typography>
-            <Typography variant="caption" color="text.secondary">
-              Allocated fixed expenses: {formatFcfa(analysis.chargesPerCarton)} / box
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+              Allocated fixed expenses: {formatFcfa(analysis.chargesFixedPerCarton)} / box
+              {analysis.chargesVariablePerCarton > 0 && ` · Allocated variable expenses: ${formatFcfa(analysis.chargesVariablePerCarton)} / box`}
             </Typography>
             <Alert severity={analysis.usingRealAverage ? 'success' : 'info'} sx={{ mt: 1.5 }}>
               {analysis.usingRealAverage
@@ -111,7 +128,8 @@ export default function PricingPage() {
                   Product
                 </TableCell>
                 {!isMobile && <TableCell align="right">Avg. Purchase Price</TableCell>}
-                <TableCell align="right">Cost Basis</TableCell>
+                {!isMobile && <TableCell align="right">Gross Margin (ref. price)</TableCell>}
+                <TableCell align="right">Full Cost Basis</TableCell>
                 <TableCell align="right">Floor Price</TableCell>
                 <TableCell align="right">Bulk Wholesale</TableCell>
                 <TableCell align="right">Wholesale</TableCell>
@@ -130,6 +148,11 @@ export default function PricingPage() {
                     {r.productName}
                   </TableCell>
                   {!isMobile && <TableCell align="right">{formatFcfa(r.avgPurchasePrice)}</TableCell>}
+                  {!isMobile && (
+                    <TableCell align="right" sx={{ color: r.grossMarginAtRetail >= 0 ? diane.green : diane.red }}>
+                      {formatFcfa(r.grossMarginAtRetail)}
+                    </TableCell>
+                  )}
                   <TableCell align="right" sx={{ fontWeight: 700 }}>{formatFcfa(r.costOfGoods)}</TableCell>
                   <TableCell align="right">{formatFcfa(r.suggestedPrices.floor)}</TableCell>
                   <TableCell align="right">{formatFcfa(r.suggestedPrices.wholesaleBulk)}</TableCell>

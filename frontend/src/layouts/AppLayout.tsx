@@ -63,7 +63,13 @@ export default function AppLayout() {
         </Box>
       </Box>
       {isMobile && <MobileBottomNav />}
-      {isMobile && <MobileNavDrawer open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />}
+      {isMobile && (
+        <MobileNavDrawer
+          open={mobileNavOpen}
+          onOpen={() => setMobileNavOpen(true)}
+          onClose={() => setMobileNavOpen(false)}
+        />
+      )}
       <AiChatBubble />
     </Box>
   );

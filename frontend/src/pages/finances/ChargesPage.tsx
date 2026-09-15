@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Chip,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Chip, IconButton, Alert,
   ToggleButtonGroup, ToggleButton, useMediaQuery,
 } from '@mui/material';
-import { getExpenses, getExpenseCategories, createExpense, reclassifyExpense, createExpenseCategory } from '../../services/finances';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { getExpenses, getExpenseCategories, createExpense, reclassifyExpense, createExpenseCategory, deleteExpense } from '../../services/finances';
 import type { Expense, ExpenseCategory, ChargeType } from '../../types';
 import { diane } from '../../theme';
 
@@ -41,6 +42,8 @@ export default function ChargesPage() {
     categoryId: '', newCategoryName: '', description: '', amount: '', date: new Date().toISOString().slice(0, 10),
     chargeType: 'VARIABLE' as ChargeType,
   });
+  const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function reload() {
     getExpenses(filter === 'ALL' ? {} : { chargeType: filter }).then(setExpenses);
@@ -80,6 +83,18 @@ export default function ChargesPage() {
     reload();
   }
 
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleteError(null);
+    try {
+      await deleteExpense(deleteTarget.id);
+      setDeleteTarget(null);
+      reload();
+    } catch (err: any) {
+      setDeleteError(err?.response?.data?.message ?? "Couldn't delete this expense.");
+    }
+  }
+
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
@@ -109,7 +124,12 @@ export default function ChargesPage() {
                   </Typography>
                   <Typography fontWeight={700}>{e.category.name}</Typography>
                 </Box>
-                <Typography variant="h6" fontWeight={700}>{formatFcfa(e.amount)}</Typography>
+                <Stack direction="row" alignItems="center" spacing={0.5}>
+                  <Typography variant="h6" fontWeight={700}>{formatFcfa(e.amount)}</Typography>
+                  <IconButton size="small" onClick={() => { setDeleteError(null); setDeleteTarget(e); }}>
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
               </Stack>
               {e.description && (
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
@@ -156,6 +176,7 @@ export default function ChargesPage() {
               <TableCell align="right">Amount</TableCell>
               <TableCell>Type</TableCell>
               <TableCell align="right"></TableCell>
+              <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -185,11 +206,16 @@ export default function ChargesPage() {
                     ))}
                   </TextField>
                 </TableCell>
+                <TableCell align="right">
+                  <IconButton size="small" onClick={() => { setDeleteError(null); setDeleteTarget(e); }}>
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
             {expenses.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                   No expenses recorded.
                 </TableCell>
               </TableRow>
@@ -267,6 +293,24 @@ export default function ChargesPage() {
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleCreate}>Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} fullWidth maxWidth="xs">
+        <DialogTitle>Delete this expense?</DialogTitle>
+        <DialogContent>
+          {deleteTarget && (
+            <Typography variant="body2">
+              {deleteTarget.category.name} — {formatFcfa(deleteTarget.amount)} on{' '}
+              {new Date(deleteTarget.date).toLocaleDateString('en-US')}
+              {deleteTarget.description ? ` (${deleteTarget.description})` : ''}. This action cannot be undone.
+            </Typography>
+          )}
+          {deleteError && <Alert severity="error" sx={{ mt: 2 }}>{deleteError}</Alert>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>

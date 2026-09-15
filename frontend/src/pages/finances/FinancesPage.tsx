@@ -22,6 +22,9 @@ export default function FinancesPage() {
   const [recovery, setRecovery] = useState<RecoveryStatus | null>(null);
   const [goalDialogOpen, setGoalDialogOpen] = useState(false);
   const [goalInput, setGoalInput] = useState('');
+  const [recoveryAck, setRecoveryAck] = useState(
+    () => localStorage.getItem('diane-frigo-recovery-ack') === '1',
+  );
   const navigate = useNavigate();
 
   function reload() {
@@ -30,6 +33,18 @@ export default function FinancesPage() {
   }
 
   useEffect(reload, []);
+
+  useEffect(() => {
+    if (recovery && !recovery.isPositive && recoveryAck) {
+      localStorage.removeItem('diane-frigo-recovery-ack');
+      setRecoveryAck(false);
+    }
+  }, [recovery, recoveryAck]);
+
+  function acknowledgeRecovery() {
+    localStorage.setItem('diane-frigo-recovery-ack', '1');
+    setRecoveryAck(true);
+  }
 
   function openGoalDialog() {
     setGoalInput(recovery?.goal != null ? String(recovery.goal) : '');
@@ -157,8 +172,22 @@ export default function FinancesPage() {
         </Paper>
       </Stack>
 
-      {recovery && (
+      {recovery && recovery.isPositive && recoveryAck ? null : recovery && (
         <Paper sx={{ p: 3, mb: 3 }}>
+          {recovery.isPositive ? (
+            <Stack spacing={1.5} alignItems="flex-start">
+              <Typography variant="subtitle1" fontWeight={700} sx={{ color: diane.green }}>
+                ✅ Target reached — you're now profitable
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Cumulative result: <strong>{formatFcfa(recovery.netResult)}</strong>
+              </Typography>
+              <Button size="small" variant="outlined" onClick={acknowledgeRecovery}>
+                OK, dismiss
+              </Button>
+            </Stack>
+          ) : (
+          <>
           <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
             Recovery Target <Typography component="span" variant="caption" color="text.secondary">(cumulative since the start)</Typography>
           </Typography>
@@ -188,6 +217,8 @@ export default function FinancesPage() {
           <Typography variant="caption" color="text.secondary">
             {recovery.progressPercent.toFixed(1)}% — Target: reach a positive net profit
           </Typography>
+          </>
+          )}
 
           {!recovery.isPositive && recovery.perProduct.length > 0 && (
             <TableContainer>

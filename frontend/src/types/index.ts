@@ -251,8 +251,10 @@ export interface ProfitabilityRow {
   productId: string;
   productName: string;
   avgPurchasePrice: number;
-  chargesPerCarton: number;
+  chargesFixedPerCarton: number;
+  chargesVariablePerCarton: number;
   costOfGoods: number;
+  grossMarginAtRetail: number;
   suggestedPrices: {
     floor: number;
     wholesaleBulk: number;
@@ -262,7 +264,8 @@ export interface ProfitabilityRow {
 }
 
 export interface ProfitabilityAnalysis {
-  chargesPerCarton: number;
+  chargesFixedPerCarton: number;
+  chargesVariablePerCarton: number;
   usingRealAverage: boolean;
   monthsWithData: number;
   rows: ProfitabilityRow[];

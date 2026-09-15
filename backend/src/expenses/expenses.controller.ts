@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { IsIn, IsString, MinLength } from 'class-validator';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
@@ -46,6 +46,12 @@ export class ExpensesController {
   @Patch(':id/reclassify')
   reclassify(@Param('id') id: string, @Body() dto: ReclassifyDto, @CurrentUser() user: { id: string }) {
     return this.expensesService.reclassify(id, dto.chargeType, user.id);
+  }
+
+  @Roles('ADMIN')
+  @Delete(':id')
+  remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+    return this.expensesService.remove(id, user.id);
   }
 }
 

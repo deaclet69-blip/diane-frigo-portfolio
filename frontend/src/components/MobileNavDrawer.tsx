@@ -1,4 +1,4 @@
-import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, Typography, Stack, IconButton, Tooltip } from '@mui/material';
+import { SwipeableDrawer, List, ListItemButton, ListItemIcon, ListItemText, Box, Typography, Stack, IconButton, Tooltip } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -39,15 +39,19 @@ const navItems = [
   { label: 'Settings', icon: <SettingsIcon />, to: '/parametres/produits' },
 ];
 
-export default function MobileNavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+export default function MobileNavDrawer({ open, onOpen, onClose }: { open: boolean; onOpen: () => void; onClose: () => void }) {
   const { mode, toggle } = useColorMode();
   const user = getCurrentUser();
 
   return (
-    <Drawer
+    <SwipeableDrawer
       anchor="left"
       open={open}
       onClose={onClose}
+      onOpen={onOpen}
+      // 180px (pas juste le tout bord) pour éviter le conflit avec le geste
+      // "retour" du système sur les téléphones Android à navigation gestuelle.
+      swipeAreaWidth={180}
       sx={{ '& .MuiDrawer-paper': { width: 260, height: '100dvh', bgcolor: diane.navy, color: '#fff', display: 'flex', flexDirection: 'column' } }}
     >
       <Stack direction="row" alignItems="center" spacing={1.2} sx={{ px: 2.25, py: 2 }}>
@@ -88,6 +92,6 @@ export default function MobileNavDrawer({ open, onClose }: { open: boolean; onCl
           </IconButton>
         </Tooltip>
       </Stack>
-    </Drawer>
+    </SwipeableDrawer>
   );
 }

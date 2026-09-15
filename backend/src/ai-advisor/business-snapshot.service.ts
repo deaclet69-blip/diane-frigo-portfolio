@@ -184,7 +184,8 @@ export class BusinessSnapshotService {
         overdueDebts: overdueDebts,
       },
       pricing: pricingAnalysis ? {
-        chargesPerBox: pricingAnalysis.chargesPerCarton,
+        chargesFixedPerBox: pricingAnalysis.chargesFixedPerCarton,
+        chargesVariablePerBox: pricingAnalysis.chargesVariablePerCarton,
         products: pricingAnalysis.rows.map((r) => ({
           product: r.productName, costBasis: r.costOfGoods, suggestedFloorPrice: r.suggestedPrices.floor,
         })),

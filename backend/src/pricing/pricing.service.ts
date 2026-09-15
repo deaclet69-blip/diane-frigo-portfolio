@@ -62,19 +62,23 @@ export class PricingService {
    *   de départ saisie manuellement (Paramètres > section 7).
    */
   private async getChargesPerCarton(): Promise<{
-    value: number; usingRealAverage: boolean; monthsWithData: number;
+    fixedValue: number; variableValue: number; usingRealAverage: boolean; monthsWithData: number;
   }> {
     const settings = await this.getSettings();
     const now = new Date();
 
-    const monthlyData: { fixedCharges: number; cartonsSold: number }[] = [];
+    const monthlyData: { fixedCharges: number; variableCharges: number; cartonsSold: number }[] = [];
     for (let i = 1; i <= 12; i++) {
       const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-      const [fixedAgg, exitsAgg] = await Promise.all([
+      const [fixedAgg, variableAgg, exitsAgg] = await Promise.all([
         this.prisma.expense.aggregate({
           _sum: { amount: true },
           where: { chargeType: 'FIXE', date: { gte: start, lt: end } },
+        }),
+        this.prisma.expense.aggregate({
+          _sum: { amount: true },
+          where: { chargeType: 'VARIABLE', date: { gte: start, lt: end } },
         }),
         this.prisma.stockMovement.aggregate({
           _sum: { quantity: true },
@@ -83,6 +87,7 @@ export class PricingService {
       ]);
       monthlyData.push({
         fixedCharges: Number(fixedAgg._sum.amount ?? 0),
+        variableCharges: Number(variableAgg._sum.amount ?? 0),
         cartonsSold: Number(exitsAgg._sum.quantity ?? 0),
       });
     }
@@ -91,9 +96,11 @@ export class PricingService {
 
     if (monthsWithData.length >= 2) {
       const avgFixedCharges = monthsWithData.reduce((acc, m) => acc + m.fixedCharges, 0) / monthsWithData.length;
+      const avgVariableCharges = monthsWithData.reduce((acc, m) => acc + m.variableCharges, 0) / monthsWithData.length;
       const avgCartonsSold = monthsWithData.reduce((acc, m) => acc + m.cartonsSold, 0) / monthsWithData.length;
       return {
-        value: avgCartonsSold > 0 ? avgFixedCharges / avgCartonsSold : 0,
+        fixedValue: avgCartonsSold > 0 ? avgFixedCharges / avgCartonsSold : 0,
+        variableValue: avgCartonsSold > 0 ? avgVariableCharges / avgCartonsSold : 0,
         usingRealAverage: true,
         monthsWithData: monthsWithData.length,
       };
@@ -102,7 +109,8 @@ export class PricingService {
     const estFixed = Number(settings.estimatedMonthlyFixedCharges);
     const estCartons = settings.estimatedMonthlyCartonsSold;
     return {
-      value: estCartons > 0 ? estFixed / estCartons : 0,
+      fixedValue: estCartons > 0 ? estFixed / estCartons : 0,
+      variableValue: 0,
       usingRealAverage: false,
       monthsWithData: monthsWithData.length,
     };
@@ -117,23 +125,22 @@ export class PricingService {
     ]);
 
     const rounding = settings.priceRoundingFcfa;
-    const chargesPerCarton = chargesPerCartonInfo.value;
+    const chargesFixedPerCarton = chargesPerCartonInfo.fixedValue;
+    const chargesVariablePerCarton = chargesPerCartonInfo.variableValue;
 
     const rows = await Promise.all(
       products.map(async (p) => {
         const avgPurchasePrice = await this.getAvgPurchasePrice(p.id, Number(p.referencePurchasePrice));
-        // Arrondi au dollar entier — pour la démo, l'affichage montre déjà
-        // des dollars entiers partout ; sans cet arrondi ici, le "coût de
-        // revient" affiché (arrondi) et le "%" calculé (à partir de la
-        // vraie valeur décimale) pouvaient ne pas correspondre exactement
-        // (ex. "48%" affiché là où un client s'attend à "50%").
-        const costOfGoods = Math.round(avgPurchasePrice + chargesPerCarton);
+        const costOfGoods = Math.round(avgPurchasePrice + chargesVariablePerCarton + chargesFixedPerCarton);
+        const grossMarginAtRetail = Number(p.referenceSalePrice) - avgPurchasePrice;
         return {
           productId: p.id,
           productName: p.name,
           avgPurchasePrice,
-          chargesPerCarton,
+          chargesFixedPerCarton,
+          chargesVariablePerCarton,
           costOfGoods,
+          grossMarginAtRetail,
           suggestedPrices: {
             floor: mround(costOfGoods / (1 - Number(settings.targetMarginFloor)), rounding),
             wholesaleBulk: mround(costOfGoods / (1 - Number(settings.targetMarginWholesaleBulk)), rounding),
@@ -145,7 +152,8 @@ export class PricingService {
     );
 
     return {
-      chargesPerCarton,
+      chargesFixedPerCarton,
+      chargesVariablePerCarton,
       usingRealAverage: chargesPerCartonInfo.usingRealAverage,
       monthsWithData: chargesPerCartonInfo.monthsWithData,
       rows,

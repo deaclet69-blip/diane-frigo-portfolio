@@ -43,3 +43,7 @@ export function createExpense(payload: {
 export function reclassifyExpense(id: string, chargeType: ChargeType) {
   return api.patch(`/expenses/${id}/reclassify`, { chargeType }).then((r) => r.data);
 }
+
+export function deleteExpense(id: string) {
+  return api.delete(`/expenses/${id}`).then((r) => r.data);
+}
