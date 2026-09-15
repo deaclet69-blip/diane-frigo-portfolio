@@ -124,13 +124,47 @@ export class BusinessSnapshotService {
   }
 
   /**
+   * Expense history by category over the last 4 months (including the
+   * current one) — without this, the AI only ever saw the current month's
+   * total, never what was paid in previous months (e.g. salaries), so it
+   * couldn't make a reasonable estimate from real history.
+   */
+  private async getExpenseHistory() {
+    const now = new Date();
+    const months: { label: string; start: Date; end: Date }[] = [];
+    for (let i = 0; i < 4; i++) {
+      const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+      months.push({ label: start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }), start, end });
+    }
+
+    const results = await Promise.all(
+      months.map(async (m) => {
+        const expenses = await this.prisma.expense.findMany({
+          where: { date: { gte: m.start, lt: m.end } },
+          include: { category: true },
+        });
+        const byCategory = new Map<string, number>();
+        for (const e of expenses) {
+          byCategory.set(e.category.name, (byCategory.get(e.category.name) ?? 0) + Number(e.amount));
+        }
+        return {
+          month: m.label,
+          byCategory: Array.from(byCategory.entries()).map(([category, amount]) => ({ category, amount })),
+        };
+      }),
+    );
+    return results;
+  }
+
+  /**
    * Compiles a full snapshot of the business — this is the "context" sent
    * to the AI so it can give relevant analysis and suggestions instead of
    * generic advice.
    */
   async getSnapshot() {
     const [stock, financeSummary, recovery, salesTrend, topCustomers, decliningCustomers, overdueDebts,
-      pricingAnalysis, monthlyLossRate, loanStatus] =
+      pricingAnalysis, monthlyLossRate, loanStatus, expenseHistory] =
       await Promise.all([
         this.stockService.getOverview(),
         this.financesService.getSummary('month'),
@@ -142,6 +176,7 @@ export class BusinessSnapshotService {
         this.pricingService.getProfitabilityAnalysis().catch(() => null),
         this.lossesService.getMonthlyLossRate().catch(() => null),
         this.loansService.getStatus().catch(() => null), // may not exist — handled gracefully
+        this.getExpenseHistory(),
       ]);
 
     return {
@@ -163,6 +198,10 @@ export class BusinessSnapshotService {
         netResultThisMonth: financeSummary.netResult,
         cumulativeNetResult: recovery.netResult,
         recoveryObjectivePercent: recovery.progressPercent,
+        // Expense history by category over the last 4 months — useful for
+        // estimating a recurring expense (e.g. "salaries") not yet
+        // recorded this month, based on what was paid before.
+        expenseHistoryByCategory: expenseHistory,
       },
       sales: {
         revenueThisWeek: salesTrend.revenueLast7Days,

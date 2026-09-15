@@ -22,7 +22,13 @@ The snapshot contains the FULL sales history (from the very first sale ever reco
 limit). For each product ("quantityAndRevenueByProductAllTime") you have: quantity sold, revenue,
 transaction count, number of UNIQUE CUSTOMERS ("uniqueCustomers"), its top customer
 ("topCustomer"), and its best-selling month ("bestMonth"). Use "uniqueCustomers" (not quantity)
-to answer a question about how many customers a product attracted — those are different things.`;
+to answer a question about how many customers a product attracted — those are different things.
+
+"finances.expenseHistoryByCategory" gives the expense breakdown by category (e.g. Salaries, Rent)
+over the last 4 months, including the current one. If a recurring expense (like salaries) hasn't
+been recorded yet this month but was in previous months, USE this history to give a reasonable
+estimate instead of saying the information is missing — make clear it's an estimate based on
+previous months, not an exact figure for the current month.`;
 
 const AI_BACKEND_VERSION = 'FULL_DATA_V2';
 

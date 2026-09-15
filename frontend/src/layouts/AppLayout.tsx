@@ -66,7 +66,6 @@ export default function AppLayout() {
       {isMobile && (
         <MobileNavDrawer
           open={mobileNavOpen}
-          onOpen={() => setMobileNavOpen(true)}
           onClose={() => setMobileNavOpen(false)}
         />
       )}
