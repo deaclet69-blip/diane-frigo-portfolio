@@ -73,7 +73,8 @@ jobs:
             --show-error \
             --max-time 600 \
             -X POST \
-            "https://diane-frigo-demo-backend.onrender.com/api/system/reseed-demo?key=${DEMO_RESEED_KEY}"
+            -H "X-Demo-Reseed-Key: ${DEMO_RESEED_KEY}" \
+            "https://diane-frigo-demo-backend.onrender.com/api/system/reseed-demo"
 
           echo ""
           echo "Reseed terminé."

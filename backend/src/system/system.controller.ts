@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Headers, Post, UseGuards } from '@nestjs/common';
 import { IsString, MinLength } from 'class-validator';
 import { SystemService } from './system.service';
 import { DemoSeedService } from './demo-seed.service';
@@ -64,8 +64,12 @@ export class DemoReseedController {
     return { status: 'ok', database: 'connected', timestamp: new Date().toISOString() };
   }
 
+  // La clé passait avant en paramètre d'URL (?key=...) — visible dans les
+  // journaux de Render, l'historique du navigateur, et tout proxy
+  // intermédiaire. Désormais transmise dans un en-tête HTTP dédié, jamais
+  // journalisé par défaut.
   @Post('reseed-demo')
-  async reseedDemo(@Query('key') key: string) {
+  async reseedDemo(@Headers('x-demo-reseed-key') key: string) {
     const expected = process.env.DEMO_RESEED_KEY;
     if (!expected || key !== expected) {
       throw new ForbiddenException('Invalid or missing key.');

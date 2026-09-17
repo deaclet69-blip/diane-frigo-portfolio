@@ -13,7 +13,16 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true, limit: '6mb' }));
 
   app.use(helmet());
-  app.enableCors();
+  // CORS restreint à une liste d'origines connues (variable
+  // FRONTEND_URL, plusieurs adresses possibles séparées par des virgules).
+  const allowedOrigins = (process.env.FRONTEND_URL ?? 'http://localhost:5173')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  app.enableCors({
+    origin: allowedOrigins,
+    credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
   );
