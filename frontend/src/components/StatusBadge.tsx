@@ -10,11 +10,5 @@ const config: Record<StockStatus, { label: string; bg: string; color: string }> 
 
 export default function StatusBadge({ status }: { status: StockStatus }) {
   const c = config[status];
-  return (
-    <Chip
-      label={c.label}
-      size="small"
-      sx={{ bgcolor: c.bg, color: c.color, fontWeight: 700, fontSize: 12 }}
-    />
-  );
+  return <Chip label={c.label} size="small" sx={{ bgcolor: c.bg, color: c.color, fontWeight: 700, fontSize: 12 }} />;
 }

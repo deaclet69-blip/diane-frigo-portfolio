@@ -49,7 +49,12 @@ export default function MarkdownText({ text, fontSize }: { text: string; fontSiz
       const level = trimmed.match(/^#+/)![0].length;
       const content = trimmed.replace(/^#{1,3}\s/, '');
       blocks.push(
-        <Typography key={key} variant={level === 1 ? 'subtitle1' : 'subtitle2'} fontWeight={700} sx={{ mt: 1, fontSize: fontSize ? fontSize + 1 : undefined }}>
+        <Typography
+          key={key}
+          variant={level === 1 ? 'subtitle1' : 'subtitle2'}
+          fontWeight={700}
+          sx={{ mt: 1, fontSize: fontSize ? fontSize + 1 : undefined }}
+        >
           {renderInline(content, key)}
         </Typography>,
       );

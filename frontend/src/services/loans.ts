@@ -10,8 +10,11 @@ export function getLoanStatus() {
 }
 
 export function upsertLoan(payload: {
-  totalAmount: number; constructionAmount?: number; equipmentAmount?: number;
-  otherAmount?: number; customProfitGoal?: number;
+  totalAmount: number;
+  constructionAmount?: number;
+  equipmentAmount?: number;
+  otherAmount?: number;
+  customProfitGoal?: number;
 }) {
   return api.put<Loan>('/loans', payload).then((r) => r.data);
 }

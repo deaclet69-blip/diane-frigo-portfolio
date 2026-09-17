@@ -1,7 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Box, Typography, Paper, InputAdornment, TextField, ToggleButtonGroup, ToggleButton,
-  Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Stack, Button, Avatar,
+  Box,
+  Typography,
+  Paper,
+  InputAdornment,
+  TextField,
+  ToggleButtonGroup,
+  ToggleButton,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Stack,
+  Button,
+  Avatar,
   useMediaQuery,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -42,9 +56,13 @@ export default function StockListPage() {
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
         <Box>
-          <Typography variant="h5" fontWeight={700}>Stock</Typography>
+          <Typography variant="h5" fontWeight={700}>
+            Stock
+          </Typography>
           <Typography variant="body2" color="text.secondary">
-            {data ? `${data.totals.totalStock.toLocaleString('en-US')} boxes · ${formatFcfa(data.totals.totalValue)}` : '…'}
+            {data
+              ? `${data.totals.totalStock.toLocaleString('en-US')} boxes · ${formatFcfa(data.totals.totalValue)}`
+              : '…'}
           </Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/stock/entree')}>
@@ -59,17 +77,34 @@ export default function StockListPage() {
           onChange={(e) => setSearch(e.target.value)}
           size="small"
           sx={{ minWidth: 260 }}
-          InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
         />
         <Box sx={{ overflowX: 'auto', pb: 0.5, '&::-webkit-scrollbar': { display: 'none' } }}>
           <ToggleButtonGroup
-            size="small" value={statusFilter} exclusive onChange={(_, v) => v && setStatusFilter(v)}
+            size="small"
+            value={statusFilter}
+            exclusive
+            onChange={(_, v) => v && setStatusFilter(v)}
             sx={{ flexWrap: 'nowrap', width: 'max-content' }}
           >
-            <ToggleButton value="ALL" sx={{ whiteSpace: 'nowrap' }}>All</ToggleButton>
-            <ToggleButton value="OK" sx={{ whiteSpace: 'nowrap' }}>In Stock</ToggleButton>
-            <ToggleButton value="ALERTE" sx={{ whiteSpace: 'nowrap' }}>Low Stock</ToggleButton>
-            <ToggleButton value="RUPTURE" sx={{ whiteSpace: 'nowrap' }}>Out of Stock</ToggleButton>
+            <ToggleButton value="ALL" sx={{ whiteSpace: 'nowrap' }}>
+              All
+            </ToggleButton>
+            <ToggleButton value="OK" sx={{ whiteSpace: 'nowrap' }}>
+              In Stock
+            </ToggleButton>
+            <ToggleButton value="ALERTE" sx={{ whiteSpace: 'nowrap' }}>
+              Low Stock
+            </ToggleButton>
+            <ToggleButton value="RUPTURE" sx={{ whiteSpace: 'nowrap' }}>
+              Out of Stock
+            </ToggleButton>
           </ToggleButtonGroup>
         </Box>
       </Stack>
@@ -90,11 +125,21 @@ export default function StockListPage() {
                   <ImageIcon fontSize="small" />
                 </Avatar>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" sx={{ rowGap: 0.5 }}>
-                    <Typography fontWeight={700} sx={{ wordBreak: 'break-word' }}>{item.name}</Typography>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                    flexWrap="wrap"
+                    sx={{ rowGap: 0.5 }}
+                  >
+                    <Typography fontWeight={700} sx={{ wordBreak: 'break-word' }}>
+                      {item.name}
+                    </Typography>
                     <StatusBadge status={item.status} />
                   </Stack>
-                  <Typography variant="body2" color="text.secondary">{item.category ?? '—'}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {item.category ?? '—'}
+                  </Typography>
                   {/* Chaque info sur sa propre ligne — sur un nom de produit
                       long ("Frozen Chicken Wings"), mettre "Value $..." côte
                       à côte avec la quantité pouvait le compresser/tronquer
@@ -110,7 +155,9 @@ export default function StockListPage() {
                     <Typography variant="body2" color="text.secondary">
                       Sale price {formatFcfa(item.referenceSalePrice)}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">·</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      ·
+                    </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Value {formatFcfa(item.value)}
                     </Typography>
@@ -128,52 +175,54 @@ export default function StockListPage() {
       ) : (
         <Paper>
           <TableContainer>
-<Table>
-            <TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>Product</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell align="right">Stock Left</TableCell>
-                <TableCell align="right">Value</TableCell>
-                <TableCell align="right">Ref. Sale Price</TableCell>
-                <TableCell>Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filtered.map((item) => (
-                <TableRow
-                  key={item.id}
-                  hover
-                  sx={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/stock/${item.id}`)}
-                >
-                  <TableCell sx={{ width: 48 }}>
-                    <Avatar variant="rounded" src={item.imageUrl ?? undefined} sx={{ width: 34, height: 34 }}>
-                      <ImageIcon fontSize="small" />
-                    </Avatar>
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>{item.name}</TableCell>
-                  <TableCell>{item.category ?? '—'}</TableCell>
-                  <TableCell align="right">
-                    {item.currentStock.toLocaleString('en-US')} {item.unit}
-                    {item.currentStock !== 1 ? 's' : ''}
-                  </TableCell>
-                  <TableCell align="right">{formatFcfa(item.value)}</TableCell>
-                  <TableCell align="right">{formatFcfa(item.referenceSalePrice)}</TableCell>
-                  <TableCell><StatusBadge status={item.status} /></TableCell>
-                </TableRow>
-              ))}
-              {data && filtered.length === 0 && (
+            <Table>
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                    No products match your search.
-                  </TableCell>
+                  <TableCell></TableCell>
+                  <TableCell>Product</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell align="right">Stock Left</TableCell>
+                  <TableCell align="right">Value</TableCell>
+                  <TableCell align="right">Ref. Sale Price</TableCell>
+                  <TableCell>Status</TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-</TableContainer>
+              </TableHead>
+              <TableBody>
+                {filtered.map((item) => (
+                  <TableRow
+                    key={item.id}
+                    hover
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/stock/${item.id}`)}
+                  >
+                    <TableCell sx={{ width: 48 }}>
+                      <Avatar variant="rounded" src={item.imageUrl ?? undefined} sx={{ width: 34, height: 34 }}>
+                        <ImageIcon fontSize="small" />
+                      </Avatar>
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{item.name}</TableCell>
+                    <TableCell>{item.category ?? '—'}</TableCell>
+                    <TableCell align="right">
+                      {item.currentStock.toLocaleString('en-US')} {item.unit}
+                      {item.currentStock !== 1 ? 's' : ''}
+                    </TableCell>
+                    <TableCell align="right">{formatFcfa(item.value)}</TableCell>
+                    <TableCell align="right">{formatFcfa(item.referenceSalePrice)}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={item.status} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {data && filtered.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                      No products match your search.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Paper>
       )}
     </Box>

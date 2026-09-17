@@ -1,11 +1,38 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Chip, IconButton, Alert,
-  ToggleButtonGroup, ToggleButton, useMediaQuery,
+  Box,
+  Typography,
+  Paper,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Stack,
+  Chip,
+  IconButton,
+  Alert,
+  ToggleButtonGroup,
+  ToggleButton,
+  useMediaQuery,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { getExpenses, getExpenseCategories, createExpense, reclassifyExpense, createExpenseCategory, deleteExpense } from '../../services/finances';
+import {
+  getExpenses,
+  getExpenseCategories,
+  createExpense,
+  reclassifyExpense,
+  createExpenseCategory,
+  deleteExpense,
+} from '../../services/finances';
 import type { Expense, ExpenseCategory, ChargeType } from '../../types';
 import { diane } from '../../theme';
 
@@ -17,16 +44,22 @@ function formatFcfa(value: number) {
 
 const typeConfig: Record<ChargeType, { label: string; color: string; bg: string; help: string }> = {
   FIXE: {
-    label: 'Fixed', color: diane.blue, bg: diane.blueLight,
+    label: 'Fixed',
+    color: diane.blue,
+    bg: diane.blueLight,
     help: 'Recurring and predictable (rent, salaries…) — factored into the cost per box.',
   },
   VARIABLE: {
-    label: 'Variable', color: diane.orange, bg: '#FEF3E6',
-    help: "Depends on business activity (transport, packaging…) — reduces net profit but not the cost basis.",
+    label: 'Variable',
+    color: diane.orange,
+    bg: '#FEF3E6',
+    help: 'Depends on business activity (transport, packaging…) — reduces net profit but not the cost basis.',
   },
   EXCEPTIONNEL: {
-    label: 'One-time', color: diane.red, bg: '#FCEAEA',
-    help: "One-off and outside regular operations — still reduces net profit, but never the cost basis.",
+    label: 'One-time',
+    color: diane.red,
+    bg: '#FCEAEA',
+    help: 'One-off and outside regular operations — still reduces net profit, but never the cost basis.',
   },
 };
 
@@ -39,7 +72,11 @@ export default function ChargesPage() {
   const [filter, setFilter] = useState<'ALL' | ChargeType>('ALL');
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    categoryId: '', newCategoryName: '', description: '', amount: '', date: new Date().toISOString().slice(0, 10),
+    categoryId: '',
+    newCategoryName: '',
+    description: '',
+    amount: '',
+    date: new Date().toISOString().slice(0, 10),
     chargeType: 'VARIABLE' as ChargeType,
   });
   const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
@@ -98,12 +135,16 @@ export default function ChargesPage() {
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-        <Typography variant="h5" fontWeight={700}>Expenses</Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>New Expense</Button>
+        <Typography variant="h5" fontWeight={700}>
+          Expenses
+        </Typography>
+        <Button variant="contained" onClick={() => setOpen(true)}>
+          New Expense
+        </Button>
       </Stack>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        All 3 types reduce net profit — only the <strong>Fixed</strong> type is factored
-        into the cost per box (see Finances &gt; Profitability).
+        All 3 types reduce net profit — only the <strong>Fixed</strong> type is factored into the cost per box (see
+        Finances &gt; Profitability).
       </Typography>
 
       <ToggleButtonGroup size="small" value={filter} exclusive onChange={(_, v) => v && setFilter(v)} sx={{ mb: 2 }}>
@@ -125,8 +166,16 @@ export default function ChargesPage() {
                   <Typography fontWeight={700}>{e.category.name}</Typography>
                 </Box>
                 <Stack direction="row" alignItems="center" spacing={0.5}>
-                  <Typography variant="h6" fontWeight={700}>{formatFcfa(e.amount)}</Typography>
-                  <IconButton size="small" onClick={() => { setDeleteError(null); setDeleteTarget(e); }}>
+                  <Typography variant="h6" fontWeight={700}>
+                    {formatFcfa(e.amount)}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setDeleteError(null);
+                      setDeleteTarget(e);
+                    }}
+                  >
                     <DeleteOutlineIcon fontSize="small" />
                   </IconButton>
                 </Stack>
@@ -147,13 +196,20 @@ export default function ChargesPage() {
                     <Chip
                       label={typeConfig[e.chargeType].label}
                       size="small"
-                      sx={{ bgcolor: typeConfig[e.chargeType].bg, color: typeConfig[e.chargeType].color, fontWeight: 700, mr: 0.5 }}
+                      sx={{
+                        bgcolor: typeConfig[e.chargeType].bg,
+                        color: typeConfig[e.chargeType].color,
+                        fontWeight: 700,
+                        mr: 0.5,
+                      }}
                     />
                   ),
                 }}
               >
                 {(Object.keys(typeConfig) as ChargeType[]).map((t) => (
-                  <MenuItem key={t} value={t}>{typeConfig[t].label}</MenuItem>
+                  <MenuItem key={t} value={t}>
+                    {typeConfig[t].label}
+                  </MenuItem>
                 ))}
               </TextField>
             </Paper>
@@ -165,65 +221,77 @@ export default function ChargesPage() {
           )}
         </Stack>
       ) : (
-      <Paper>
-        <TableContainer>
-<Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell align="right">Amount</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell align="right"></TableCell>
-              <TableCell align="right"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {expenses.map((e) => (
-              <TableRow key={e.id} hover>
-                <TableCell>{new Date(e.date).toLocaleDateString('en-US')}</TableCell>
-                <TableCell>{e.category.name}</TableCell>
-                <TableCell>{e.description ?? '—'}</TableCell>
-                <TableCell align="right">{formatFcfa(e.amount)}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={typeConfig[e.chargeType].label}
-                    size="small"
-                    sx={{ bgcolor: typeConfig[e.chargeType].bg, color: typeConfig[e.chargeType].color, fontWeight: 700 }}
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <TextField
-                    select
-                    size="small"
-                    value={e.chargeType}
-                    onChange={(ev) => handleReclassify(e, ev.target.value as ChargeType)}
-                    sx={{ minWidth: 140 }}
-                  >
-                    {(Object.keys(typeConfig) as ChargeType[]).map((t) => (
-                      <MenuItem key={t} value={t}>{typeConfig[t].label}</MenuItem>
-                    ))}
-                  </TextField>
-                </TableCell>
-                <TableCell align="right">
-                  <IconButton size="small" onClick={() => { setDeleteError(null); setDeleteTarget(e); }}>
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-            {expenses.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  No expenses recorded.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-</TableContainer>
-      </Paper>
+        <Paper>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell align="right">Amount</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell align="right"></TableCell>
+                  <TableCell align="right"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {expenses.map((e) => (
+                  <TableRow key={e.id} hover>
+                    <TableCell>{new Date(e.date).toLocaleDateString('en-US')}</TableCell>
+                    <TableCell>{e.category.name}</TableCell>
+                    <TableCell>{e.description ?? '—'}</TableCell>
+                    <TableCell align="right">{formatFcfa(e.amount)}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={typeConfig[e.chargeType].label}
+                        size="small"
+                        sx={{
+                          bgcolor: typeConfig[e.chargeType].bg,
+                          color: typeConfig[e.chargeType].color,
+                          fontWeight: 700,
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="right">
+                      <TextField
+                        select
+                        size="small"
+                        value={e.chargeType}
+                        onChange={(ev) => handleReclassify(e, ev.target.value as ChargeType)}
+                        sx={{ minWidth: 140 }}
+                      >
+                        {(Object.keys(typeConfig) as ChargeType[]).map((t) => (
+                          <MenuItem key={t} value={t}>
+                            {typeConfig[t].label}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setDeleteError(null);
+                          setDeleteTarget(e);
+                        }}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {expenses.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                      No expenses recorded.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
       )}
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
@@ -238,7 +306,9 @@ export default function ChargesPage() {
               size="small"
             >
               {(Object.keys(typeConfig) as ChargeType[]).map((t) => (
-                <ToggleButton key={t} value={t}>{typeConfig[t].label}</ToggleButton>
+                <ToggleButton key={t} value={t}>
+                  {typeConfig[t].label}
+                </ToggleButton>
               ))}
             </ToggleButtonGroup>
             <Typography variant="caption" color="text.secondary">
@@ -252,7 +322,9 @@ export default function ChargesPage() {
               fullWidth
             >
               {categories.map((c) => (
-                <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                <MenuItem key={c.id} value={c.id}>
+                  {c.name}
+                </MenuItem>
               ))}
               <MenuItem value={NEW_CATEGORY}>+ Create a new category…</MenuItem>
             </TextField>
@@ -292,7 +364,9 @@ export default function ChargesPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreate}>Save</Button>
+          <Button variant="contained" onClick={handleCreate}>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -306,11 +380,17 @@ export default function ChargesPage() {
               {deleteTarget.description ? ` (${deleteTarget.description})` : ''}. This action cannot be undone.
             </Typography>
           )}
-          {deleteError && <Alert severity="error" sx={{ mt: 2 }}>{deleteError}</Alert>}
+          {deleteError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {deleteError}
+            </Alert>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
+          <Button variant="contained" color="error" onClick={handleDelete}>
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

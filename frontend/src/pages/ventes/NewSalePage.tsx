@@ -1,8 +1,24 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, TextField, MenuItem, Button, IconButton, Checkbox,
-  FormControlLabel, ToggleButtonGroup, ToggleButton, Divider, Alert, Autocomplete,
-  Dialog, DialogTitle, DialogContent, DialogActions,
+  Box,
+  Typography,
+  Paper,
+  Stack,
+  TextField,
+  MenuItem,
+  Button,
+  IconButton,
+  Checkbox,
+  FormControlLabel,
+  ToggleButtonGroup,
+  ToggleButton,
+  Divider,
+  Alert,
+  Autocomplete,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -178,15 +194,24 @@ export default function NewSalePage() {
             </Stack>
             <Stack direction="row" justifyContent="space-between">
               <Typography color="text.secondary">Profit</Typography>
-              <Typography fontWeight={700} sx={{ color: diane.green }}>{formatFcfa(result.profit)}</Typography>
+              <Typography fontWeight={700} sx={{ color: diane.green }}>
+                {formatFcfa(result.profit)}
+              </Typography>
             </Stack>
           </Stack>
           <Stack direction="row" spacing={2} sx={{ mt: 4 }}>
-            <Button fullWidth variant="outlined" onClick={() => {
-              setResult(null); setLines([{ productId: '', quantity: '', unitSalePrice: '' }]);
-              setInvoiceNumber(''); setCustomerId(null); setNewCustomerName('');
-              setNewCustomerPhone('');
-            }}>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => {
+                setResult(null);
+                setLines([{ productId: '', quantity: '', unitSalePrice: '' }]);
+                setInvoiceNumber('');
+                setCustomerId(null);
+                setNewCustomerName('');
+                setNewCustomerPhone('');
+              }}
+            >
               New Sale
             </Button>
             <Button fullWidth variant="contained" onClick={() => navigate('/ventes')}>
@@ -200,10 +225,14 @@ export default function NewSalePage() {
 
   return (
     <Box maxWidth={640}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>New Sale</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>
+        New Sale
+      </Typography>
 
       <Paper sx={{ p: 3, mb: 2 }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>CUSTOMER</Typography>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+          CUSTOMER
+        </Typography>
         <Autocomplete<Customer, false, false, true>
           options={customers}
           getOptionLabel={(c) => (typeof c === 'string' ? c : c.name)}
@@ -213,18 +242,23 @@ export default function NewSalePage() {
             if (!customer) setNewCustomerName('');
           }}
           onInputChange={(_, value, reason) => {
-            if (reason === 'input') { setNewCustomerName(value); setCustomerId(null); }
+            if (reason === 'input') {
+              setNewCustomerName(value);
+              setCustomerId(null);
+            }
           }}
           freeSolo
-          renderInput={(params) => (
-            <TextField {...params} placeholder="Search or create a customer…" fullWidth />
-          )}
+          renderInput={(params) => <TextField {...params} placeholder="Search or create a customer…" fullWidth />}
         />
         {/* Visible uniquement quand on tape un NOUVEAU nom (pas une sélection existante) */}
         {!customerId && newCustomerName && (
           <TextField
-            label="Phone (optional)" size="small" fullWidth sx={{ mt: 1.5 }}
-            value={newCustomerPhone} onChange={(e) => setNewCustomerPhone(e.target.value)}
+            label="Phone (optional)"
+            size="small"
+            fullWidth
+            sx={{ mt: 1.5 }}
+            value={newCustomerPhone}
+            onChange={(e) => setNewCustomerPhone(e.target.value)}
           />
         )}
       </Paper>
@@ -232,13 +266,19 @@ export default function NewSalePage() {
       <Paper sx={{ p: 3, mb: 2 }}>
         <Stack direction="row" spacing={1.5} sx={{ mb: 1.5 }}>
           <TextField
-            label="Sale Date" type="date" value={date}
-            onChange={(e) => setDate(e.target.value)} fullWidth
+            label="Sale Date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            fullWidth
             InputLabelProps={{ shrink: true }}
           />
           <TextField
-            label="Invoice No. (optional)" placeholder="Auto if empty" value={invoiceNumber}
-            onChange={(e) => setInvoiceNumber(e.target.value)} fullWidth
+            label="Invoice No. (optional)"
+            placeholder="Auto if empty"
+            value={invoiceNumber}
+            onChange={(e) => setInvoiceNumber(e.target.value)}
+            fullWidth
           />
         </Stack>
         <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
@@ -251,7 +291,9 @@ export default function NewSalePage() {
       </Paper>
 
       <Paper sx={{ p: 3, mb: 2 }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>PRODUCTS</Typography>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+          PRODUCTS
+        </Typography>
         <Stack spacing={2}>
           {lines.map((line, i) => (
             <Stack key={i} direction="row" spacing={1.5} alignItems="center">
@@ -259,15 +301,19 @@ export default function NewSalePage() {
                 select
                 label="Product"
                 value={line.productId}
-                onChange={(e) => updateLine(i, {
-                  productId: e.target.value,
-                  unitSalePrice: line.unitSalePrice || String(priceForProduct(e.target.value)),
-                })}
+                onChange={(e) =>
+                  updateLine(i, {
+                    productId: e.target.value,
+                    unitSalePrice: line.unitSalePrice || String(priceForProduct(e.target.value)),
+                  })
+                }
                 sx={{ flex: 2 }}
                 size="small"
               >
                 {products.map((p) => (
-                  <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
+                  <MenuItem key={p.id} value={p.id}>
+                    {p.name}
+                  </MenuItem>
                 ))}
               </TextField>
               <TextField
@@ -324,8 +370,16 @@ export default function NewSalePage() {
       </Paper>
 
       <Paper sx={{ p: 3, mb: 2 }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>PAYMENT</Typography>
-        <ToggleButtonGroup value={paymentStatus} exclusive onChange={(_, v) => v && setPaymentStatus(v)} size="small" fullWidth>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1.5 }}>
+          PAYMENT
+        </Typography>
+        <ToggleButtonGroup
+          value={paymentStatus}
+          exclusive
+          onChange={(_, v) => v && setPaymentStatus(v)}
+          size="small"
+          fullWidth
+        >
           <ToggleButton value="paid">Paid</ToggleButton>
           <ToggleButton value="partial">Partial</ToggleButton>
           <ToggleButton value="credit">Credit</ToggleButton>
@@ -349,7 +403,11 @@ export default function NewSalePage() {
         />
       </Paper>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
       <Button variant="contained" size="large" fullWidth onClick={handleSubmit} disabled={loading}>
         {loading ? 'Saving…' : 'RECORD SALE'}
@@ -364,7 +422,9 @@ export default function NewSalePage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={confirmDifferentPerson}>No, different person</Button>
-          <Button variant="contained" onClick={confirmSamePerson}>Yes, same person</Button>
+          <Button variant="contained" onClick={confirmSamePerson}>
+            Yes, same person
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

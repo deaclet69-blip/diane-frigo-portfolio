@@ -28,10 +28,7 @@ export const PERMISSION_SECTIONS: PermissionSection[] = [
 export const PERMISSION_KEYS = PERMISSION_SECTIONS.map((s) => s.key);
 
 // L'ADMIN a toujours accès à tout, quelle que soit la liste stockée.
-export function hasPermission(
-  user: { role: string; permissions?: string[] } | null | undefined,
-  key: string,
-): boolean {
+export function hasPermission(user: { role: string; permissions?: string[] } | null | undefined, key: string): boolean {
   if (!user) return false;
   if (user.role === 'ADMIN') return true;
   return (user.permissions ?? []).includes(key);

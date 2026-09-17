@@ -390,11 +390,21 @@ export interface FullDashboard {
   salesByProduct: { name: string; value: number; percent: number }[];
   alerts: { type: string; title: string; detail: string; timeAgo: string; link: string }[];
   recentActivity: { type: string; label: string; sublabel: string; amount: number; timeAgo: string }[];
-  topProductsByMargin: { productName: string; quantity: number; margin: number; revenue: number; marginPercent: number }[];
+  topProductsByMargin: {
+    productName: string;
+    quantity: number;
+    margin: number;
+    revenue: number;
+    marginPercent: number;
+  }[];
   stockByCategory: { category: string; cartons: number; percent: number }[];
   monthlySummary: {
-    revenue: number; expenses: number; netProfit: number; avgMarginPercent: number;
-    monthlyTarget: number | null; monthlyTargetProgressPercent: number;
+    revenue: number;
+    expenses: number;
+    netProfit: number;
+    avgMarginPercent: number;
+    monthlyTarget: number | null;
+    monthlyTargetProgressPercent: number;
   };
 }
 

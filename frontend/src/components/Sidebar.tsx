@@ -1,8 +1,17 @@
 import {
-  Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography, Stack,
-  Tooltip, IconButton, Avatar,
+  Box,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  Stack,
+  Tooltip,
+  IconButton,
+  Avatar,
 } from '@mui/material';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
@@ -53,7 +62,6 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const navigate = useNavigate();
   const user = getCurrentUser();
   // Purement manuel désormais : l'utilisateur ouvre/ferme via la poignée
   // sur le bord, état mémorisé (voir sidebarState.tsx).
@@ -106,13 +114,18 @@ export default function Sidebar() {
         </Stack>
         <Box sx={{ mx: isCompact ? 1 : 2.25, mb: 1, height: '1px', bgcolor: 'rgba(255,255,255,0.08)' }} />
 
-        <List sx={{
-          flexGrow: 1, px: isCompact ? 0.75 : 1.25, pt: 0.5, overflowY: 'auto',
-          // Défilement invisible : fonctionne quand même sur les très petits
-          // écrans, mais sans barre visible qui casse le design.
-          scrollbarWidth: 'none',
-          '&::-webkit-scrollbar': { display: 'none' },
-        }}>
+        <List
+          sx={{
+            flexGrow: 1,
+            px: isCompact ? 0.75 : 1.25,
+            pt: 0.5,
+            overflowY: 'auto',
+            // Défilement invisible : fonctionne quand même sur les très petits
+            // écrans, mais sans barre visible qui casse le design.
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+        >
           {visibleNavItems.map((item) => {
             const button = (
               <ListItemButton
@@ -152,7 +165,14 @@ export default function Sidebar() {
                   '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' },
                 }}
               >
-                <ListItemIcon sx={{ color: 'inherit', minWidth: isCompact ? 0 : 34, justifyContent: 'center', '& svg': { fontSize: 19 } }}>
+                <ListItemIcon
+                  sx={{
+                    color: 'inherit',
+                    minWidth: isCompact ? 0 : 34,
+                    justifyContent: 'center',
+                    '& svg': { fontSize: 19 },
+                  }}
+                >
                   {item.icon}
                 </ListItemIcon>
                 {!isCompact && (
@@ -167,7 +187,9 @@ export default function Sidebar() {
               <Tooltip key={item.to + item.label} title={item.label} placement="right">
                 {button}
               </Tooltip>
-            ) : button;
+            ) : (
+              button
+            );
           })}
         </List>
 
@@ -182,11 +204,15 @@ export default function Sidebar() {
                 overflow: 'hidden',
               }}
             >
-              <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>DIANE FRIGO</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>
+                DIANE FRIGO
+              </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}>
                 Smart management for your cold storage business
               </Typography>
-              <LocalShippingIcon sx={{ position: 'absolute', right: -6, bottom: -8, fontSize: 56, color: 'rgba(255,255,255,0.1)' }} />
+              <LocalShippingIcon
+                sx={{ position: 'absolute', right: -6, bottom: -8, fontSize: 56, color: 'rgba(255,255,255,0.1)' }}
+              />
             </Box>
           </Box>
         ) : (
@@ -197,10 +223,14 @@ export default function Sidebar() {
             <Tooltip title="DIANE FRIGO — gestion de la chambre froide" placement="right">
               <Box
                 sx={{
-                  width: 40, height: 40, borderRadius: '12px',
+                  width: 40,
+                  height: 40,
+                  borderRadius: '12px',
                   background: `linear-gradient(160deg, ${diane.indigo} 0%, ${diane.navy} 100%)`,
                   border: '1px solid rgba(255,255,255,0.12)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 <LocalShippingIcon sx={{ fontSize: 20, color: 'rgba(255,255,255,0.85)' }} />
@@ -213,7 +243,12 @@ export default function Sidebar() {
           direction="row"
           alignItems="center"
           spacing={1.2}
-          sx={{ px: isCompact ? 1 : 2, py: 1.25, borderTop: '1px solid rgba(255,255,255,0.08)', justifyContent: isCompact ? 'center' : 'flex-start' }}
+          sx={{
+            px: isCompact ? 1 : 2,
+            py: 1.25,
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            justifyContent: isCompact ? 'center' : 'flex-start',
+          }}
         >
           <Avatar sx={{ width: 34, height: 34, bgcolor: diane.blue, fontSize: 14 }}>
             {user?.email?.[0]?.toUpperCase() ?? 'U'}
@@ -221,9 +256,11 @@ export default function Sidebar() {
           {!isCompact && (
             <>
               <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                <Typography variant="body2" fontWeight={700} noWrap>{user?.email?.split('@')[0] ?? 'Utilisateur'}</Typography>
+                <Typography variant="body2" fontWeight={700} noWrap>
+                  {user?.email?.split('@')[0] ?? 'Utilisateur'}
+                </Typography>
                 <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {user?.role === 'ADMIN' ? 'Administrator' : user?.role ?? ''}
+                  {user?.role === 'ADMIN' ? 'Administrator' : (user?.role ?? '')}
                 </Typography>
               </Box>
               <Tooltip title={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>

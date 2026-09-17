@@ -1,7 +1,23 @@
 import { useEffect, useState } from 'react';
 import {
-  AppBar, Toolbar, IconButton, Avatar, Box, Typography, Stack, Badge, Chip,
-  Menu, MenuItem, ListItemIcon, Dialog, DialogTitle, DialogContent, DialogActions, Button, useMediaQuery,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Avatar,
+  Box,
+  Typography,
+  Stack,
+  Badge,
+  Chip,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  useMediaQuery,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
@@ -31,7 +47,9 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getStockAlerts().then((items) => setAlertCount(items.length)).catch(() => {});
+    getStockAlerts()
+      .then((items) => setAlertCount(items.length))
+      .catch(() => {});
   }, []);
 
   return (
@@ -54,7 +72,13 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         <Chip
           icon={<CalendarTodayIcon sx={{ fontSize: 16 }} />}
           label={today}
-          sx={{ bgcolor: 'action.hover', fontWeight: 600, fontSize: 13, textTransform: 'capitalize', display: { xs: 'none', md: 'flex' } }}
+          sx={{
+            bgcolor: 'action.hover',
+            fontWeight: 600,
+            fontSize: 13,
+            textTransform: 'capitalize',
+            display: { xs: 'none', md: 'flex' },
+          }}
         />
 
         <IconButton onClick={() => navigate('/notifications')}>
@@ -78,15 +102,22 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
               {user?.email?.split('@')[0] ?? 'Utilisateur'}
             </Typography>
             <Typography variant="caption" color="text.secondary" lineHeight={1}>
-              {user ? roleLabels[user.role] ?? user.role : ''}
+              {user ? (roleLabels[user.role] ?? user.role) : ''}
             </Typography>
           </Box>
           <KeyboardArrowDownIcon fontSize="small" sx={{ color: 'text.secondary' }} />
         </Stack>
 
         <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
-          <MenuItem onClick={() => { setMenuAnchor(null); setConfirmOpen(true); }}>
-            <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
+          <MenuItem
+            onClick={() => {
+              setMenuAnchor(null);
+              setConfirmOpen(true);
+            }}
+          >
+            <ListItemIcon>
+              <LogoutIcon fontSize="small" />
+            </ListItemIcon>
             Sign out
           </MenuItem>
         </Menu>
@@ -100,7 +131,9 @@ export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
-            <Button variant="contained" color="error" onClick={logout}>Sign out</Button>
+            <Button variant="contained" color="error" onClick={logout}>
+              Sign out
+            </Button>
           </DialogActions>
         </Dialog>
       </Toolbar>

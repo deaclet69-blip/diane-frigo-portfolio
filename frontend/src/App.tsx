@@ -20,27 +20,33 @@ export default function App() {
     return false;
   });
 
-  const colorMode = useMemo(() => ({
-    mode,
-    toggle: () => {
-      setMode((prev) => {
-        const next = prev === 'light' ? 'dark' : 'light';
-        localStorage.setItem('colorMode', next);
-        return next;
-      });
-    },
-  }), [mode]);
+  const colorMode = useMemo(
+    () => ({
+      mode,
+      toggle: () => {
+        setMode((prev) => {
+          const next = prev === 'light' ? 'dark' : 'light';
+          localStorage.setItem('colorMode', next);
+          return next;
+        });
+      },
+    }),
+    [mode],
+  );
 
-  const sidebarState = useMemo(() => ({
-    collapsed: sidebarCollapsed,
-    toggle: () => {
-      setSidebarCollapsed((prev) => {
-        const next = !prev;
-        localStorage.setItem('sidebarCollapsed', next ? '1' : '0');
-        return next;
-      });
-    },
-  }), [sidebarCollapsed]);
+  const sidebarState = useMemo(
+    () => ({
+      collapsed: sidebarCollapsed,
+      toggle: () => {
+        setSidebarCollapsed((prev) => {
+          const next = !prev;
+          localStorage.setItem('sidebarCollapsed', next ? '1' : '0');
+          return next;
+        });
+      },
+    }),
+    [sidebarCollapsed],
+  );
 
   const theme = useMemo(() => getTheme(mode), [mode]);
 
@@ -56,4 +62,3 @@ export default function App() {
     </ColorModeContext.Provider>
   );
 }
-

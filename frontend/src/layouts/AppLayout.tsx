@@ -36,11 +36,13 @@ export default function AppLayout() {
   return (
     <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: 'background.default' }}>
       <Sidebar />
-      <Box sx={{
-        flexGrow: 1,
-        width: { xs: '100%', sm: `calc(100% - ${sidebarWidth}px)` },
-        transition: 'width 0.2s ease',
-      }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          width: { xs: '100%', sm: `calc(100% - ${sidebarWidth}px)` },
+          transition: 'width 0.2s ease',
+        }}
+      >
         <Header onMenuClick={() => setMobileNavOpen(true)} />
         <Box
           sx={{
@@ -54,21 +56,14 @@ export default function AppLayout() {
             pt: { xs: 2, sm: 3 },
             pr: { xs: 2, sm: 3 },
             pl: { xs: 2, sm: 3 },
-            pb: isMobile
-              ? `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px) + 24px)`
-              : 5,
+            pb: isMobile ? `calc(${BOTTOM_NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px) + 24px)` : 5,
           }}
         >
           <Outlet />
         </Box>
       </Box>
       {isMobile && <MobileBottomNav />}
-      {isMobile && (
-        <MobileNavDrawer
-          open={mobileNavOpen}
-          onClose={() => setMobileNavOpen(false)}
-        />
-      )}
+      {isMobile && <MobileNavDrawer open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />}
       <AiChatBubble />
     </Box>
   );

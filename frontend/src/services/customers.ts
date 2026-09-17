@@ -10,24 +10,40 @@ export function getCustomerDetail(id: string) {
 }
 
 export function createCustomer(payload: {
-  name: string; phone?: string; address?: string; customerType?: string; notes?: string;
+  name: string;
+  phone?: string;
+  address?: string;
+  customerType?: string;
+  notes?: string;
 }) {
   return api.post<Customer>('/customers', payload).then((r) => r.data);
 }
 
 export function checkCustomerName(name: string) {
-  return api.get<{ exists: boolean; matches: Customer[] }>('/customers/check-name', { params: { name } }).then((r) => r.data);
+  return api
+    .get<{ exists: boolean; matches: Customer[] }>('/customers/check-name', { params: { name } })
+    .then((r) => r.data);
 }
 
 export function createCustomerWithDedup(payload: {
-  name: string; phone?: string; customerType?: string; forceDistinct?: boolean;
+  name: string;
+  phone?: string;
+  customerType?: string;
+  forceDistinct?: boolean;
 }) {
   return api.post<Customer>('/customers/dedup', payload).then((r) => r.data);
 }
 
-export function updateCustomer(id: string, payload: Partial<{
-  name: string; phone: string; address: string; customerType: string; notes: string;
-}>) {
+export function updateCustomer(
+  id: string,
+  payload: Partial<{
+    name: string;
+    phone: string;
+    address: string;
+    customerType: string;
+    notes: string;
+  }>,
+) {
   return api.patch<Customer>(`/customers/${id}`, payload).then((r) => r.data);
 }
 

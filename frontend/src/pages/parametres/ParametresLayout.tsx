@@ -19,7 +19,9 @@ export default function ParametresLayout() {
 
   return (
     <Box>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>Settings</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+        Settings
+      </Typography>
       <Tabs value={current} onChange={(_, v) => navigate(v)} sx={{ mb: 3 }}>
         {tabs.map((t) => (
           <Tab key={t.path} label={t.label} value={t.path} />

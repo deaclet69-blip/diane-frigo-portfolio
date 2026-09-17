@@ -16,8 +16,7 @@ export default function DangerZonePage() {
           </Typography>
         </Stack>
         <Typography variant="body2" color="text.secondary">
-          This feature is disabled in the public demo version to keep the sample data intact
-          for other visitors.
+          This feature is disabled in the public demo version to keep the sample data intact for other visitors.
         </Typography>
       </Paper>
     </Box>

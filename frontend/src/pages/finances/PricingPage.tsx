@@ -1,10 +1,30 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, TextField, MenuItem, Table, TableContainer, TableHead, TableRow, TableCell,
-  TableBody, Button, Alert, Divider, useMediaQuery, Tooltip,
+  Box,
+  Typography,
+  Paper,
+  Stack,
+  TextField,
+  MenuItem,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Button,
+  Alert,
+  Divider,
+  useMediaQuery,
+  Tooltip,
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { getPricingSettings, updatePricingSettings, getProfitabilityAnalysis, checkPrice } from '../../services/pricing';
+import {
+  getPricingSettings,
+  updatePricingSettings,
+  getProfitabilityAnalysis,
+  checkPrice,
+} from '../../services/pricing';
 import { getProducts } from '../../services/products';
 import type { PricingSettings, ProfitabilityAnalysis, PriceCheckResult, Product } from '../../types';
 import { diane } from '../../theme';
@@ -70,7 +90,7 @@ export default function PricingPage() {
       setTimeout(() => setSaved(false), 2000);
       reload();
     } catch (err: any) {
-      setSaveError(err?.response?.data?.message ?? "Save failed.");
+      setSaveError(err?.response?.data?.message ?? 'Save failed.');
     }
   }
 
@@ -83,7 +103,9 @@ export default function PricingPage() {
   return (
     <Box>
       <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={700}>Profitability</Typography>
+        <Typography variant="h5" fontWeight={700}>
+          Profitability
+        </Typography>
         <Tooltip
           arrow
           open={helpOpen}
@@ -104,15 +126,18 @@ export default function PricingPage() {
       {analysis && (
         <Paper sx={{ mb: 3 }}>
           <Box sx={{ p: 2.5, pb: 0 }}>
-            <Typography variant="subtitle1" fontWeight={700}>Profitability Analysis by Product</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>
+              Profitability Analysis by Product
+            </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
               Allocated fixed expenses: {formatFcfa(analysis.chargesFixedPerCarton)} / box
-              {analysis.chargesVariablePerCarton > 0 && ` · Allocated variable expenses: ${formatFcfa(analysis.chargesVariablePerCarton)} / box`}
+              {analysis.chargesVariablePerCarton > 0 &&
+                ` · Allocated variable expenses: ${formatFcfa(analysis.chargesVariablePerCarton)} / box`}
             </Typography>
             <Alert severity={analysis.usingRealAverage ? 'success' : 'info'} sx={{ mt: 1.5 }}>
               {analysis.usingRealAverage
                 ? `Method: real average over ${analysis.monthsWithData} full months`
-                : "Method: your starting estimate (below) — not enough real history yet (2 months of recorded fixed expenses needed)"}
+                : 'Method: your starting estimate (below) — not enough real history yet (2 months of recorded fixed expenses needed)'}
             </Alert>
           </Box>
           {isMobile && (
@@ -121,65 +146,79 @@ export default function PricingPage() {
             </Typography>
           )}
           <TableContainer>
-<Table sx={{ mt: 1 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={isMobile ? { position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1 } : undefined}>
-                  Product
-                </TableCell>
-                {!isMobile && <TableCell align="right">Avg. Purchase Price</TableCell>}
-                {!isMobile && <TableCell align="right">Gross Margin (ref. price)</TableCell>}
-                <TableCell align="right">Full Cost Basis</TableCell>
-                <TableCell align="right">Floor Price</TableCell>
-                <TableCell align="right">Bulk Wholesale</TableCell>
-                <TableCell align="right">Wholesale</TableCell>
-                <TableCell align="right">Retail</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {analysis.rows.map((r) => (
-                <TableRow key={r.productId}>
+            <Table sx={{ mt: 1 }}>
+              <TableHead>
+                <TableRow>
                   <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      ...(isMobile ? { position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1 } : {}),
-                    }}
+                    sx={isMobile ? { position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1 } : undefined}
                   >
-                    {r.productName}
+                    Product
                   </TableCell>
-                  {!isMobile && <TableCell align="right">{formatFcfa(r.avgPurchasePrice)}</TableCell>}
-                  {!isMobile && (
-                    <TableCell align="right" sx={{ color: r.grossMarginAtRetail >= 0 ? diane.green : diane.red }}>
-                      {formatFcfa(r.grossMarginAtRetail)}
-                    </TableCell>
-                  )}
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>{formatFcfa(r.costOfGoods)}</TableCell>
-                  <TableCell align="right">{formatFcfa(r.suggestedPrices.floor)}</TableCell>
-                  <TableCell align="right">{formatFcfa(r.suggestedPrices.wholesaleBulk)}</TableCell>
-                  <TableCell align="right">{formatFcfa(r.suggestedPrices.wholesale)}</TableCell>
-                  <TableCell align="right" sx={{ color: diane.green, fontWeight: 700 }}>
-                    {formatFcfa(r.suggestedPrices.retail)}
-                  </TableCell>
+                  {!isMobile && <TableCell align="right">Avg. Purchase Price</TableCell>}
+                  {!isMobile && <TableCell align="right">Gross Margin (ref. price)</TableCell>}
+                  <TableCell align="right">Full Cost Basis</TableCell>
+                  <TableCell align="right">Floor Price</TableCell>
+                  <TableCell align="right">Bulk Wholesale</TableCell>
+                  <TableCell align="right">Wholesale</TableCell>
+                  <TableCell align="right">Retail</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-</TableContainer>
+              </TableHead>
+              <TableBody>
+                {analysis.rows.map((r) => (
+                  <TableRow key={r.productId}>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        ...(isMobile ? { position: 'sticky', left: 0, bgcolor: 'background.paper', zIndex: 1 } : {}),
+                      }}
+                    >
+                      {r.productName}
+                    </TableCell>
+                    {!isMobile && <TableCell align="right">{formatFcfa(r.avgPurchasePrice)}</TableCell>}
+                    {!isMobile && (
+                      <TableCell align="right" sx={{ color: r.grossMarginAtRetail >= 0 ? diane.green : diane.red }}>
+                        {formatFcfa(r.grossMarginAtRetail)}
+                      </TableCell>
+                    )}
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      {formatFcfa(r.costOfGoods)}
+                    </TableCell>
+                    <TableCell align="right">{formatFcfa(r.suggestedPrices.floor)}</TableCell>
+                    <TableCell align="right">{formatFcfa(r.suggestedPrices.wholesaleBulk)}</TableCell>
+                    <TableCell align="right">{formatFcfa(r.suggestedPrices.wholesale)}</TableCell>
+                    <TableCell align="right" sx={{ color: diane.green, fontWeight: 700 }}>
+                      {formatFcfa(r.suggestedPrices.retail)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Paper>
       )}
 
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>Price Checker</Typography>
+        <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
+          Price Checker
+        </Typography>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="flex-start">
           <TextField
-            select label="Product" value={checkProductId}
+            select
+            label="Product"
+            value={checkProductId}
             onChange={(e) => setCheckProductId(e.target.value)}
             sx={{ minWidth: 220 }}
           >
-            {products.map((p) => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
+            {products.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.name}
+              </MenuItem>
+            ))}
           </TextField>
           <TextField
-            label="Proposed Price (USD)" type="number" value={checkPriceValue}
+            label="Proposed Price (USD)"
+            type="number"
+            value={checkPriceValue}
             onChange={(e) => setCheckPriceValue(e.target.value)}
           />
           <Button variant="contained" onClick={handleCheckPrice} sx={{ mt: { xs: 0, sm: 1 } }}>
@@ -189,14 +228,22 @@ export default function PricingPage() {
 
         {checkResult && (
           <Box sx={{ mt: 3 }}>
-            <Typography variant="h6" fontWeight={700}>{checkResult.verdict}</Typography>
+            <Typography variant="h6" fontWeight={700}>
+              {checkResult.verdict}
+            </Typography>
             <Stack direction="row" spacing={4} sx={{ mt: 1 }}>
               <Box>
-                <Typography variant="caption" color="text.secondary">Margin</Typography>
-                <Typography fontWeight={700}>{formatFcfa(checkResult.marginFcfa)} ({pct(checkResult.marginPercent)})</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Margin
+                </Typography>
+                <Typography fontWeight={700}>
+                  {formatFcfa(checkResult.marginFcfa)} ({pct(checkResult.marginPercent)})
+                </Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">Cost Basis</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Cost Basis
+                </Typography>
                 <Typography fontWeight={700}>{formatFcfa(checkResult.costOfGoods)}</Typography>
               </Box>
             </Stack>
@@ -206,28 +253,38 @@ export default function PricingPage() {
 
       {settings && (
         <Paper sx={{ p: 3 }}>
-          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>Profitability Settings</Typography>
+          <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
+            Profitability Settings
+          </Typography>
           <Stack spacing={2}>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
-                label="Floor Margin (%)" type="number" fullWidth
+                label="Floor Margin (%)"
+                type="number"
+                fullWidth
                 value={settings.targetMarginFloor * 100}
                 onChange={(e) => setSettings({ ...settings, targetMarginFloor: Number(e.target.value) / 100 })}
               />
               <TextField
-                label="Bulk Wholesale Margin (%)" type="number" fullWidth
+                label="Bulk Wholesale Margin (%)"
+                type="number"
+                fullWidth
                 value={settings.targetMarginWholesaleBulk * 100}
                 onChange={(e) => setSettings({ ...settings, targetMarginWholesaleBulk: Number(e.target.value) / 100 })}
               />
             </Stack>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
-                label="Wholesale Margin (%)" type="number" fullWidth
+                label="Wholesale Margin (%)"
+                type="number"
+                fullWidth
                 value={settings.targetMarginWholesale * 100}
                 onChange={(e) => setSettings({ ...settings, targetMarginWholesale: Number(e.target.value) / 100 })}
               />
               <TextField
-                label="Retail Margin (%)" type="number" fullWidth
+                label="Retail Margin (%)"
+                type="number"
+                fullWidth
                 value={settings.targetMarginRetail * 100}
                 onChange={(e) => setSettings({ ...settings, targetMarginRetail: Number(e.target.value) / 100 })}
               />
@@ -235,12 +292,16 @@ export default function PricingPage() {
             <Divider />
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
-                label="Acceptable Loss Rate (%)" type="number" fullWidth
+                label="Acceptable Loss Rate (%)"
+                type="number"
+                fullWidth
                 value={settings.acceptableLossRate * 100}
                 onChange={(e) => setSettings({ ...settings, acceptableLossRate: Number(e.target.value) / 100 })}
               />
               <TextField
-                label="Price Rounding (USD)" type="number" fullWidth
+                label="Price Rounding (USD)"
+                type="number"
+                fullWidth
                 value={settings.priceRoundingFcfa}
                 onChange={(e) => setSettings({ ...settings, priceRoundingFcfa: Number(e.target.value) })}
               />
@@ -251,14 +312,28 @@ export default function PricingPage() {
             </Typography>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
-                label="Estimated Monthly Fixed Expenses (USD)" type="number" fullWidth
+                label="Estimated Monthly Fixed Expenses (USD)"
+                type="number"
+                fullWidth
                 value={settings.estimatedMonthlyFixedCharges || ''}
-                onChange={(e) => setSettings({ ...settings, estimatedMonthlyFixedCharges: e.target.value === '' ? 0 : Number(e.target.value) })}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    estimatedMonthlyFixedCharges: e.target.value === '' ? 0 : Number(e.target.value),
+                  })
+                }
               />
               <TextField
-                label="Estimated Monthly Sales (boxes, all products)" type="number" fullWidth
+                label="Estimated Monthly Sales (boxes, all products)"
+                type="number"
+                fullWidth
                 value={settings.estimatedMonthlyCartonsSold || ''}
-                onChange={(e) => setSettings({ ...settings, estimatedMonthlyCartonsSold: e.target.value === '' ? 0 : Number(e.target.value) })}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    estimatedMonthlyCartonsSold: e.target.value === '' ? 0 : Number(e.target.value),
+                  })
+                }
               />
             </Stack>
             {saved && <Alert severity="success">Settings saved.</Alert>}

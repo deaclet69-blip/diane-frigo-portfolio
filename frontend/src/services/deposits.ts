@@ -10,7 +10,11 @@ export function getDepositMovements(customerId?: string) {
 }
 
 export function createWithdrawal(payload: {
-  customerId: string; productId: string; quantity: number; date: string; note?: string;
+  customerId: string;
+  productId: string;
+  quantity: number;
+  date: string;
+  note?: string;
 }) {
   return api.post('/deposits/withdrawals', payload).then((r) => r.data);
 }

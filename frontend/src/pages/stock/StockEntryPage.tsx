@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, TextField, MenuItem, Button, ToggleButtonGroup,
-  ToggleButton, Alert, Autocomplete,
+  Box,
+  Typography,
+  Paper,
+  Stack,
+  TextField,
+  MenuItem,
+  Button,
+  ToggleButtonGroup,
+  ToggleButton,
+  Alert,
+  Autocomplete,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { getProducts } from '../../services/products';
@@ -83,7 +92,9 @@ export default function StockEntryPage() {
 
   return (
     <Box maxWidth={560}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Stock Movement</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>
+        Stock Movement
+      </Typography>
 
       <Paper sx={{ p: 3 }}>
         <form onSubmit={handleSubmit}>
@@ -97,7 +108,9 @@ export default function StockEntryPage() {
                 sx={{ width: 'max-content' }}
               >
                 {(Object.keys(modeLabels) as Mode[]).map((m) => (
-                  <ToggleButton key={m} value={m} sx={{ fontSize: 13, whiteSpace: 'nowrap', px: 2 }}>{modeLabels[m]}</ToggleButton>
+                  <ToggleButton key={m} value={m} sx={{ fontSize: 13, whiteSpace: 'nowrap', px: 2 }}>
+                    {modeLabels[m]}
+                  </ToggleButton>
                 ))}
               </ToggleButtonGroup>
             </Box>
@@ -115,7 +128,9 @@ export default function StockEntryPage() {
               size="small"
             >
               {products.map((p) => (
-                <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
+                <MenuItem key={p.id} value={p.id}>
+                  {p.name}
+                </MenuItem>
               ))}
             </TextField>
 

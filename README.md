@@ -1,94 +1,97 @@
-# DIANE FRIGO — Phase 1 + Phase 2
+# DIANE FRIGO — Cold Storage Management SaaS
 
-## Phase 1
-- ✅ Schéma PostgreSQL complet (`backend/prisma/schema.prisma`)
-- ✅ Backend NestJS : authentification JWT + refresh token, garde de rôles, module Users, module Dashboard
-- ✅ Frontend React + TypeScript + MUI : layout, sidebar (9 sections), header avec recherche, page de connexion, dashboard connecté à l'API
-- ✅ Design system repris de la maquette
+A full-stack inventory, sales, and finance management system built for a
+real cold-storage wholesale/retail business (frozen meat & poultry) in
+Central Africa, currently used in production. This repository is the
+**public portfolio version** — same codebase, English UI, sample data,
+danger-zone actions disabled.
 
-## Phase 2 — Produits, stock, inventaire, alertes
-- ✅ Module Products : CRUD produits (prix de référence, seuil d'alerte), Paramètres > Produits
-- ✅ Module Categories (référentiel simple)
-- ✅ Module Stock :
-  - Stock actuel calculé par produit (`Entrées + Ajustements − Sorties`, indépendant de l'ordre des lignes — corrige la fragilité du calcul en cascade de l'Excel)
-  - Statuts automatiques 🟢 En stock / 🟠 Stock faible / 🔴 Rupture
-  - Historique des mouvements par produit (fiche produit détaillée)
-  - Formulaire de mouvement (entrée, sortie manuelle/perte, ajustement d'inventaire), avec blocage si stock insuffisant
-  - Endpoint `/stock/alerts`
-- ✅ Module Audit (`AuditService` global) : toute création de produit ou mouvement de stock est journalisée dans `audit_logs` — pas besoin d'attendre la Phase 5 pour ça
-- ✅ Dashboard mis à jour : les KPI stock (valeur, alertes) viennent maintenant du vrai module Stock, plus d'une approximation
+**Live demo:** https://diane-frigo-demo-frontend.onrender.com
+(demo@dianefrigo.app / Demo1234! — read-only sample data, regenerated
+daily)
 
-**Volontairement absent à ce stade** (arrive en Phase 3-5) : Ventes, Clients, Dépôts, Finances, Rapports, import Excel. Le dashboard n'affiche donc pas encore CA réel, graphiques, "dernières ventes" ni "top clients" — ils dépendent du module Ventes (Phase 3). La fiche produit affiche le stock et l'historique des mouvements, mais pas encore les ventes/CA/bénéfice par produit (message explicite affiché dans l'app en attendant).
+## What it does
 
-## Phase 3 — Clients, Ventes, Factures, Paiements, Dépôts
+The business previously tracked stock, sales, and expenses across several
+disconnected Excel sheets, with no single source of truth for stock
+levels, customer debts, or actual profitability per product. This app
+replaces that with one system:
 
-- ✅ Module Customers : liste/recherche, fiche client (CA généré, quantité achetée, dettes en cours, historique d'achats, dépôts en cours), **fusion de doublons** (`POST /customers/:id/merge`) qui réattribue tout l'historique sans rien supprimer — répond directement au point NATIF/NATIFE/Natif identifié à l'Étape 1
-- ✅ Module Sales : orchestrateur transactionnel `POST /sales` — une seule transaction PostgreSQL crée la facture, les lignes, les mouvements de stock (toujours, même en dépôt), le dépôt éventuel et le paiement ; vérifie le stock disponible avant tout (override réservé ADMIN)
-- ✅ Module Invoices : liste, détail, ajout de paiement (gère les statuts Payé/Partiel/Crédit), **annulation** qui recrédite automatiquement le stock et annule les mouvements de dépôt liés — jamais de suppression physique
-- ✅ Module Deposits : soldes calculés en direct (`Σ dépôts − Σ retraits`), formulaire de retrait avec contrôle de solde disponible
-- ✅ Frontend : écran "Nouvelle vente" complet (client, produits multi-lignes, sous-total/remise/total en direct, paiement Payé/Partiel/Crédit, case "laisser en dépôt", écran de confirmation avec n° facture/montant/bénéfice), liste des ventes, détail facture (paiement complémentaire, annulation), pages Clients, page Dépôts
+- **Sales** — multi-line invoices, partial/credit payments, "leave on
+  deposit" (a common local practice where a customer's stock stays at the
+  warehouse), invoice voiding that correctly reverses stock
+- **Stock** — real-time levels computed from entries/adjustments/exits,
+  automatic low-stock/out-of-stock status, full movement history per
+  product
+- **Customers** — purchase history, running debt, deposit balances,
+  duplicate-customer merging that reassigns history without deleting
+  anything
+- **Finances** — monthly revenue/expenses/net result, a "recovery
+  target" tracker (progress toward recouping a fixed/variable/one-time
+  cost base), fixed vs. variable expense classification
+- **Profitability** — full cost basis per product (weighted average
+  purchase price + allocated fixed & variable expenses per box sold),
+  with suggested floor/bulk/wholesale/retail prices
+- **Reports & audit log** — sales/expense breakdowns over any period, a
+  full audit trail of who did what
+- **AI Assistant** — a chat interface with real-time access to the
+  business's actual data (stock, sales, customers, debts, expense
+  history), used for questions like "which product brought in the most
+  customers this quarter" or "can I cover payroll this month"
+- **Excel import** — bulk-imports historical sales/stock data from the
+  business's existing spreadsheet format, with a mandatory preview step
+  and duplicate detection before anything is written
 
-**Volontairement absent à ce stade** (arrive en Phase 4-5) : Finances (recettes/charges/trésorerie/objectif de récupération), Rapports, import Excel. Le dashboard affiche maintenant un vrai CA (Phase 3 alimente les `invoice_items`), mais les charges/résultat net dépendent encore du module Finances.
+## Architecture
 
-## Phase 4 — Finances, Charges, Bénéfices, Trésorerie, Rapports
+```
+frontend/   React 18 + TypeScript (strict) + MUI, Vite
+backend/    NestJS + Prisma + PostgreSQL (Neon)
+```
 
-- ✅ Module Expenses : création de charges avec distinction explicite **Charge d'exploitation / Mouvement de trésorerie**, reclassement en un clic (`PATCH /expenses/:id/reclassify`) — répond directement au point de l'Étape 1 sur la ligne "Argent débiter du compte"
-- ✅ Module Finances :
-  - `GET /finances/summary` — CA, coût des marchandises, marge brute, charges, trésorerie, résultat net (mensuel par défaut, cumulé sur demande — conforme à l'hypothèse validée à l'Étape 2)
-  - `GET /finances/recovery` — objectif de récupération **cumulé depuis le début**, avec le détail par produit (combien de cartons vendre pour combler l'écart, et si le stock actuel suffit)
-  - `GET /finances/monthly-chart` — CA vs Charges sur 12 mois, pour le graphique du dashboard
-  - `MonthlyGoal` (nouvelle table, absente du schéma initial) pour fixer un objectif mensuel
-- ✅ Module Reports : ventes par produit, top clients, charges par catégorie
-- ✅ Frontend : page Finances (KPI + barre de progression "objectif de récupération" + tableau par produit), page Charges (création + reclassement), page Rapports, **dashboard enrichi** avec un vrai graphique CA vs Charges (recharts) et la carte "Objectif de récupération"
+- **Auth**: JWT access/refresh tokens, role-based guards (`ADMIN` /
+  `RESPONSABLE`), fine-grained permission checks on sensitive routes
+- **Data integrity**: multi-step business operations (e.g. recording a
+  sale: invoice + line items + stock movements + payment) run inside a
+  single Prisma transaction — never partially applied
+- **Validation**: global `ValidationPipe` with `whitelist` +
+  `forbidNonWhitelisted`, rejecting any unexpected field
+- **Security**: `helmet`, global + per-route rate limiting (stricter on
+  `/auth/login`), CORS restricted to a configured origin list, no
+  fallback secrets — the app refuses to start if `JWT_ACCESS_SECRET` /
+  `JWT_REFRESH_SECRET` are missing rather than falling back to a
+  predictable default
+- **Audit log**: every create/update/delete on sensitive entities
+  (products, stock movements, expenses, users, imports) is recorded
 
-**Volontairement absent à ce stade** (arrive en Phase 5) : import Excel, page Paramètres complète (Utilisateurs/Rôles/Général — seuls les Produits sont gérables aujourd'hui), permissions avancées affinées, responsive mobile poussé, tests.
+### A few implementation details worth noting
 
-## Phase 5 — Import Excel, Audit, Permissions avancées, Sécurité, Responsive, Tests
+- **Stock calculation is order-independent** (`entries + adjustments −
+  exits`, not a running total per row) — the original spreadsheet's
+  cascading formulas broke whenever a row was inserted out of order.
+- **Cost basis** intentionally separates weighted-average purchase price
+  from allocated expenses, and separates *fixed* expenses (which enter
+  the per-box cost) from *variable* ones (which reduce net profit but
+  not the cost basis) — this distinction was a deliberate business
+  decision, not an oversight.
+- **The AI Assistant's context** is built fresh on every question from
+  real Prisma queries (full sales history, per-product unique-customer
+  counts, expense history by category) — not a static snapshot — so it
+  can answer questions about any period, not just "this week."
+- **The Excel import** is a two-step preview/confirm flow: nothing is
+  written to the database until the person reviewing the preview
+  explicitly confirms it, and the whole import runs in one transaction.
 
-- ✅ **Import Excel** (`POST /import/excel/preview` puis `/confirm`) : pipeline complet du §21 — lecture de la feuille "Stock" par nom d'en-tête (robuste aux variations de mise en forme), validation, détection des doublons (n° de facture déjà importé), regroupement des lignes multi-produits par facture, import dans **une seule transaction**, rapport détaillé (lignes importées / ignorées / doublons / erreurs). Rien n'est jamais écrit avant confirmation explicite, et aucune donnée existante n'est supprimée.
-- ✅ **Audit** : page de consultation (`Paramètres > Audit`) de tout `audit_logs` — qui a fait quoi et quand, sur toute l'application (ventes, stock, charges, produits, utilisateurs, imports)
-- ✅ **Permissions avancées** : gestion complète des utilisateurs (`Paramètres > Utilisateurs`) — création, activation/désactivation, changement de rôle, réservé ADMIN
-- ✅ **Sécurité** : en-têtes HTTP durcis (helmet), limitation du taux de requêtes globale (100/min/IP) et renforcée sur `/auth/login` (5/min/IP anti brute-force)
-- ✅ **Responsive** : sidebar compacte icônes-seules sous 1100px (tablette), navigation basse mobile sous 600px avec accès direct à "Nouvelle vente" en un tap (§17)
-- ✅ **Tests** : suite Jest initialisée (`npm test` dans `backend/`), exemple sur `StockService` (calcul du stock actuel) — base à étendre sur `SalesService` et `InvoicesService.voidInvoice`
-
-### Import Excel — mode d'emploi
-1. Se connecter en ADMIN
-2. Paramètres > Import Excel > choisir le fichier `.xlsx`
-3. Vérifier l'aperçu (lignes lues, factures détectées, doublons, erreurs)
-4. Confirmer — l'import se fait alors réellement, dans une transaction unique
-
-**Hypothèses reprises de l'Étape 1** : les ventes importées sont marquées "Payé" (l'Excel ne trace pas de crédit/partiel), les clients ne sont pas dédoublonnés automatiquement (NATIF/NATIFE resteront deux fiches — utiliser la fusion manuelle dans Clients), les sorties de stock sans numéro de facture sont ignorées avec un message explicite.
-
-## Ce qui resterait à faire pour une mise en production réelle
-- Compléter la suite de tests (Sales, Invoices, Finances)
-- Ajouter une page "Paramètres généraux" (nom de l'entreprise, devise, fuseau horaire)
-- Génération de factures PDF téléchargeables
-- Notifications (alertes stock, dettes clients) au-delà de l'icône cloche actuellement statique
-- Déploiement (Docker, CI/CD) — non couvert par ce livrable de code source
-
-## Lancer le backend
+## Running it locally
 
 ```bash
 cd backend
-cp .env.example .env        # renseigner DATABASE_URL avec ton PostgreSQL
+cp .env.example .env        # set DATABASE_URL, JWT_ACCESS_SECRET, JWT_REFRESH_SECRET
 npm install
-npx prisma migrate dev --name init
-npm run seed                 # crée les rôles, les 3 produits, et un compte admin
+npx prisma migrate dev
+npm run seed
 npm run start:dev
 ```
-
-## Démarrage en un double-clic (Windows)
-
-Une fois l'installation initiale faite une première fois (voir ci-dessus), le fichier
-**`Demarrer-DianeFrigo.bat`** à la racine du projet permet de tout relancer d'un
-double-clic : il ouvre le backend, le frontend, et le navigateur automatiquement.
-Ne pas fermer les deux fenêtres cmd qui s'ouvrent — elles doivent rester actives
-tant que l'application est utilisée.
-
-Compte de test créé par le seed : `admin@dianefrigo.local` / `ChangeMoi123!` — **à changer immédiatement en production**.
-
-## Lancer le frontend
 
 ```bash
 cd frontend
@@ -96,8 +99,26 @@ npm install
 npm run dev
 ```
 
-Ouvrir http://localhost:5173 — le frontend proxy automatiquement `/api` vers `http://localhost:3000`.
+Open http://localhost:5173 — the dev server proxies `/api` to
+`http://localhost:3000`.
 
-## Prochaine étape
+### Tests
 
-Une fois cette Phase 1 validée : **Phase 2** — gestion des produits, mouvements de stock, inventaire, alertes (voir §23 du brief initial).
+```bash
+cd backend
+npm test
+```
+
+## What's next
+
+- Broaden test coverage (Sales, Invoices, Finances — currently strongest
+  on Stock)
+- Downloadable PDF invoices
+- Real-time notifications (stock alerts, overdue debts) beyond the
+  current in-app list
+
+## Related repos / branches
+
+- `main` — the production version (French UI, real business data, full
+  danger-zone actions)
+- `demo-english` — this branch

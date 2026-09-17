@@ -1,7 +1,19 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Chip, Stack,
-  Button, useMediaQuery, Divider,
+  Box,
+  Typography,
+  Paper,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Chip,
+  Stack,
+  Button,
+  useMediaQuery,
+  Divider,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -40,7 +52,9 @@ export default function SalesListPage() {
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-        <Typography variant="h5" fontWeight={700}>Sales</Typography>
+        <Typography variant="h5" fontWeight={700}>
+          Sales
+        </Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => navigate('/ventes/nouvelle')}>
           New Sale
         </Button>
@@ -83,7 +97,11 @@ export default function SalesListPage() {
                   <Chip
                     label={inv.saleType === 'GROS' ? 'Wholesale' : 'Retail'}
                     size="small"
-                    sx={{ bgcolor: inv.saleType === 'GROS' ? diane.purpleLight : diane.blueLight, color: inv.saleType === 'GROS' ? diane.purple : diane.blue, fontWeight: 700 }}
+                    sx={{
+                      bgcolor: inv.saleType === 'GROS' ? diane.purpleLight : diane.blueLight,
+                      color: inv.saleType === 'GROS' ? diane.purple : diane.blue,
+                      fontWeight: 700,
+                    }}
                   />
                   <Typography variant="body2" color="text.secondary">
                     {new Date(inv.date).toLocaleDateString('en-US')}
@@ -101,7 +119,9 @@ export default function SalesListPage() {
 
                 {/* Pied : montant */}
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Typography variant="h6" fontWeight={700}>{formatFcfa(Number(inv.total))}</Typography>
+                  <Typography variant="h6" fontWeight={700}>
+                    {formatFcfa(Number(inv.total))}
+                  </Typography>
                   {inv.balanceDue > 0 && (
                     <Typography variant="body2" sx={{ color: diane.red, fontWeight: 700 }}>
                       {formatFcfa(Number(inv.balanceDue))} due
@@ -120,58 +140,73 @@ export default function SalesListPage() {
       ) : (
         <Paper>
           <TableContainer>
-<Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Invoice</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Products</TableCell>
-                <TableCell align="right">Total</TableCell>
-                <TableCell align="right">Balance Due</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Date</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {displayedInvoices.map((inv) => {
-                const s = statusConfig[inv.status];
-                return (
-                  <TableRow key={inv.id} hover sx={{ cursor: 'pointer' }} onClick={() => navigate(`/ventes/${inv.id}`)}>
-                    <TableCell sx={{ fontWeight: 600 }}>
-                      {inv.invoiceNumber}
-                      {inv.voidedAt && <Chip label="Voided" size="small" sx={{ ml: 1 }} />}
-                    </TableCell>
-                    <TableCell>{inv.customer?.name}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={inv.saleType === 'GROS' ? 'Wholesale' : 'Retail'}
-                        size="small"
-                        sx={{ bgcolor: inv.saleType === 'GROS' ? diane.purpleLight : diane.blueLight, color: inv.saleType === 'GROS' ? diane.purple : diane.blue, fontWeight: 700 }}
-                      />
-                    </TableCell>
-                    <TableCell>{inv.items.map((it) => it.product?.name).join(', ')}</TableCell>
-                    <TableCell align="right">{formatFcfa(Number(inv.total))}</TableCell>
-                    <TableCell align="right" sx={{ color: inv.balanceDue > 0 ? diane.red : 'text.secondary', fontWeight: inv.balanceDue > 0 ? 700 : 400 }}>
-                      {inv.balanceDue > 0 ? formatFcfa(Number(inv.balanceDue)) : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Chip label={s.label} size="small" sx={{ bgcolor: s.bg, color: s.color, fontWeight: 700 }} />
-                    </TableCell>
-                    <TableCell>{new Date(inv.date).toLocaleDateString('en-US')}</TableCell>
-                  </TableRow>
-                );
-              })}
-              {displayedInvoices.length === 0 && (
+            <Table>
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                    {emptyMessage}
-                  </TableCell>
+                  <TableCell>Invoice</TableCell>
+                  <TableCell>Customer</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Products</TableCell>
+                  <TableCell align="right">Total</TableCell>
+                  <TableCell align="right">Balance Due</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Date</TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-</TableContainer>
+              </TableHead>
+              <TableBody>
+                {displayedInvoices.map((inv) => {
+                  const s = statusConfig[inv.status];
+                  return (
+                    <TableRow
+                      key={inv.id}
+                      hover
+                      sx={{ cursor: 'pointer' }}
+                      onClick={() => navigate(`/ventes/${inv.id}`)}
+                    >
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {inv.invoiceNumber}
+                        {inv.voidedAt && <Chip label="Voided" size="small" sx={{ ml: 1 }} />}
+                      </TableCell>
+                      <TableCell>{inv.customer?.name}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={inv.saleType === 'GROS' ? 'Wholesale' : 'Retail'}
+                          size="small"
+                          sx={{
+                            bgcolor: inv.saleType === 'GROS' ? diane.purpleLight : diane.blueLight,
+                            color: inv.saleType === 'GROS' ? diane.purple : diane.blue,
+                            fontWeight: 700,
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>{inv.items.map((it) => it.product?.name).join(', ')}</TableCell>
+                      <TableCell align="right">{formatFcfa(Number(inv.total))}</TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{
+                          color: inv.balanceDue > 0 ? diane.red : 'text.secondary',
+                          fontWeight: inv.balanceDue > 0 ? 700 : 400,
+                        }}
+                      >
+                        {inv.balanceDue > 0 ? formatFcfa(Number(inv.balanceDue)) : '—'}
+                      </TableCell>
+                      <TableCell>
+                        <Chip label={s.label} size="small" sx={{ bgcolor: s.bg, color: s.color, fontWeight: 700 }} />
+                      </TableCell>
+                      <TableCell>{new Date(inv.date).toLocaleDateString('en-US')}</TableCell>
+                    </TableRow>
+                  );
+                })}
+                {displayedInvoices.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                      {emptyMessage}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Paper>
       )}
     </Box>

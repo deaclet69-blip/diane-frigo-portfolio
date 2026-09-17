@@ -10,7 +10,9 @@ export function getRecovery() {
 }
 
 export function getRecettes(granularity: 'day' | 'week' | 'month' | 'year' = 'month') {
-  return api.get<{ period: string; revenue: number }[]>('/finances/recettes', { params: { granularity } }).then((r) => r.data);
+  return api
+    .get<{ period: string; revenue: number }[]>('/finances/recettes', { params: { granularity } })
+    .then((r) => r.data);
 }
 
 export function getMonthlyChart(months = 12) {
@@ -34,7 +36,10 @@ export function createExpenseCategory(name: string) {
 }
 
 export function createExpense(payload: {
-  categoryId: string; description?: string; amount: number; date: string;
+  categoryId: string;
+  description?: string;
+  amount: number;
+  date: string;
   chargeType: ChargeType;
 }) {
   return api.post<Expense>('/expenses', payload).then((r) => r.data);

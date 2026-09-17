@@ -2,9 +2,7 @@ import { api } from './api';
 import type { Product } from '../types';
 
 export function getProducts(includeInactive = false) {
-  return api
-    .get<Product[]>('/products', { params: { includeInactive } })
-    .then((r) => r.data);
+  return api.get<Product[]>('/products', { params: { includeInactive } }).then((r) => r.data);
 }
 
 export function createProduct(payload: {

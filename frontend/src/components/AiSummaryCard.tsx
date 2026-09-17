@@ -17,7 +17,7 @@ export default function AiSummaryCard() {
     setError(null);
     getAiSummary()
       .then((r) => setText(r.text))
-      .catch((err) => setError(err?.response?.data?.message ?? "The AI assistant is not configured yet."))
+      .catch((err) => setError(err?.response?.data?.message ?? 'The AI assistant is not configured yet.'))
       .finally(() => setLoading(false));
   }
 
@@ -28,7 +28,9 @@ export default function AiSummaryCard() {
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
         <Stack direction="row" spacing={1} alignItems="center">
           <AutoAwesomeIcon sx={{ color: diane.blue }} fontSize="small" />
-          <Typography variant="subtitle1" fontWeight={700}>AI Assistant Analysis</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>
+            AI Assistant Analysis
+          </Typography>
         </Stack>
         <IconButton size="small" onClick={load} disabled={loading}>
           <RefreshIcon fontSize="small" />
@@ -43,14 +45,12 @@ export default function AiSummaryCard() {
 
       {!loading && error && (
         <Alert severity="info">
-          {error} Configure your API key in the backend's <code>.env</code> file
-          (<code>GEMINI_API_KEY</code>), available for free at aistudio.google.com/apikey.
+          {error} Configure your API key in the backend's <code>.env</code> file (<code>GEMINI_API_KEY</code>),
+          available for free at aistudio.google.com/apikey.
         </Alert>
       )}
 
-      {!loading && !error && text && (
-        <Box sx={{ whiteSpace: 'pre-line', fontSize: 14, lineHeight: 1.7 }}>{text}</Box>
-      )}
+      {!loading && !error && text && <Box sx={{ whiteSpace: 'pre-line', fontSize: 14, lineHeight: 1.7 }}>{text}</Box>}
 
       {!loading && !error && (
         <Typography

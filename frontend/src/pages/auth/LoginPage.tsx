@@ -39,13 +39,19 @@ export default function LoginPage() {
       <Paper sx={{ p: 4, width: 380 }}>
         <Stack alignItems="center" spacing={1} sx={{ mb: 3 }}>
           <AcUnitIcon sx={{ color: diane.navy, fontSize: 36 }} />
-          <Typography variant="h6" fontWeight={800}>DIANE FRIGO</Typography>
+          <Typography variant="h6" fontWeight={800}>
+            DIANE FRIGO
+          </Typography>
           <Typography variant="body2" color="text.secondary">
             Sign in to your management workspace
           </Typography>
         </Stack>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit}>
           <Stack spacing={2}>

@@ -1,7 +1,23 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Stack, Alert, useMediaQuery,
+  Box,
+  Typography,
+  Paper,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Stack,
+  Alert,
+  useMediaQuery,
 } from '@mui/material';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import { getDepositBalances, createWithdrawal } from '../../services/deposits';
@@ -45,7 +61,9 @@ export default function DepositsPage() {
 
   return (
     <Box>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Customer Deposits</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>
+        Customer Deposits
+      </Typography>
 
       {balances.length === 0 ? (
         <Paper variant="outlined" sx={{ p: 5, textAlign: 'center' }}>
@@ -57,7 +75,9 @@ export default function DepositsPage() {
           {balances.map((b) => (
             <Paper key={b.id} variant="outlined" sx={{ p: 2 }}>
               <Typography fontWeight={700}>{b.customer.name}</Typography>
-              <Typography variant="body2" color="text.secondary">{b.product.name}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {b.product.name}
+              </Typography>
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 1.5 }}>
                 <Box>
                   <Typography variant="caption" color="text.secondary" display="block">
@@ -73,38 +93,40 @@ export default function DepositsPage() {
           ))}
         </Stack>
       ) : (
-      <Paper>
-        <TableContainer>
-<Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Customer</TableCell>
-              <TableCell>Product</TableCell>
-              <TableCell align="right">Deposited</TableCell>
-              <TableCell align="right">Withdrawn</TableCell>
-              <TableCell align="right">Available Balance</TableCell>
-              <TableCell align="right"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {balances.map((b) => (
-              <TableRow key={b.id} hover>
-                <TableCell sx={{ fontWeight: 600 }}>{b.customer.name}</TableCell>
-                <TableCell>{b.product.name}</TableCell>
-                <TableCell align="right">{b.deposited}</TableCell>
-                <TableCell align="right">{b.withdrawn}</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700 }}>{b.balance}</TableCell>
-                <TableCell align="right">
-                  <Button size="small" disabled={b.balance <= 0} onClick={() => openWithdraw(b)}>
-                    Withdraw
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-</TableContainer>
-      </Paper>
+        <Paper>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Customer</TableCell>
+                  <TableCell>Product</TableCell>
+                  <TableCell align="right">Deposited</TableCell>
+                  <TableCell align="right">Withdrawn</TableCell>
+                  <TableCell align="right">Available Balance</TableCell>
+                  <TableCell align="right"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {balances.map((b) => (
+                  <TableRow key={b.id} hover>
+                    <TableCell sx={{ fontWeight: 600 }}>{b.customer.name}</TableCell>
+                    <TableCell>{b.product.name}</TableCell>
+                    <TableCell align="right">{b.deposited}</TableCell>
+                    <TableCell align="right">{b.withdrawn}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      {b.balance}
+                    </TableCell>
+                    <TableCell align="right">
+                      <Button size="small" disabled={b.balance <= 0} onClick={() => openWithdraw(b)}>
+                        Withdraw
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
       )}
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
@@ -127,7 +149,9 @@ export default function DepositsPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleWithdraw}>Confirm Withdrawal</Button>
+          <Button variant="contained" onClick={handleWithdraw}>
+            Confirm Withdrawal
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

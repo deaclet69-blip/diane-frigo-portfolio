@@ -1,8 +1,26 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Stack, IconButton, MenuItem,
-  Avatar, Alert, useMediaQuery,
+  Box,
+  Typography,
+  Paper,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Stack,
+  IconButton,
+  MenuItem,
+  Avatar,
+  Alert,
+  useMediaQuery,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -22,8 +40,13 @@ function formatFcfa(value: number) {
 const NEW_CATEGORY = '__new__';
 
 const emptyForm = {
-  name: '', referencePurchasePrice: '', referenceSalePrice: '', alertThreshold: '500',
-  categoryId: '', newCategoryName: '', imageUrl: '',
+  name: '',
+  referencePurchasePrice: '',
+  referenceSalePrice: '',
+  alertThreshold: '500',
+  categoryId: '',
+  newCategoryName: '',
+  imageUrl: '',
 };
 
 export default function ProductsSettingsPage() {
@@ -107,7 +130,9 @@ export default function ProductsSettingsPage() {
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="subtitle1" fontWeight={700}>Products</Typography>
+        <Typography variant="subtitle1" fontWeight={700}>
+          Products
+        </Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
           New Product
         </Button>
@@ -128,13 +153,13 @@ export default function ProductsSettingsPage() {
                       <EditIcon fontSize="small" />
                     </IconButton>
                   </Stack>
-                  <Typography variant="body2" color="text.secondary">{p.category?.name ?? '—'}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {p.category?.name ?? '—'}
+                  </Typography>
                   <Typography variant="body2" sx={{ mt: 0.5 }}>
                     Purchase price: {formatFcfa(p.referencePurchasePrice)}
                   </Typography>
-                  <Typography variant="body2">
-                    Sale price: {formatFcfa(p.referenceSalePrice)}
-                  </Typography>
+                  <Typography variant="body2">Sale price: {formatFcfa(p.referenceSalePrice)}</Typography>
                   <Typography variant="body2" color="text.secondary">
                     Alert threshold: {p.alertThreshold} boxes
                   </Typography>
@@ -149,44 +174,44 @@ export default function ProductsSettingsPage() {
           )}
         </Stack>
       ) : (
-      <Paper>
-        <TableContainer>
-<Table>
-          <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell align="right">Ref. Purchase Price</TableCell>
-              <TableCell align="right">Ref. Sale Price</TableCell>
-              <TableCell align="right">Alert Threshold</TableCell>
-              <TableCell align="right"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products.map((p) => (
-              <TableRow key={p.id} hover>
-                <TableCell sx={{ width: 48 }}>
-                  <Avatar variant="rounded" src={p.imageUrl ?? undefined} sx={{ width: 34, height: 34 }}>
-                    <ImageIcon fontSize="small" />
-                  </Avatar>
-                </TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>{p.name}</TableCell>
-                <TableCell>{p.category?.name ?? '—'}</TableCell>
-                <TableCell align="right">{formatFcfa(p.referencePurchasePrice)}</TableCell>
-                <TableCell align="right">{formatFcfa(p.referenceSalePrice)}</TableCell>
-                <TableCell align="right">{p.alertThreshold}</TableCell>
-                <TableCell align="right">
-                  <IconButton size="small" onClick={() => openEdit(p)}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-</TableContainer>
-      </Paper>
+        <Paper>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell align="right">Ref. Purchase Price</TableCell>
+                  <TableCell align="right">Ref. Sale Price</TableCell>
+                  <TableCell align="right">Alert Threshold</TableCell>
+                  <TableCell align="right"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {products.map((p) => (
+                  <TableRow key={p.id} hover>
+                    <TableCell sx={{ width: 48 }}>
+                      <Avatar variant="rounded" src={p.imageUrl ?? undefined} sx={{ width: 34, height: 34 }}>
+                        <ImageIcon fontSize="small" />
+                      </Avatar>
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{p.name}</TableCell>
+                    <TableCell>{p.category?.name ?? '—'}</TableCell>
+                    <TableCell align="right">{formatFcfa(p.referencePurchasePrice)}</TableCell>
+                    <TableCell align="right">{formatFcfa(p.referenceSalePrice)}</TableCell>
+                    <TableCell align="right">{p.alertThreshold}</TableCell>
+                    <TableCell align="right">
+                      <IconButton size="small" onClick={() => openEdit(p)}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
       )}
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
@@ -232,7 +257,9 @@ export default function ProductsSettingsPage() {
             >
               <MenuItem value="">None</MenuItem>
               {categories.map((c) => (
-                <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                <MenuItem key={c.id} value={c.id}>
+                  {c.name}
+                </MenuItem>
               ))}
               <MenuItem value={NEW_CATEGORY}>+ Create a new category…</MenuItem>
             </TextField>
@@ -271,7 +298,9 @@ export default function ProductsSettingsPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>Save</Button>
+          <Button variant="contained" onClick={handleSave}>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

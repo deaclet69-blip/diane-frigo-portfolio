@@ -22,38 +22,42 @@ export default function AuditLogsPage() {
     <Box>
       <Paper>
         <TableContainer>
-<Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>User</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Item</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {logs.map((l) => (
-              <TableRow key={l.id}>
-                <TableCell>{new Date(l.createdAt).toLocaleString('en-US')}</TableCell>
-                <TableCell>{l.user?.name ?? '—'}</TableCell>
-                <TableCell>
-                  <Chip label={l.action} size="small" sx={{ bgcolor: 'transparent', color: actionColors[l.action] ?? diane.navy, fontWeight: 700 }} />
-                </TableCell>
-                <TableCell>{l.entityType}</TableCell>
-                <TableCell sx={{ fontFamily: 'monospace', fontSize: 12 }}>{l.entityId}</TableCell>
-              </TableRow>
-            ))}
-            {logs.length === 0 && (
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  No audit entries yet.
-                </TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>User</TableCell>
+                <TableCell>Action</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Item</TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-</TableContainer>
+            </TableHead>
+            <TableBody>
+              {logs.map((l) => (
+                <TableRow key={l.id}>
+                  <TableCell>{new Date(l.createdAt).toLocaleString('en-US')}</TableCell>
+                  <TableCell>{l.user?.name ?? '—'}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={l.action}
+                      size="small"
+                      sx={{ bgcolor: 'transparent', color: actionColors[l.action] ?? diane.navy, fontWeight: 700 }}
+                    />
+                  </TableCell>
+                  <TableCell>{l.entityType}</TableCell>
+                  <TableCell sx={{ fontFamily: 'monospace', fontSize: 12 }}>{l.entityId}</TableCell>
+                </TableRow>
+              ))}
+              {logs.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                    No audit entries yet.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
     </Box>
   );

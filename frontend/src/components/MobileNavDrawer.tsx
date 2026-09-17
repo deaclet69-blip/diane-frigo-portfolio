@@ -1,4 +1,15 @@
-import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, Typography, Stack, IconButton, Tooltip } from '@mui/material';
+import {
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Typography,
+  Stack,
+  IconButton,
+  Tooltip,
+} from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -53,11 +64,22 @@ export default function MobileNavDrawer({ open, onClose }: { open: boolean; onCl
       // vertical scrolling on the other weren't reliable enough. Back to
       // the classic menu: hamburger button to open, tap outside or a link
       // to close.
-      sx={{ '& .MuiDrawer-paper': { width: 260, height: '100dvh', bgcolor: diane.navy, color: '#fff', display: 'flex', flexDirection: 'column' } }}
+      sx={{
+        '& .MuiDrawer-paper': {
+          width: 260,
+          height: '100dvh',
+          bgcolor: diane.navy,
+          color: '#fff',
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      }}
     >
       <Stack direction="row" alignItems="center" spacing={1.2} sx={{ px: 2.25, py: 2 }}>
         <Box component="img" src="/favicon.svg" alt="DIANE FRIGO" sx={{ width: 30, height: 30, borderRadius: '8px' }} />
-        <Typography variant="body2" sx={{ fontWeight: 800, fontSize: 14 }}>DIANE FRIGO</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 800, fontSize: 14 }}>
+          DIANE FRIGO
+        </Typography>
       </Stack>
       <List sx={{ px: 1, flexGrow: 1, minHeight: 0, overflowY: 'auto' }}>
         {navItems.map((item) => (
@@ -68,7 +90,9 @@ export default function MobileNavDrawer({ open, onClose }: { open: boolean; onCl
             end={item.to === '/'}
             onClick={onClose}
             sx={{
-              borderRadius: 2, mb: 0.25, color: 'rgba(255,255,255,0.75)',
+              borderRadius: 2,
+              mb: 0.25,
+              color: 'rgba(255,255,255,0.75)',
               '&.active': { bgcolor: diane.indigo, color: '#fff' },
             }}
           >
@@ -79,7 +103,9 @@ export default function MobileNavDrawer({ open, onClose }: { open: boolean; onCl
       </List>
 
       <Stack
-        direction="row" alignItems="center" spacing={1.2}
+        direction="row"
+        alignItems="center"
+        spacing={1.2}
         sx={{ px: 2, py: 1.5, borderTop: '1px solid rgba(255,255,255,0.08)' }}
       >
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>

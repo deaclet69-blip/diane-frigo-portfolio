@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Typography, Paper, List, ListItem, ListItemIcon, ListItemText, ListItemButton } from '@mui/material';
+import { Box, Typography, Paper, List, ListItemIcon, ListItemText, ListItemButton } from '@mui/material';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
@@ -25,7 +25,9 @@ export default function NotificationsPage() {
 
   return (
     <Box maxWidth={720}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>Alerts &amp; Notifications</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+        Alerts &amp; Notifications
+      </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         All current alerts for your business — click an alert to see details.
       </Typography>
@@ -36,21 +38,31 @@ export default function NotificationsPage() {
             const s = alertStyle[a.type] ?? alertStyle.info;
             return (
               <ListItemButton
-                key={i} onClick={() => navigate(a.link)}
-                sx={{ py: 1.5, borderRadius: 2, borderBottom: i < data.alerts.length - 1 ? '1px solid #F0F0F0' : 'none' }}
+                key={i}
+                onClick={() => navigate(a.link)}
+                sx={{
+                  py: 1.5,
+                  borderRadius: 2,
+                  borderBottom: i < data.alerts.length - 1 ? '1px solid #F0F0F0' : 'none',
+                }}
               >
                 <ListItemIcon sx={{ minWidth: 52 }}>
-                  <Box sx={{
-                    width: 40, height: 40, borderRadius: 2.5, bgcolor: s.bg, color: s.color,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 2.5,
+                      bgcolor: s.bg,
+                      color: s.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
                     {s.icon}
                   </Box>
                 </ListItemIcon>
-                <ListItemText
-                  primary={<Typography fontWeight={700}>{a.title}</Typography>}
-                  secondary={a.detail}
-                />
+                <ListItemText primary={<Typography fontWeight={700}>{a.title}</Typography>} secondary={a.detail} />
                 <ChevronRightIcon sx={{ color: 'text.secondary' }} />
               </ListItemButton>
             );

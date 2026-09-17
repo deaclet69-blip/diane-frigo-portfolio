@@ -10,7 +10,11 @@ export function getMonthlyLossRate() {
 }
 
 export function createLoss(payload: {
-  productId: string; quantity: number; date: string; reason: LossReason; note?: string;
+  productId: string;
+  quantity: number;
+  date: string;
+  reason: LossReason;
+  note?: string;
 }) {
   return api.post<Loss>('/losses', payload).then((r) => r.data);
 }

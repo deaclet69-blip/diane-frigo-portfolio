@@ -1,7 +1,23 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, Table, TableContainer, TableHead, TableRow, TableCell, TableBody,
-  IconButton, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
+  Box,
+  Typography,
+  Paper,
+  Stack,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  Chip,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -49,59 +65,73 @@ export default function InvoiceDetailPage() {
   return (
     <Box maxWidth={640}>
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        <IconButton onClick={() => navigate('/ventes')} size="small"><ArrowBackIcon /></IconButton>
-        <Typography variant="h5" fontWeight={700}>Invoice {invoice.invoiceNumber}</Typography>
+        <IconButton onClick={() => navigate('/ventes')} size="small">
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h5" fontWeight={700}>
+          Invoice {invoice.invoiceNumber}
+        </Typography>
         {invoice.voidedAt && <Chip label="Voided" color="default" />}
       </Stack>
 
       <Paper sx={{ p: 3, mb: 2 }}>
         <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
           <Box>
-            <Typography variant="caption" color="text.secondary">Customer</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Customer
+            </Typography>
             <Typography fontWeight={600}>{invoice.customer?.name}</Typography>
           </Box>
           <Box textAlign="right">
-            <Typography variant="caption" color="text.secondary">Date</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Date
+            </Typography>
             <Typography fontWeight={600}>{new Date(invoice.date).toLocaleDateString('en-US')}</Typography>
           </Box>
         </Stack>
 
         <TableContainer>
-<Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Product</TableCell>
-              <TableCell align="right">Qty</TableCell>
-              <TableCell align="right">Unit Price</TableCell>
-              <TableCell align="right">Total</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {invoice.items.map((it) => (
-              <TableRow key={it.id}>
-                <TableCell>{it.product?.name}</TableCell>
-                <TableCell align="right">{it.quantity}</TableCell>
-                <TableCell align="right">{formatFcfa(it.unitSalePrice)}</TableCell>
-                <TableCell align="right">{formatFcfa(it.lineTotal)}</TableCell>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Product</TableCell>
+                <TableCell align="right">Qty</TableCell>
+                <TableCell align="right">Unit Price</TableCell>
+                <TableCell align="right">Total</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-</TableContainer>
+            </TableHead>
+            <TableBody>
+              {invoice.items.map((it) => (
+                <TableRow key={it.id}>
+                  <TableCell>{it.product?.name}</TableCell>
+                  <TableCell align="right">{it.quantity}</TableCell>
+                  <TableCell align="right">{formatFcfa(it.unitSalePrice)}</TableCell>
+                  <TableCell align="right">{formatFcfa(it.lineTotal)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
         <Stack spacing={0.5} sx={{ mt: 2, alignItems: 'flex-end' }}>
           <Typography variant="body2">Subtotal: {formatFcfa(invoice.subtotal)}</Typography>
           {invoice.discount > 0 && <Typography variant="body2">Discount: -{formatFcfa(invoice.discount)}</Typography>}
           <Typography fontWeight={700}>Total: {formatFcfa(invoice.total)}</Typography>
-          <Typography variant="body2" sx={{ color: diane.green }}>Paid: {formatFcfa(invoice.amountPaid)}</Typography>
+          <Typography variant="body2" sx={{ color: diane.green }}>
+            Paid: {formatFcfa(invoice.amountPaid)}
+          </Typography>
           {invoice.balanceDue > 0 && (
-            <Typography variant="body2" sx={{ color: diane.red }}>Balance Due: {formatFcfa(invoice.balanceDue)}</Typography>
+            <Typography variant="body2" sx={{ color: diane.red }}>
+              Balance Due: {formatFcfa(invoice.balanceDue)}
+            </Typography>
           )}
         </Stack>
 
         {invoice.note && (
           <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid rgba(128,128,128,0.15)' }}>
-            <Typography variant="caption" color="text.secondary">Note</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Note
+            </Typography>
             <Typography variant="body2">{invoice.note}</Typography>
           </Box>
         )}
@@ -110,9 +140,13 @@ export default function InvoiceDetailPage() {
       {!invoice.voidedAt && (
         <Stack direction="row" spacing={2}>
           {invoice.balanceDue > 0 && (
-            <Button variant="contained" onClick={() => setPayOpen(true)}>Record Payment</Button>
+            <Button variant="contained" onClick={() => setPayOpen(true)}>
+              Record Payment
+            </Button>
           )}
-          <Button variant="outlined" color="error" onClick={() => setVoidOpen(true)}>Void Invoice</Button>
+          <Button variant="outlined" color="error" onClick={() => setVoidOpen(true)}>
+            Void Invoice
+          </Button>
         </Stack>
       )}
 
@@ -131,7 +165,9 @@ export default function InvoiceDetailPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setPayOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handlePay}>Confirm</Button>
+          <Button variant="contained" onClick={handlePay}>
+            Confirm
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -152,7 +188,9 @@ export default function InvoiceDetailPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setVoidOpen(false)}>Back</Button>
-          <Button variant="contained" color="error" onClick={handleVoid}>Confirm Void</Button>
+          <Button variant="contained" color="error" onClick={handleVoid}>
+            Confirm Void
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

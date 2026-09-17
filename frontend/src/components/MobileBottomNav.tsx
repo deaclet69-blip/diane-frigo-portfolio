@@ -31,7 +31,11 @@ export default function MobileBottomNav() {
     <Paper
       elevation={3}
       sx={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1200,
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1200,
         // Zone de sécurité réelle du téléphone (encoche/barre de geste) —
         // la barre elle-même ne doit pas se faire recouvrir non plus.
         pb: 'env(safe-area-inset-bottom, 0px)',

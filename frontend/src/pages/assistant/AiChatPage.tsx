@@ -36,10 +36,13 @@ export default function AiChatPage() {
       const { text } = await askAi(question, messages);
       setMessages([...newMessages, { role: 'assistant', content: text }]);
     } catch (err: any) {
-      setMessages([...newMessages, {
-        role: 'assistant',
-        content: err?.response?.data?.message ?? "Error: the AI assistant is not configured (missing API key).",
-      }]);
+      setMessages([
+        ...newMessages,
+        {
+          role: 'assistant',
+          content: err?.response?.data?.message ?? 'Error: the AI assistant is not configured (missing API key).',
+        },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -47,14 +50,26 @@ export default function AiChatPage() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 140px)' }}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>AI Assistant</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>
+        AI Assistant
+      </Typography>
 
       <Paper sx={{ flexGrow: 1, p: 3, mb: 2, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
         {messages.length === 0 && (
-          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+            }}
+          >
             <AutoAwesomeIcon sx={{ fontSize: 40, color: diane.blue, mb: 1 }} />
             <Typography color="text.secondary" sx={{ mb: 3 }}>
-              Ask a question about your business — the assistant has access to your real data (stock, sales, finances, customers).
+              Ask a question about your business — the assistant has access to your real data (stock, sales, finances,
+              customers).
             </Typography>
             <Stack spacing={1} sx={{ width: '100%', maxWidth: 420 }}>
               {SUGGESTIONS.map((s) => (
@@ -85,7 +100,8 @@ export default function AiChatPage() {
                   bgcolor: m.role === 'user' ? diane.blue : diane.bg,
                   color: m.role === 'user' ? '#fff' : 'text.primary',
                   borderRadius: 2,
-                  px: 2, py: 1.2,
+                  px: 2,
+                  py: 1.2,
                   fontSize: 14,
                 }}
               >
@@ -114,7 +130,9 @@ export default function AiChatPage() {
           placeholder="Type your question…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') send(input); }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') send(input);
+          }}
           disabled={loading}
         />
         <IconButton color="primary" onClick={() => send(input)} disabled={loading || !input.trim()}>

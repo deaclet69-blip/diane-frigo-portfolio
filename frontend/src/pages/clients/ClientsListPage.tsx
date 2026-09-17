@@ -1,8 +1,25 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, TextField,
-  InputAdornment, Stack, Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  IconButton, Alert, useMediaQuery,
+  Box,
+  Typography,
+  Paper,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TextField,
+  InputAdornment,
+  Stack,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Alert,
+  useMediaQuery,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -32,6 +49,9 @@ export default function ClientsListPage() {
   useEffect(() => {
     const t = setTimeout(reload, 250);
     return () => clearTimeout(t);
+    // reload le fait exprès : ne se relance que quand `search` change
+    // (anti-rebond), pas à chaque nouveau rendu.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   function openCreate() {
@@ -74,7 +94,9 @@ export default function ClientsListPage() {
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={700}>Customers</Typography>
+        <Typography variant="h5" fontWeight={700}>
+          Customers
+        </Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
           New Customer
         </Button>
@@ -86,20 +108,30 @@ export default function ClientsListPage() {
         onChange={(e) => setSearch(e.target.value)}
         size="small"
         sx={{ mb: 2, minWidth: 280 }}
-        InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon fontSize="small" />
+            </InputAdornment>
+          ),
+        }}
       />
 
       {isMobile ? (
         <Stack spacing={1.5}>
           {customers.map((c) => (
             <Paper
-              key={c.id} variant="outlined" sx={{ p: 2, cursor: 'pointer' }}
+              key={c.id}
+              variant="outlined"
+              sx={{ p: 2, cursor: 'pointer' }}
               onClick={() => navigate(`/clients/${c.id}`)}
             >
               <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
                   <Typography fontWeight={700}>{c.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">{c.phone ?? 'No phone'}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {c.phone ?? 'No phone'}
+                  </Typography>
                 </Box>
                 <Stack direction="row">
                   <IconButton size="small" onClick={(e) => openEdit(c, e)}>
@@ -107,7 +139,11 @@ export default function ClientsListPage() {
                   </IconButton>
                   <IconButton
                     size="small"
-                    onClick={(e) => { e.stopPropagation(); setDeleteError(null); setDeleteTarget(c); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteError(null);
+                      setDeleteTarget(c);
+                    }}
                   >
                     <DeleteOutlineIcon fontSize="small" />
                   </IconButton>
@@ -122,58 +158,74 @@ export default function ClientsListPage() {
           )}
         </Stack>
       ) : (
-      <Paper>
-        <TableContainer>
-<Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell align="right"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {customers.map((c) => (
-              <TableRow key={c.id} hover sx={{ cursor: 'pointer' }} onClick={() => navigate(`/clients/${c.id}`)}>
-                <TableCell sx={{ fontWeight: 600 }}>{c.name}</TableCell>
-                <TableCell>{c.phone ?? '—'}</TableCell>
-                <TableCell align="right">
-                  <IconButton size="small" onClick={(e) => openEdit(c, e)}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => { e.stopPropagation(); setDeleteError(null); setDeleteTarget(c); }}
-                  >
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-            {customers.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={3} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  No customers found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-</TableContainer>
-      </Paper>
+        <Paper>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Phone</TableCell>
+                  <TableCell align="right"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {customers.map((c) => (
+                  <TableRow key={c.id} hover sx={{ cursor: 'pointer' }} onClick={() => navigate(`/clients/${c.id}`)}>
+                    <TableCell sx={{ fontWeight: 600 }}>{c.name}</TableCell>
+                    <TableCell>{c.phone ?? '—'}</TableCell>
+                    <TableCell align="right">
+                      <IconButton size="small" onClick={(e) => openEdit(c, e)}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteError(null);
+                          setDeleteTarget(c);
+                        }}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {customers.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                      No customers found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
       )}
 
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
         <DialogTitle>{editing ? 'Edit Customer' : 'New Customer'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} fullWidth />
-            <TextField label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} fullWidth />
+            <TextField
+              label="Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              fullWidth
+            />
+            <TextField
+              label="Phone"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              fullWidth
+            />
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>Save</Button>
+          <Button variant="contained" onClick={handleSave}>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -183,11 +235,17 @@ export default function ClientsListPage() {
           <Typography variant="body2" color="text.secondary">
             Only possible if this customer has no recorded sales or deposits.
           </Typography>
-          {deleteError && <Alert severity="error" sx={{ mt: 2 }}>{deleteError}</Alert>}
+          {deleteError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {deleteError}
+            </Alert>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
+          <Button variant="contained" color="error" onClick={handleDelete}>
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

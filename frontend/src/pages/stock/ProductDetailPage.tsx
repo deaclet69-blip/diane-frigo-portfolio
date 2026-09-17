@@ -1,7 +1,24 @@
 import { useEffect, useState } from 'react';
 import {
-  Box, Typography, Paper, Stack, Table, TableContainer, TableHead, TableRow, TableCell, TableBody,
-  Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Alert, Button,
+  Box,
+  Typography,
+  Paper,
+  Stack,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Chip,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Alert,
+  Button,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
@@ -66,30 +83,42 @@ export default function ProductDetailPage() {
         <IconButton onClick={() => navigate('/stock')} size="small">
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h5" fontWeight={700}>{data.product.name}</Typography>
+        <Typography variant="h5" fontWeight={700}>
+          {data.product.name}
+        </Typography>
         <StatusBadge status={data.status} />
       </Stack>
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 3 }}>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Current Stock</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Current Stock
+          </Typography>
           <Typography variant="h5" fontWeight={700}>
             {data.currentStock.toLocaleString('en-US')} {data.product.unit}
             {data.currentStock !== 1 ? 's' : ''}
           </Typography>
         </Paper>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Stock Value</Typography>
-          <Typography variant="h5" fontWeight={700}>{formatFcfa(data.value)}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Stock Value
+          </Typography>
+          <Typography variant="h5" fontWeight={700}>
+            {formatFcfa(data.value)}
+          </Typography>
         </Paper>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Ref. Purchase / Sale Price</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Ref. Purchase / Sale Price
+          </Typography>
           <Typography variant="h5" fontWeight={700}>
             {formatFcfa(data.product.referencePurchasePrice)} / {formatFcfa(data.product.referenceSalePrice)}
           </Typography>
         </Paper>
         <Paper sx={{ p: 2.5, flex: 1 }}>
-          <Typography variant="caption" color="text.secondary">Alert Threshold</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Alert Threshold
+          </Typography>
           <Typography variant="h5" fontWeight={700}>
             {data.product.alertThreshold.toLocaleString('en-US')} {data.product.unit}s
           </Typography>
@@ -98,66 +127,71 @@ export default function ProductDetailPage() {
 
       {data.note && (
         <Paper sx={{ p: 2, mb: 3, bgcolor: diane.blueLight }}>
-          <Typography variant="body2" color="text.secondary">{data.note}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {data.note}
+          </Typography>
         </Paper>
       )}
 
       <Paper>
         <Box sx={{ p: 2.5, pb: 0 }}>
-          <Typography variant="subtitle1" fontWeight={700}>Movement History</Typography>
+          <Typography variant="subtitle1" fontWeight={700}>
+            Movement History
+          </Typography>
           <Typography variant="caption" color="text.secondary">
             Made a mistake? Click the pencil icon to correct the quantity.
           </Typography>
         </Box>
         <TableContainer>
-<Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell align="right">Quantity</TableCell>
-              <TableCell>Supplier</TableCell>
-              <TableCell>Note</TableCell>
-              <TableCell>Entered By</TableCell>
-              <TableCell align="right"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.movements.map((m) => (
-              <TableRow key={m.id}>
-                <TableCell>{new Date(m.date).toLocaleDateString('en-US')}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={movementLabels[m.movementType].label}
-                    size="small"
-                    sx={{ bgcolor: 'transparent', color: movementLabels[m.movementType].color, fontWeight: 600 }}
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  {m.movementType === 'EXIT' ? '-' : '+'}{m.quantity}
-                </TableCell>
-                <TableCell>{m.supplier?.name ?? '—'}</TableCell>
-                <TableCell>{m.note ?? '—'}</TableCell>
-                <TableCell>{m.createdBy?.name ?? '—'}</TableCell>
-                <TableCell align="right">
-                  {isEditable(m) && (
-                    <IconButton size="small" onClick={() => openEdit(m)}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-            {data.movements.length === 0 && (
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                  No movements recorded for this product.
-                </TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell align="right">Quantity</TableCell>
+                <TableCell>Supplier</TableCell>
+                <TableCell>Note</TableCell>
+                <TableCell>Entered By</TableCell>
+                <TableCell align="right"></TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-</TableContainer>
+            </TableHead>
+            <TableBody>
+              {data.movements.map((m) => (
+                <TableRow key={m.id}>
+                  <TableCell>{new Date(m.date).toLocaleDateString('en-US')}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={movementLabels[m.movementType].label}
+                      size="small"
+                      sx={{ bgcolor: 'transparent', color: movementLabels[m.movementType].color, fontWeight: 600 }}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    {m.movementType === 'EXIT' ? '-' : '+'}
+                    {m.quantity}
+                  </TableCell>
+                  <TableCell>{m.supplier?.name ?? '—'}</TableCell>
+                  <TableCell>{m.note ?? '—'}</TableCell>
+                  <TableCell>{m.createdBy?.name ?? '—'}</TableCell>
+                  <TableCell align="right">
+                    {isEditable(m) && (
+                      <IconButton size="small" onClick={() => openEdit(m)}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {data.movements.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                    No movements recorded for this product.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
 
       <Dialog open={!!editing} onClose={() => setEditing(null)} fullWidth maxWidth="xs">
@@ -181,7 +215,9 @@ export default function ProductDetailPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditing(null)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSaveEdit}>Correct</Button>
+          <Button variant="contained" onClick={handleSaveEdit}>
+            Correct
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
