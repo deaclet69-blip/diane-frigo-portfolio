@@ -7,7 +7,7 @@ Central Africa, currently used in production. This repository is the
 danger-zone actions disabled.
 
 **Live demo:** https://diane-frigo-demo-frontend.onrender.com
-(demo@dianefrigo.app / Demo1234! — read-only sample data, regenerated
+(demo@dianefrigo.app / Demo1234! — fictional sample data, regenerated
 daily)
 
 ## What it does
