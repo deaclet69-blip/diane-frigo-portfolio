@@ -8,7 +8,7 @@ danger-zone actions disabled.
 
 **Live demo:** https://diane-frigo-demo-frontend.onrender.com
 (demo@dianefrigo.app / Demo1234! — fictional sample data, regenerated
-daily)
+daily; the public demo account is deliberately non-admin)
 
 ## What it does
 
@@ -50,7 +50,8 @@ backend/    NestJS + Prisma + PostgreSQL (Neon)
 ```
 
 - **Auth**: JWT access/refresh tokens, role-based guards (`ADMIN` /
-  `RESPONSABLE`), fine-grained permission checks on sensitive routes
+  `RESPONSABLE`), fine-grained permission checks on sensitive routes.
+  The public demo account uses `RESPONSABLE`, never `ADMIN`.
 - **Data integrity**: multi-step business operations (e.g. recording a
   sale: invoice + line items + stock movements + payment) run inside a
   single Prisma transaction — never partially applied

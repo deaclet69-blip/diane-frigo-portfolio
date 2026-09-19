@@ -61,20 +61,45 @@ export class DemoSeedService {
       this.prisma.pricingSettings.deleteMany(),
     ]);
 
+    // Sécurité de la démo publique : tout compte créé lors d'une session
+    // précédente (autre que le compte démo lui-même) est supprimé à chaque
+    // reseed, pour qu'un compte créé par un visiteur ne survive jamais
+    // indéfiniment.
+    await this.prisma.user.deleteMany({
+      where: { email: { not: 'demo@dianefrigo.app' } },
+    });
+
     const roleNames = ['ADMIN', 'RESPONSABLE', 'VENDEUR', 'MAGASINIER'] as const;
     for (const name of roleNames) {
       await this.prisma.role.upsert({ where: { name }, update: {}, create: { name } });
     }
-    const adminRole = await this.prisma.role.findUniqueOrThrow({ where: { name: 'ADMIN' } });
-    const existingDemoUser = await this.prisma.user.findUnique({ where: { email: 'demo@dianefrigo.app' } });
-    const demoUser = existingDemoUser ?? await this.prisma.user.create({
-      data: {
-        name: 'Demo Admin',
-        email: 'demo@dianefrigo.app',
-        passwordHash: await bcrypt.hash('Demo1234!', 10),
-        roleId: adminRole.id,
+    const responsableRole = await this.prisma.role.findUniqueOrThrow({ where: { name: 'RESPONSABLE' } });
+
+    const demoPasswordHash = await bcrypt.hash('Demo1234!', 10);
+
+    // Jamais de compte ADMIN public — le compte démo garde toutes les
+    // fonctionnalités métier mais ne peut jamais gérer les utilisateurs,
+    // les rôles, les permissions, ni déclencher d'action ADMIN.
+    // upsert (pas juste "créer si absent") : même si ce compte a été altéré
+    // pendant une session précédente (rôle changé, désactivé...), le
+    // reseed le remet systématiquement dans son état sécurisé d'origine.
+    const demoUser = await this.prisma.user.upsert({
+      where: { email: 'demo@dianefrigo.app' },
+      update: {
+        name: 'Demo User',
+        passwordHash: demoPasswordHash,
+        roleId: responsableRole.id,
+        isActive: true,
         permissions: ['dashboard', 'ventes', 'stock', 'produits', 'clients', 'depots', 'achats',
-          'charges', 'pertes', 'rentabilite', 'rapports', 'investissement', 'assistant', 'utilisateurs', 'parametres'],
+          'charges', 'pertes', 'rentabilite', 'rapports', 'investissement', 'assistant'],
+      },
+      create: {
+        name: 'Demo User',
+        email: 'demo@dianefrigo.app',
+        passwordHash: demoPasswordHash,
+        roleId: responsableRole.id,
+        permissions: ['dashboard', 'ventes', 'stock', 'produits', 'clients', 'depots', 'achats',
+          'charges', 'pertes', 'rentabilite', 'rapports', 'investissement', 'assistant'],
       },
     });
 
