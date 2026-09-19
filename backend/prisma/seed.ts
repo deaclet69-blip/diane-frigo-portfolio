@@ -40,7 +40,13 @@ async function main() {
   }
 
   const adminRole = await prisma.role.findUniqueOrThrow({ where: { name: 'ADMIN' } });
-  const passwordHash = await bcrypt.hash('ChangeMoi123!', 10);
+  const adminSeedPassword = process.env.ADMIN_SEED_PASSWORD;
+  if (!adminSeedPassword || adminSeedPassword.length < 12) {
+    throw new Error(
+      'ADMIN_SEED_PASSWORD doit être définie et contenir au moins 12 caractères avant de lancer prisma seed.',
+    );
+  }
+  const passwordHash = await bcrypt.hash(adminSeedPassword, 10);
   await prisma.user.upsert({
     where: { email: 'admin@dianefrigo.local' },
     update: {},
@@ -61,7 +67,7 @@ async function main() {
     create: { month: firstOfMonth, targetProfit: 5_000_000 },
   });
 
-  console.log('Seed terminé. Connexion : admin@dianefrigo.local / ChangeMoi123!');
+  console.log('Seed terminé. Compte administrateur créé/mis à jour.');
 }
 
 main()

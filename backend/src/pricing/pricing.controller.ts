@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { assertNotDemo } from '../common/assert-not-demo';
 
 class UpdatePricingSettingsDto {
   @IsOptional() @IsNumber() @Min(0) @Max(1) targetMarginFloor?: number;
@@ -35,6 +36,7 @@ export class PricingController {
 
   @Patch('settings')
   updateSettings(@Body() dto: UpdatePricingSettingsDto, @CurrentUser() user: { id: string }) {
+    assertNotDemo('Changing pricing settings');
     return this.pricingService.updateSettings(dto, user.id);
   }
 

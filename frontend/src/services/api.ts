@@ -55,8 +55,15 @@ api.interceptors.response.use(
     // Toute autre erreur : on prévient l'utilisateur au lieu de laisser la
     // page se charger avec des données vides sans explication.
     if (error.response?.status === 403) {
+      // Préfère le message précis du backend (ex. "Voiding an invoice is
+      // disabled in the public demo version.") — plus utile que le
+      // message générique quand une action précise est bloquée sur la
+      // démo, pas juste une donnée en lecture.
+      const backendMessage = (error.response.data as any)?.message;
       notifyApiError(
-        "Access denied: you don't have permission to view this data. Contact an administrator if you think this is a mistake.",
+        typeof backendMessage === 'string'
+          ? backendMessage
+          : "Access denied: you don't have permission to view this data. Contact an administrator if you think this is a mistake.",
       );
     } else if (error.response && error.response.status >= 500) {
       notifyApiError('A server error occurred. Please try again in a moment.');

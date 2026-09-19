@@ -8,6 +8,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { assertNotDemo } from '../common/assert-not-demo';
 
 @UseGuards(JwtAuthGuard, PermissionsGuard, RolesGuard)
 @RequirePermission('ventes')
@@ -39,6 +40,7 @@ export class InvoicesController {
   @Roles('ADMIN', 'RESPONSABLE')
   @Post(':id/void')
   voidInvoice(@Param('id') id: string, @Body() dto: VoidInvoiceDto, @CurrentUser() user: { id: string }) {
+    assertNotDemo('Voiding an invoice');
     return this.invoicesService.voidInvoice(id, dto, user.id);
   }
 }

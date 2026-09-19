@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { CustomersService } from './customers.service';
+import { assertNotDemo } from '../common/assert-not-demo';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -60,6 +61,7 @@ export class CustomersController {
 
   @Delete(':id')
   remove(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+    assertNotDemo('Deleting a customer');
     return this.customersService.remove(id, user.id);
   }
 
@@ -67,6 +69,7 @@ export class CustomersController {
   @Roles('ADMIN', 'RESPONSABLE')
   @Post(':id/merge')
   merge(@Param('id') id: string, @Body() dto: MergeCustomerDto, @CurrentUser() user: { id: string }) {
+    assertNotDemo('Merging customers');
     return this.customersService.merge(id, dto.targetId, user.id);
   }
 }
