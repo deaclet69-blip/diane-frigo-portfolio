@@ -56,12 +56,12 @@ api.interceptors.response.use(
     // page se charger avec des données vides sans explication.
     if (error.response?.status === 403) {
       notifyApiError(
-        "Accès refusé : vous n'avez pas la permission de voir ces données. Contactez un administrateur si vous pensez que c'est une erreur.",
+        "Access denied: you don't have permission to view this data. Contact an administrator if you think this is a mistake.",
       );
     } else if (error.response && error.response.status >= 500) {
       notifyApiError('A server error occurred. Please try again in a moment.');
     } else if (!error.response) {
-      notifyApiError('Impossible de contacter le serveur. Vérifiez votre connexion internet.', 'warning');
+      notifyApiError('Unable to reach the server. Please check your internet connection.', 'warning');
     }
 
     return Promise.reject(error);
